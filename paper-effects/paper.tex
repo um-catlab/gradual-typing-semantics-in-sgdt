@@ -160,42 +160,164 @@ Giovannini et al. to account for arbitrary algebraic effects, and we establish
 an adequacy theorem relating the resulting denotational model to an effectful
 operational semantics.
 
-The level of generality needed to model arbitrary algebraic effects means that
-the semantics we produce is correspondingly generic. This is true both
-denotationally and operationally. On the denotational side, our guarded
-semantics models effectful computations as a kind of \emph{inductive-guarded
-interaction tree}. These are a generalization of guarded interaction trees
-\cite{guarded-interaction-trees} that allow for inductive occurrences of the
-variable in addition to guarded-recursive ones. The (guarded) graduality theorem
-we obtain is essentially a statement relating term precision to the behavior of
-the interaction trees that the terms denote.
+% The level of generality needed to model arbitrary algebraic effects means that
+% the semantics we produce is correspondingly generic. This is true both
+% denotationally and operationally. On the denotational side, we generalize the
+% semantics of Giovannini et al. to allow for arbitrary algebaic effects. The
+% (guarded) graduality theorem we obtain is essentially a statement relating term
+% precision to the behavior of the interaction trees that the terms denote.
+
+% TODO: update
+% Likewise, we construct a generic effectful operational semantics for the cast
+% calculus in guarded type theory.
+
+% While this approach is applicable to any
+% algebraic theory representing the programming language's effects, what is
+% missing is a way to relate the small-step operational semantics it produces to a
+% more traditional effectful small-step semantics. For example, a small-step
+% semantics for a language with global state would normally involve a transition
+% relation between pairs of a term and state.
+
+% TODO: update
+% The missing step in both the operational and denotational semantics is supplied
+% by a suitable notion of algebra that interprets the guarded interaction trees as
+% a concrete element of an ``observation'' type.
+
+
+
+
+\subsection{Overview of Approach}\label{sec:overview-of-approach}
+
+The main contribution of this paper is a framework for giving an adequate
+operational semantics to an effectful gradually-typed cast calculus. The input
+to the framework consists of a specification of the algebraic effects present in
+the cast calculus, given in the form of an \emph{algebraic theory}, which
+contains the operations along with equations that they satisfy. More details on
+algebraic theories are given in Section \ref{sec:modeling-effects}. The cast
+calculus contains a term corresponding to each of the operations present in the
+provided algebraic theory $\calA$, allowing the programmer to perform the
+effects contained in the theory.
+
+Every algebraic theory $\calA$ induces a monad, called the \emph{free-model
+monad} for $\calA$. In addition to an algebraic theory $\calA$ specifying the
+effects, our framework also takes as input a presentation of the free-model
+monad for the theory $\calA$, which we denote $T_\calA$.
+
+Given this data as input, we define an operational semantics for the cast
+calculus with effects specified by $\calA$. The operational semantics has the
+form
 %
-Likewise, we construct a generic effectful operational semantics following the
-methodology of Kavvos \cite{kavvos-2025}. While this approach is applicable to
-any algebraic theory representing the programming language's effects, what is
-missing is a way to relate the small-step operational semantics it produces to a
-more traditional effectful small-step semantics. For example, a small-step
-semantics for a language with global state would normally involve a transition
-relation between pairs of a term and state.
+\[ \run : (\term{A} \to T'(\val{A})). \]
+%
+where $T'$ is the free-model monad $T_\calA$ augmented with an additional delay
+effect we call ``administrative delays''. The additional delay effect accounts
+for the fact that a priori, we do not know whether the given term will
+terminate.
 
-% TODO update
-The missing step in both the operational and denotational semantics is supplied
-by a suitable notion of algebra that interprets the guarded interaction trees as
-a concrete element of an ``observation'' type.
+The graduality property says that if a term $M$ is syntactically more precise
+than a term $N$, then the behavior of $M$ when run is a refinement of the
+behavior of $N$. More concretely, graduality says that for any closed terms $M,
+N$ of type $\nat$, if $M \ltdyn N$, then $\run{M} \lesssim \run{N}$. Here,
+$\lesssim$ is an error ordering on monadic values capturing when two
+computations behave the same up-to the left side terminating with an error.
 
-More concretely, the organization of this paper is as follows:
+To prove graduality, we proceed in several steps:
+% We leverage the existing denotational model of gradual typing of Giovannini et
+% al. \cite{gtt-sgdt}.
+%
+
+%\begin{enumerate}
+% First, we develop a guarded denotational model of gradual typing with
+% effects, taking as inspiration the existing model of Giovannini et al.
+First, we develop a guarded denotational model of gradual typing with effects
+based on the existing model of Giovannini et al. The result is a \textbf{guarded
+denotational graduality} theorem:
+%
+\begin{theorem}[Guarded Denotational Graduality]
+  If $\cdot \vdash M \ltdyn N: \nat$, then $\sem{M} \ltbisim \sem{N}$.
+\end{theorem}
+%
+Here, $x \ltbisim y$ means that computation $x$ is the same as $y$ up to $x$
+being an error, and $x$ and $y$ may take a different number of steps.
+
+Next, we relate the operational semantics to the denotational semantics
+via an \textbf{adequacy theorem}:
+%
+\begin{theorem}[Adequacy]
+  Let $\cdot \vdash M : \nat$. Then we have $\run{M} \equiv_b \sem{M}$.
+\end{theorem}
+%
+Here, $x \equiv_b y$ relates elements belonging to two different monads, where
+the monad in which $\run{M}$ lives supports a special ``bureaucratic''
+stepping operation that the monad where $\sem{M}$ lives does not. The reason
+for this discrepancy will be explained in the section on operational
+semantics, but for now it is sufficient to note that the relation $x \equiv_b
+y$ means that $x$ and $y$ are the same up-to a \emph{finite} number of
+bureaucratic steps in $x$. The adequacy theorem then says that running a term
+$M$ does not result in an infinite sequence of bureaucratic steps.
+
+We prove the adequacy theorem using a logical relation constructed in the
+ambient guarded type theory. More details are given in Section
+\ref{sec:relating-the-semantics}.
+
+Putting the above two results together, we obtain \textbf{guarded
+operational graduality}:
+%
+\begin{corollary}[Guarded Operational Adequacy]
+  If $\cdot \vdash M \ltdyn N: \nat$, then $\run{M} \lesssim \run{N}$.
+\end{corollary}
+%
+In the above, $x \lesssim y$ (where $x$ and $y$ are monadic values) means that,
+disregarding the number of steps taken by each side, $x$ behaves the same as $y$
+except that $x$ may be an error where $y$ is not.
+
+Lastly, we translate the guarded operational graduality result to the ordinary
+set-theoretic world via a process known as \emph{globalization} \cite{TODO}. The
+motivation is that the statements of the results up to this point involve
+features of guarded type theory, e.g., the later modality. The technique of
+globalization produces a semantics that does not rely on any features of guarded
+type theoty, and the result we obtain is a statement that can be made in
+ordinary set theory.
+%
+Unlike the prior steps, the details in this step are sensitive to the
+presentation of the free-model monad $T_\calA$, and there is not a general
+result that can be stated at the level of an arbitrary algebraic theory
+$\calA$.
+
+However, there are two special cases where we can describe the globalization.
+First, if we know that $T_\calA$ can be presented as application of a
+suitably-generalized concept of monad transformers applied to the guarded lift
+monad $T(\li(X))$, then we can directly generalize the globalization technique
+of Giovannini et al.
+%
+Second, if the algebraic theory $\calA$ has \emph{no equations}, then there is a
+presentation of the global version of the monad in terms of \emph{finite
+computation traces}. We describe both of these special cases in Section
+\ref{sec:globalization}. 
+
+
+The organization of the remainder of the paper is as follows:
 \begin{enumerate}
-    \item Given a signature of algebraic effects, we define a cast calculus
-    supporting those effects. We give an inequational theory in the form of
-    axioms for type and term precision, and define an operational semantics for
-    the cast calculus, drawing inspiration from recent work of Kavvos
-    \cite{TODO}.
-    \item We show how to construct a denotational semantics for such a cast
-    calculus by adapting the construction of Giovannini et. al \cite{gtt-sgdt}
-    to account for arbitrary algebraic effects.
-    \item Following the technique of the aforementioned work by Kavvos, we prove
-    an adequacy result relating the operational and denotational models in the
-    expected manner.
+    \item In Section \ref{sec:modeling-effects}, we provide background on
+    algebraic theories which will be used in the remainder of the paper.
+    \item In Section \ref{sec:syntax}, we specify the syntax for gradual typing
+    used in the remainder of the paper. Given a collection of algebraic effects
+    specified as an algebraic theory $\calA$, we define a cast calculus
+    supporting those effects. The cast calculus includes an inequational theory
+    in the form of axioms for type and term precision.
+    \item In Section \ref{sec:operational-semantics}, we define an operational
+    semantics for the cast calculus defined in the previous section.
+    \item In Section \ref{sec:denotational-semantics}, we show how to construct
+    a denotational semantics for the effectful cast calculus by adapting the
+    construction of Giovannini et al. \cite{gtt-sgdt} to account for arbitrary
+    algebraic effects.
+    \item In Section \ref{sec:relating-the-semantics}, we prove an adequacy
+    theorem relating the operational and denotational models in the expected
+    manner.
+    \item In Section \ref{sec:globalization}, we discuss how to globalize the
+    results of the previous two sections.
+    \item Lastly, in Section \ref{sec:discussion}, we summarize our results,
+    compare to prior work, and conclude with directions for future work.
 \end{enumerate}
 
 
@@ -207,7 +329,7 @@ primitives that allow one to solve non-well-founded recursive equations and
 reason about such solutions. It can be viewed a \emph{synthetic} approach to
 step-indexed techniques \cite{birkedal-mogelberg-schwinghammer-stovring2011};
 the benefit of this approach is that we avoid the tedious natural number
-manipulations required in step-indexing.
+manipulations present in explicit step-indexing.
 
 There are many variants of guarded type theory, but they each allow a form of
 recursion to be encoded at the level of types through a modality $\later \colon
@@ -222,23 +344,28 @@ specifically, a typical guarded type theory has at least the following features:
   \item There is an operator $\nxt : A \to\, \later A$ that ``delays'' an element
   available now to make it available later.
 
-  \item There is a means of solving guarded-recursive type equations $T \cong
-  F(\later T)$. Typically, this takes the form of a \emph{guarded fixpoint}
-  operator
+  \item There is a principle of \emph{guarded recursion}, implemented by a
+  guarded fixpoint operator of the form
   %
-  \[ \fix : \forall T, (\later T \to T) \to T. \] 
+  \[ \fix : \forall A, (\later A \to A) \to A. \] 
   %
-  That is, to construct a term of type $T$, it suffices to assume that we have
+  That is, to construct a term of type $A$, it suffices to assume that we have
   access to such a term ``later'' and use that to help us build a term ``now''.
   This operator satisfies the axiom that $\fix f = f (\nxt (\fix f))$.
+
+  \item There is a method for solving guarded-recursive type equations $T \cong
+  F(\later T)$. In guarded type theory with a universe of types $\type$, we can
+  solve such equations by applying the guarded fixpoint operator with $A =
+  \type$ \cite{birkedal-møgelberg-2013}.
+  %
+  In particular, $\fix$ applies when type $T$ is instantiated to a proposition
+  $P : \texttt{Prop}$; in that case, it corresponds to $\lob$-induction.
+  
 \end{itemize}
  
 We will use a tilde to denote a term of type $\later A$, e.g., $\tilde{M}$.
 
 % TODO later is an applicative functor, but not a monad
-
-In particular, $\fix$ applies when type $T$ is instantiated to a proposition 
-$P : \texttt{Prop}$; in that case, it corresponds to $\lob$-induction.
 
 % Clocked Cubical Type Theory
 \subsubsection{Ticked Cubical Type Theory}
@@ -256,34 +383,10 @@ as evidence that one unit of time has passed. In Ticked Cubical Type Theory, the
 type $\later A$ is the type of dependent functions from ticks to $A$. The type
 $A$ is allowed to depend on $t$, in which case we write $\later_t A$ to
 emphasize the dependence.
-
-% TODO include a figure with some of the rules for ticks
-
-The rules for tick abstraction and application are similar to those of ordinary
-$\Pi$ types. A context now consists of ordinary variables $x : A$ as well as
-tick variables $t : \tick$. The presence of the tick variable $t$ in context
-$\Gamma, (t : \tick), \Gamma'$ intuitively means that the values of the
-variables in $\Gamma$ arrive ``first'', then one time step occurs, and then the
-values of the variables in $\Gamma'$ arrive.
 %
-The abstraction rule for ticks states that if in context $\Gamma, t : \tick$
-the term $M$ has type $A$, then in context $\Gamma$ the term $\lambda t.M$ has
-type $\later_t A$.
-%
-Conversely, if we have a term $M$ of type $\later A$, and we have available in
-the context a tick $t' : \tick$, then we can apply the tick to $M$ to get a
-term $M[t'] : A[t'/t]$. However, there is an important restriction on when we
-are allowed to apply ticks: To apply $M$ to tick $t$, we require $M$ to be
-well-typed in the prefix of the context occurring before the tick $t$. That is,
-all variables mentioned in $M$ must be available before $t$. This ensures that
-we cannot, for example, define a term of type $\later \laterhs A \to\, \laterhs
-A$ via repeated tick application.
-% TODO restriction on tick application
-%
-For the sake of brevity, we will also write tick application as $M_t$.
-The constructions we carry out in this paper will take place in a guarded type
+For the sake of brevity, we will also write tick application as $M_t$. The
+constructions we carry out in this paper will take place in a guarded type
 theory with ticks.
-
 
 \section{A Generic Syntax for Gradual Typing with Effects}\label{sec:syntax}
 
