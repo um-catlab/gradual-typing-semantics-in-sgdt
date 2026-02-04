@@ -626,7 +626,10 @@ to the section on denotational semantics.
 \section{A Generic Syntax for Gradual Typing with Effects}\label{sec:syntax}
 
 To begin, we fix a framework for specifying gradual cast calculi with algebraic
-effects. Our syntax is call-by-value and is presented in Figure
+effects. The framework is parameterized by an ordinary algebraic theory $\calA$
+specifying the effects available in the syntax.
+
+The cast calculus is call-by-value and is presented in Figure
 \ref{fig:gtlc-syntax}.
 
 % TODO should we use CBPV syntax instead?
@@ -650,18 +653,31 @@ term $\upc c M$ has type $A'$, and given $N$ of type $A'$, the term $\dnc c N$
 has type $A$. Upcasts are pure, i.e., they always succeed (at least to a first
 order), whereas downcasts are effectful.
 
-Lastly, we have terms $\synop{op}{V}{x}{M}$ corresponding to each operation in the
-algebraic theory $T$. More concretely, if $\eff{op}{\sigma}{\tau}$ is an
-operation in $T$ and $M$ is of type $\sigma$, then $\synop{op}{V}{x}{M}$ is of type
-$\tau$.
+% Lastly, we have terms $\synop{op}{M}$ corresponding to each operation in the
+% algebraic theory $\calA$. More concretely, if $\eff{op}{\sigma}{\tau}$ is an
+% operation in $\calA$ and $M$ is of type $\sigma$, then $\synop{op}{M}$ is of
+% type $\tau$.
+
+Lastly, we have terms $\synop{op}{M}$ corresponding to each operation in the
+algebraic theory $\calA$. More concretely, if $\oper$ is an operation in $\calA$
+of arity $\tau_\oper$, then there is a term $\oper$ of type $\tau_\oper$.
+
+% We mention two notes about the relationship between the given algebraic theory
+% and the syntax. First, 
+
+We assume that the meta-level arity types of each operation exist as
+object-level types within the cast calculus. While these types are not
+\emph{equal}, there will be an isomorphism allowing us to translate between
+them. For example, if we have an operation $\oper$ of arity $\mathbb{N}$, then
+in the syntax the corresponding term will have type $\nat$. We leave implicit
+the conversion between the syntactic and semantic versions of the arities.
+
 
 % Terms:
 % upcasts and downcasts
 % effect operations
 
 % explain type precision
-
-% rules for term precision
 
 % New, Licata, and Ahmed gave a syntax and logic axiomatizing the graduality
 % property \cite{new-licata-ahmed2019}.
@@ -690,7 +706,8 @@ $\tau$.
       \alt \zro      \alt \suc\, M 
       \alt \lda{x}{M} \\ 
       &&\alt M\, N   \alt (M,N) 
-      \alt \textrm{let } (x,y) = M \textrm{ in } N 
+      \alt \textrm{split } (x,y) = M \textrm{ in } N 
+      \alt \textrm{let } x = M \textrm{ in } N 
       \alt \synop{op}{V}{x}{M} \\
     \text{Contexts } \Gamma &::= &\cdot \alt \Gamma, x : A \\
     \text{Ctx Precision } \Delta &::=& \cdot \alt \Delta,x:c
@@ -734,111 +751,85 @@ $\tau$.
 
 
 
-\section{Modeling Effects}\label{sec:modeling-effects}
-
-In this section, we discuss our approach to modeling algebraic effects in the
-context of gradual typing. These concepts will be employed in both our
-denotational and operational semantics.
-
-
-\subsection{Preliminaries}
-
-First, we recall the notions of a signature and an algebraic theory.
-% TODO cite paper on algebraic effects
-
-A \emph{signature} $\Sigma$ consists of a collection of operations $op : \sigma
-\leadsto \tau$. Here, $\sigma$ is the \emph{request type} of operation $op$,
-i.e., the type of the value that the program sends to the environment.
-Similarly, $\tau$ is the \emph{response type} of the operation, i.e., the type
-of the value that the environment sends back to the program once the operation
-is complete. More formally, we write $\Sigma = (\Op, \req, \resp)$ where $\Op$
-is a type, and $\req$ and $\resp$ are families of types indexed by $\Op$.
-
-Given a signature $\Sigma$ as described above, we can form the \emph{polynomial
-endofunctor} corresponding to $\Sigma$, which is defined by 
+% rules for term precision
+Next, we have the axioms for reasoning about terms. First is the equational
+theory, including the usual CBV $\beta\eta$ rules for function and product
+types.
 %
-\[ \Sigma(X) := \Sigma_{\oper : \sigma \leadsto \tau \in \Op} (\sigma \times (\tau \to X)). \]
+We also have term precision, the extension of type precision to terms. Figure
+\ref{fig:term-prec} presents selected rules for the term precision relation.
 %
-
-A $\Sigma$-structure is simply an algebra of the endofunctor $\Sigma$ defined
-above. More concretely, a $\Sigma$-structure consists of a set $B$ equipped
-with interpretations for each of the operations in $\Sigma$. That is, for each
-$\oper : \sigma \leadsto \tau \in \Op$, there is a function $\sem{\oper} :
-(\sigma \times (\tau \to B)) \to B$.
+As in prior work, term precision rules have the form $\Delta \vdash M \ltdyn M'
+: c$ where $\Delta$ is a context mapping variables to type precision
+derivations.
 %
-This view makes it clear that $\sigma$ is the request type, i.e., the type of
-value sent to the environment, while $\tau$ is the response type, i.e., the type
-of value returned from the environment.
+% The judgment is only well formed when every use of $x : c$ for $c : A
+% \ltdyn A'$ is used with type $A$ in $M$ and $A'$ in $M'$ and similarly
+% the output types match $c$.
 
-% We will often write B to denote either a $\Sigma$-structure or its underlying
-% set.
-
-Given a signature $\Sigma$ and a set $X$ (to be thought of as variables), we
-define by induction the \emph{free} $\Sigma$-structure on $X$, which we denote
-$\text{Syn}(X)$.
-% Elements of $\text{Syn}(X)$ are $\Sigma$-terms over the set $X$: either
-% variables in $X$, or trees consisting of a node labeled by an element of
-% $\sigma$, and $\tau$-many children. 
-This has the universal property that given any $\Sigma$-structure $B$ and any
-map of variables $f : X \to B$, there is a unique map $\text{Syn}(X) \to B$
-extending $f$. In other words, if we specify how to interpret the variables $X$
-in $B$, this extends uniquely to an interpretation of any term.
-
-An \emph{algebraic theory} $\calA$ consists of a signature $\Sigma_A$ and a
-collection of equations $E_A$. A \emph{model} of an algebraic theory $\calA$ is
-a set $B$ with an interpretation of the operations in $\Sigma_A$, such that all
-equations in $E_A$ hold. Formally speaking, this means that when we interpret
-the LHS and RHS of each equation as elements of $B$, those elements are equal.
-
-Given two theories $\calA_1$ and $\calA_2$, we define their \emph{coproduct}
-$\calA_1 + \calA_2$ by combining the operations and the equations in $\calA_1$
-and $\calA_2$. We do not impose any additional equations.
-% TODO cite paper on combining algebraic theories.
-% TODO example
-
-Given two theories $\calA_1$ and $\calA_2$, we define their \emph{tensor
-product} $\calA_1 \otimes \calA_2$ by combining the operations and equations as
-in the coproduct, but also imposing additional equations that state the
-commutativity of each of the operations in $\calA_1$ with all of those in
-$\calA_2$.
-% TODO example
-
-For an algebraic theory $\calA$, the category of $\calA$-models has a forgetful
-functor to the category of sets, which simply takes the underlying set of the
-model. This functor has a left adjoint, which given a set $X$ constructs the
-\emph{free model} of the algebraic theory $\calA$ with variables in $X$.
-Concretely, the free model of $\calA = (\Sigma_A, E_A)$ on a set $X$ is given by
-quotienting the set of $\Sigma_A$-terms by the equations in $E_A$.
+The term precision rules are as follows. First, the rule \textsc{ErrBot} says
+that the error term $\mho$ is the most precise term.
 %
-This adjunction induces a monad on the category of sets, which is known as the
-\emph{free model monad}.
-% TODO cite
-For a given theory $\calA$, we denote the free model monad for $\calA$ by
-$T_\calA$.
+Next, we have a congruence rule for each term constructor, e.g., the rule for
+application says that if $M \ltdyn M'$ and $N \ltdyn N'$ then $M\,N \ltdyn
+M'\,N'$. For the sake of brevity, the congruence rules are elided from the
+figure.
+%
+Using these congruence rules, reflexivity $M \ltdyn M$ is admissible. As in the
+syntax of Giovannini et al. \cite{gtt-sgdt}, and in accordance with the original
+formulation of the dynamic gradual guarantee \cite{siek_et_al:LIPIcs:2015:5031},
+we do not take transitivity of term precision as a primitive rule.
+%
+% We include a rule that says that equivalent type precision derivations
+% $c \equiv c'$ are equivalent for the purposes of term precision.
 
-Because we are modelling gradual typing, at a minimum we want to ensure that our
-theory contains an operation corresponding to error, and since our semantics is
-intensional, i.e., step-aware, we also include an operation corresponding to
-taking an observable step. Such a step will occur whenever a non-well-founded
-recursive definition is unfolded; in the case of gradual typing this would be
-when inspecting a value of the dynamic type.
-% TODO cite GTT-SGDT paper?
+Lastly, we have the four fundamental rules for reasoning about casts (\upl,
+\upr, \dnl, \dnr), which axiomatize the upcasts and downcasts as behaving like
+least upper bounds and greatest lower bounds, respectively. 
 
-\subsection{Relational Aspects}
+% these say that the upcast is a kind of \emph{least upper bound} and dually that
+% the downcast is a \emph{greatest lower bound}.
 
-An important aspect that we have elided so far is the fact that, since we are
-modeling gradual typing, we need our mathematical structures to be equipped with
-a notion of relation to model the graduality ordering. This theory was developed
-extensively by Giovannini et al. in their denotational model for gradual typing.
-The implication of this is that the categories involved in the adjunction
-described above are not merely the category of sets and the category of
-$A$-models. We require additional relational structure: a relation to model the
-graduality ordering as well as a notion of weak bisimilarity that relates terms
-that differ only in the number of steps they take. These relations are crucial
-ingredient in the denotational graduality proof. We defer detailed discussion of
-these aspects to the section on denotational semantics; for now, it is
-sufficient to keep in mind that the categories involved, and the free-model
-monad $T_A$ for a given algebraic theory $A$, enjoy this additional structure.
+
+\begin{figure}
+  \begin{mathpar}
+
+  % TODO do we need this rule?
+  % \inferrule*[right=EquivTyPrec]
+  % {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
+  % {\Delta\vdash M \ltdyn M' : c'}
+
+  \inferrule*[right=ErrBot]
+  {}
+  {\Delta \vdash \mho \ltdyn M : c}
+
+  \inferrule*[right=UpL]
+  {M \ltdyn M' : cc_r}
+  {\upc {c} M \ltdyn M' : c_r}
+
+  \inferrule*[right=UpR]
+  {M \ltdyn M' : c_l}
+  {M \ltdyn \upc {c} M' : c_lc}
+
+  \inferrule*[right=DnL]
+  {M \ltdyn M' : c_r}
+  {\dnc {c} M \ltdyn M' : cc_r}
+
+  \inferrule*[right=DnR]
+  {M \ltdyn M' : c_lc}
+  {M \ltdyn \dnc {c} M' : c_l}
+  \end{mathpar}
+  \caption{Term Precision Rules (Selected)}
+  \label{fig:term-prec}
+\end{figure}
+
+Our goal in the remainder of this work is to define an operational semantics for
+this cast calculus and prove that it satisfies graduality. For an outline of our
+approach to doing so, refer to Section \ref{sec:overview-of-approach}.
+
+% compositional denotational semantics of types, terms, type and term precision
+% from which we can easily extract a big step semantics that satisfies graduality
+% and respects the equational theory of the calculus.
 
 
 \section{Operational Semantics}\label{sec:operational-semantics}
