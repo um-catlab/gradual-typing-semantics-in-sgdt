@@ -839,73 +839,218 @@ cast calculus introduced in Section \ref{sec:syntax}. Our approach is based
 loosely on the recent work of Kavvos \cite{kavvos-2025}, who gave a generic
 operational semantics for a language with algebraic effects.
 
+Recall that our framework is parameterized by an \emph{ordinary} algebraic
+theory $\calA$; recall that this means there are no guarded operations in
+$\calA$.
+%
+Because we are modelling gradual typing, at a minimum we want to ensure that our
+theory contains an operation corresponding to error, and since our semantics is
+intensional, i.e., step-aware, we also include an operation corresponding to
+taking an observable step. Such a step will occur whenever a non-well-founded
+recursive definition is unfolded; in the case of gradual typing this would be
+when inspecting a value of the dynamic type.
+%
+In fact, for reasons that will become clear later in the present section, we
+distinguish between two different kinds of semantic stepping operations:
+\textbf{true steps}, which occur when inspecting a non-well-founded definition
+such as the dynamic type, and \textbf{bureaucratic steps}, which represent all
+other steps in the operational semantics. A key difference between the two is
+that bureaucratic steps are invisible in the denotational semantics; they are
+merely a bookkeeping tool necessary in defining the operational semantics.
+%
+If we view steps as having an associated ``cost'', we can think of true steps as
+having a nonzero cost, while bureaucratic have zero cost.
+%
+% TODO: is this accurate?
+The logical relation defined in Section \ref{sec:relating-the-semantics} will
+imply that when running any term, there can be at most finitely many consecutive
+bureaucratic steps between any two operations.
+
+From the given ordinary algebraic theory $\calA$, we define two related guarded
+algebraic theories:
+%
+\begin{enumerate}
+  \item We define the theory combining $\calA$ with errors:
+  %
+  $\calA_\mho := \calA \otimes \th{\mho}$,
+  %
+  where $\th{\mho}$ is the theory of errors.
+
+  \item We define the theory combining $\calA$ with errors and true steps:
+  %
+  $\calA_{\mho s} := \calA \otimes (\th{\mho} + \th{\step})$,
+  %
+  where $\th{\step}$ and $\th{\mho}$ are the theories of computational steps and
+  error, respectively, and $\otimes$ and $+$ are the tensor and coproduct of
+  algebraic theories (see Section \ref{TODO}). Notice that we take the coproduct
+  with $\th{\mho}$ rather than the tensor. This is because otherwise, by Remark
+  \ref{TODO}, we would end up with the equation $\mho = \fix\, \theta$.
+
+  \item We define the theory combining $\calA$ with errors and both true and
+  bureaucratic steps:
+  % 
+  $\calA_{\mho sb} := 
+    (\calA \otimes (\th{\mho} + \th{\step} + \th{\step}))$. 
+%
+  We denote the first step operation by $\theta^{s}$ and the second step
+  operation by $\theta^{b}$.
+\end{enumerate}
+
+We write $T_\mho$, $T_{\mho s}$ and $T_{\mho sb}$ to denote the free-model
+monads for the theories $\calA_{\mho}$, $\calA_{\mho s}$, and $\calA_{\mho +
+sb}$, respectively. (Recall that the free-model monad for a theory is unique up
+to isomorphism of monads.)
+%
+The monad $T_{\mho}$ supports each of the operations of the input theory
+$\calA$, in addition to a nullary error operation $\mho$. This means that for
+each operation $\oper$, of arity $\tau_\oper$, there is a function
+$\sem{\oper}^{T X} : (\tau_\oper \to T X) \to T X$.
+%
+The monad $T_{\mho s}$ supports each of the above, in addition to a guarded step
+operation $\theta^s : \later T_{\mho s}(X) \to T_{\mho s}(X)$.
+%
+The same is true of $T_{\mho sb}$, but it has two guarded step operations
+$\theta^s, \theta^b : \later T_{\mho sb}(X) \to T_{\mho sb}(X)$.
+
+Since $\calA_{\mho}$ is a subtheory of $\calA_{\mho + s}$, there is a morphism
+of monads $\iota : T_\mho \to T_{\mho s}$ and likewise there is a morphism of
+monads $\iota' : T_{\mho s} \to T_{\mho sb}$.
+
+% TODO: are specific presentations of the monads taken as input?
+
+\subsection{Defining the Operational Semantics}
+
+% TODO: define the theory of \calA + stepping
+
 In what follows, we use $\term{A}$ to denote the (meta-theoretic) type of closed
-terms of type $A$ in the object language, and likewise $\val{A}$ denotes the
-type of closed values of type $A$ in the object language.
+terms of type $A$ in the cast calculus, and likewise $\val{A}$ denotes the type
+of closed values of type $A$ in the cast calculus.
 
-To model small-step reduction, we define a function
+Our goal is to define a guarded big-step operational semantics, i.e., a function
 %
-\[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) + (T(\term{A}) \times \steptype)\]
-%
-That is, given a term of type $A$, either that term is a value, or it takes an
-effectful step. Here, $\steptype$ is simply a type with two inhabitants:
-$\steptype := \tstep \alt \bstep$, where $\tstep$ represents a true step and
-$\bstep$ represents an administrative step.
-%
-Notice that the small-step function, by virtue of its type signature, includes
-the usual progress, preservation, and determinacy theorems.
-
-Having defined $\step$, we then extract a big-step operational semantics from
-the small-step semantics:
-%
-\[ \run : \term{A} \to T_{db} (\val{A}). \]
+\[ \run : \term{A} \to T_{\mho sb} (\val{A}). \]
 %
 Observe that the output of running a term is a monadic value. The monad accounts
-for the all possible effects that may occur as the term is being run, including
-stepping.
-
+for all possible effects that may occur as the term is being run, including both
+true and bureaucratic steps.
+%
 We write $M \Dwn \hat{V}$ to mean that $\run(M) = \hat{V}$ and we write $M
 \Uparrow$ to mean that $\run(M) = \fix \thetatrue$.
 
-% TODO
+
+To define the $\run$ function, we first model small-step reduction as a function
+%
+\[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) 
+    + (\term{A} + \Sigma_\mho(\term{A}) \times \steptype). \]
+%
+Here, $\Sigma_\mho$ is the signature of the algebraic theory $\calA_\mho$, and
+$\steptype$ is simply a type with two inhabitants: $\steptype := \tstep \alt
+\bstep$, where $\tstep$ represents a true step and $\bstep$ represents a
+bureaucratic step.
+%
+Then the $\step$ function states that for every closed term $M$ of type $A$,
+either $M$ is a value or it takes a step. When a term steps, it can be a
+\textbf{pure reduction step} to some other term $M'$, or an \textbf{effectful
+reduction step}, involving an operation in the input theory $\calA$ or error.
+For both kinds of reduction, we also track the nature of the step (true or
+bureaucratic).
+
+% Notation for stepping
+% For the sake of brevity, we use the following notation for stepping. If
+% $\step{M} = \inr(\hat{N}, ty)$, we say that $M \stepsin{0} \hat{N}$ if $ty =
+% \bstep$ and $M \stepsin{1} \hat{N}$ if $ty = \tstep$. That is, the natural
+% number (either $0$ or $1$) indicates whether the step is a true step or an
+% bureaucratic step. In the cost analogy discussed above, the natural number
+% represents the ``cost'' of performing the step, whereby true steps have cost $1$
+% and bureaucratic steps have cost $0$.
+% %
+% For a pure reduction step $\hat{N} = \inl N$, we omit the $\inl$ and simply
+% write $M \stepsin{k} N$.
+
+We define an endofunctor $\Sigmahat(X) = X + \Sigma_\mho(X)$. Its action on a
+function $f : X \to Y$ is defined in the obvious way, using $f$ in the first
+case, and the action of $\Sigma_\mho$ on $f$ in the second case.
+%
+We write $\cpure{M}$ for the left injection into $\Sigmahat(X)$, and
+$\ceff{\bar{M}}$ for the right injection.
+
+For the sake of brevity, we use the following notation for stepping. We write $M
+\stepsin{k} \hat{N}$, where $\hat{N}$ is a metatheoretic value of type
+$\Sigmahat(\term{A})$, to mean that $\step(M) = \inr (\hat{N}, t)$ where $t =
+\tstep$ if $k = 1$ and $t = \bstep$ if $k = 0$. That is, the number $k$ (either
+$0$ or $1$) indicates whether the step is a true step or a bureaucratic step. In
+the cost analogy discussed above, $k$ represents the ``cost'' of performing the
+step, where true steps have cost $1$ and bureaucratic steps have cost $0$.
+%
+For a pure reduction step $\hat{N} = \cpure N$, we sometimes omit the
+$\cpure{}$ and simply write $M \stepsin{k} N$.
+
+
+
+% Old version:
+% To define the $\run$ function, we first model small-step reduction as a function
+% %
+% \[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) + (T(\term{A}) \times \steptype). \]
+% %
+% That is, given a term of type $A$, either that term is a value, or it takes an
+% effectful step. Here, $\steptype$ is simply a type with two inhabitants:
+% $\steptype := \tstep \alt \bstep$, where $\tstep$ represents a true step and
+% $\bstep$ represents a bureaucratic step.
+% %
+% Notice that the small-step function, by virtue of its type signature, includes
+% the usual progress, preservation, and determinacy theorems.
+
+
+
 % Goal: operational graduality
 % TODO: should we move this to before the operational semantics section?
-Our main goal in the rest of the paper will be to prove that this big-step
-semantics validates the graduality property:
+% Our main goal in the rest of the paper will be to prove that this big-step
+% semantics validates the graduality property:
 
-\begin{theorem}[Graduality]
-  Suppose $M \ltdyn N : \nat$. Then either:
-  \begin{enumerate}
-    \item $M \Dwn \mho$, where $\mho \in T_{db} (\val{\nat})$ is the error element of the monad.
-    \item $M \Dwn \eta\, n$ and $N \Dwn \eta\, n$ where $n \in \nat$.
-    \item $M \Uparrow$ and $N \Uparrow$.
-    \item $M \Dwn \text{op}(V)$ and $N \Dwn \text{op}(V)$ % M and N both terminate with a 0-ary effect
-  \end{enumerate}
-\end{theorem}
+% \begin{theorem}[Graduality]
+%   Suppose $M \ltdyn N : \nat$. Then either:
+%   \begin{enumerate}
+%     \item $M \Dwn \mho$, where $\mho \in T_{db} (\val{\nat})$ is the error element of the monad.
+%     \item $M \Dwn \eta\, n$ and $N \Dwn \eta\, n$ where $n \in \nat$.
+%     \item $M \Uparrow$ and $N \Uparrow$.
+%     \item $M \Dwn \text{op}(V)$ and $N \Dwn \text{op}(V)$ % M and N both terminate with a 0-ary effect
+%   \end{enumerate}
+% \end{theorem}
 
-\subsection{Small-Step Semantics}
+\subsection{Defining the Small-Step Semantics}
 
 Figure \ref{fig:operational-semantics} defines the small-step semantics. The
 presentation is as a series of rules, but these can be converted to the form of
-the $\step$ function whose signature we have discussed above. In particular:
-
+the $\step$ function whose signature we have discussed above:
+%
+\[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) 
+    + (\term{A} + \Sigma_\mho(\term{A}) \times \steptype). \]
+%   
+In particular, our notational conventions are as follows:
+%
 \begin{itemize}
   \item A reduction rule $M \stepsin{k} \hat{N}$, where $\hat{N}$ is of type
-  $T(\term{A})$, should be translated as $\step(M) = \inr (\hat{N}, t)$ where $t
-  = \tstep$ if $k = 1$ and $t = \bstep$ if $k = 0$. That is, the number $k$
-  (either $0$ or $1$) determines whether the step is considered a true step or
-  an administrative step.
+  $(\term{A} + \Sigma_\mho(\term{A})) \times \steptype)$, should be translated as
+  $\step(M) = \inr (\hat{N}, t)$ where $t = \tstep$ if $k = 1$ and $t = \bstep$
+  if $k = 0$. That is, the number $k$ (either $0$ or $1$) determines whether the
+  step is considered a true step or a bureaucratic step.
 
   \item A \emph{pure reduction rule} is a special case of the above where
-  $\hat{N} = \eta N$ for some term $N$, where $\eta$ is the unit of the monad.
-  In this case, we write $M \stepsin{k} N$, where $N$ is a term. This should be
-  translated as $\step(M) = \inr (\eta (N))$.
+  $\hat{N} = \cpure{N}$ for some term $N$. In this case, we write $M
+  \stepsin{k} N$, where $N$ is a term, leaving the $\cpure{}$ constructor
+  implicit.
 
-  \item All other rules are \emph{impure reduction rules}.
+  \item An \emph{impure reduction rule} is one where $\hat{N} = \ceff{(\oper,
+  u)}$ for some $\oper : \calA_\mho.\Op$ and $u : \tau_\oper \to \term{A}$. Note
+  that every operation in $\calA_\mho$ has trivial guarded arity, so there are
+  no guarded values.
   
   \item Any term $M$ that does not match one of these rules is equal to a value
-  $V$, and hence $\step(M)$ returns the value $V$ and the proof that $M$ is
-  equal to $V$.
+  $V$, and hence $\step(M)$ returns $\inl$ applied to the value $V$ and the
+  proof that $M$ is equal to $V$.
+
+  \item We write $\mho$ to denote the element $(\err, *)$ of
+  $\Sigma_\mho(\term{A})$.
 \end{itemize}
 
 % TODO cite wrapping semantics for casts
@@ -928,9 +1073,9 @@ the $\step$ function whose signature we have discussed above. In particular:
       { }
       {\synsplit{(V_1, V_2)}{x_1}{x_2}{M} \stepsin{0} M[V_1, V_2 / x_1, x_2]}
 
-    \inferrule*[right=Bind]
-      { }
-      {\synbind{\ret\, V}{x}{M} \stepsin{0} M[V/x]}
+    % \inferrule*[right=Bind]
+    %   { }
+    %   {\synbind{\ret\, V}{x}{M} \stepsin{0} M[V/x]}
   \end{mathpar}
 
   \textbf{Casts (functorial actions and composition):}
@@ -944,6 +1089,11 @@ the $\step$ function whose signature we have discussed above. In particular:
       { (\upc (c_i \ra c_o) V_f) \stepsin{0} (\lambda x. (\upc {c_o} (V_f\, (\dnc {c_i} x)))) }
 
     % Downcast of a function steps when applied to a value:
+    \inferrule*[right=Dn-Arr]
+      { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o' 
+        \and \Gamma \vdash V_f : A_i \ra A_o 
+        \and \Gamma \vdash V : A_i'}
+      { (\dnc (c_i \ra c_o) V_f) \stepsin{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
 
 
     % Up/down cast of a paired value steps to the pair of the up/down casted
@@ -993,7 +1143,7 @@ the $\step$ function whose signature we have discussed above. In particular:
 
     \inferrule*
      { \text{tag}_1, \text{tag}_2 \in \{ \mathbb{N}, \times, \ra \} }
-     { \dnc {\text{Inj}_{\text{tag}_1}} (\upc {\text{Inj}_{\text{tag}_2}} V) \stepsin{0} \mho }
+     { \dnc {\text{Inj}_{\text{tag}_1}} (\upc {\text{Inj}_{\text{tag}_2}} V) \stepsin{0} \ceff{(\mho, *)} }
 
 
   \end{mathpar}
@@ -1002,18 +1152,23 @@ the $\step$ function whose signature we have discussed above. In particular:
   \begin{mathpar}
 
     % Effects
-    \inferrule*[right=Eff]
-      { \eff{op} \sigma \tau }
-      { \synop{op} V x M \stepslabel{\eff {op} V W} M[W/x] }
+    % \inferrule*[right=Eff]
+    %   { \eff{op} \sigma \tau }
+    %   { \synop{op} V x M \stepslabel{\eff {op} V W} M[W/x] }
 
-    % Congruences
+    \inferrule*[right=Eff, leftskip=2em]
+      { \oper : \tau }
+      { \lett {x} {\oper} {N} \stepsin{0} \ceff{(\oper, (\lambda (z : \tau).M[z/x]))} }  
+
+    % Congruence
+    % Accounts for the fact that reduction may be impure
     \inferrule*[right=Cong]
-      { i \in \{0,1\} \and M \stepsin i N}
-      { E[M] \stepsin{i} E[N] }
+      { i \in \{0,1\} \and M \stepsin{i} \hat{N}}
+      { E[M] \stepsin{i} \Sigmahat(E[\cdot])(\hat{N}) }
 
-    \inferrule*[right=EffCong]
-      {M \stepslabel {\eff {op} V W} N}
-      {E[M] \stepslabel {\eff {op} V W} E[N]}
+    % \inferrule*[right=EffCong]
+    %   {M \stepslabel {\eff {op} V W} N}
+    %   {E[M] \stepslabel {\eff {op} V W} E[N]}
 
 
   \end{mathpar}
@@ -1049,10 +1204,10 @@ Finally, we have the rules involving downcasting a value that was cast to $\dyn$
 using the injection casts $\inat$, $\injarr c$, and $\injtimes c$. In each case,
 we check that the tag of the upcast matches the tag of the downcast, e.g., the
 upcast is $\iarr$ and the downcast is $\iarr$. If the tags match, then the cast
-steps to the original value. Otherwise, the term steps to the error element of
-the monad (i.e., this is an impure reduction). Note that when downcasting a
-dynamically-typed function, we record one recursive unfolding. In the
-denotational semantics, this corresponds to inserting a $\theta$.
+steps to the original value. Otherwise, the term takes an effectful step to
+$\ceff{(\mho, *)}$, representing that an error was raised. Note that when
+downcasting a dynamically-typed function, we record one recursive unfolding. In
+the denotational semantics, this corresponds to inserting a $\theta$.
 %
 % Note also that these rules only mention the primitive injection forms $\inat$,
 % $\iarr$, and $\itimes$ rather than the composed forms $\injarr c$ and $\injtimes
@@ -1061,29 +1216,95 @@ denotational semantics, this corresponds to inserting a $\theta$.
 % using the rules just discussed.
 
 Next, we have our second impure reduction rule. This rule states that for an
-operation $\text{op}$ with request type $\sigma$ and response type $\tau$, then
-for any possible request value $V$ and response value $W$, the term $\synop{op}
-V x M$ steps to $M[W/x]$. This represents the fact that the environment has
-responded with value $W$, after which the program continues as $M$ with $W$ in
-place of $x$.
-%
-The final two rules are simply congruence rules allowing us to perform pure and
-impure reductions under an arbitrary evaluation context.
+operation $\oper$ with arity $\tau$, when we bind $x$ to the result of $\oper$
+in a term $N$, the let expression takes an effectful step to the metatheoretic
+value $\ceff{(\oper, (\lambda (z : \tau).M[z/x]))}$. Note that since $\tau$ is a
+metatheoretic type, strictly speaking a conversion is necessary to substitute
+$z$ in the object-level term $M$. As mentioned in Section \ref{sec:syntax}, we
+assume that the arity of each operation is isomorphic to a corresponding
+syntactic type. For the sake of simplicitly, we elide these conversions.
 
-\subsection{Big-Step Semantics}
+% for any possible request value $V$ and
+% response value $W$, the term $\synop{op} V x M$ steps to $M[W/x]$. This
+% represents the fact that the environment has responded with value $W$, after
+% which the program continues as $M$ with $W$ in place of $x$.
+
+The final rule says that we can perform pure and impure reductions under an
+evaluation context. Recall that $\Sigmahat$ is the endofunctor defined by
+$\Sigmahat(X) = X + \Sigma_\mho(X)$. The function $E[\cdot]$ is shorthand for
+the function taking a term $M$ to $E[M]$.
+% The final rules are simply congruence rules allowing us to perform pure and
+% impure reductions under an arbitrary evaluation context.
+
+\subsection{Defining a Runnable Semantics}
 
 Now that we have defined a small-step semantics, we discuss how to extract a
 runnable ``big-step'' semantics. More concretely, recall that our goal is a function
-
-
+%
+\[ \run : \term{A} \to T_{\mho sb} (\val{A}). \]
+%
 Notice that the codomain allows for two kinds of steps: true steps, and
-administrative steps. It is necessary that the monad be able to accommodate both
+bureaucratic steps. It is necessary that the monad be able to accommodate both
 kinds of steps. 
 
 % On the one hand, we want to preserve the true steps taken by terms so that we
 % can relate them to the recursive unfoldings on the denotational side. On the
 % other hand, because it is not necessarily the case that there are an 
 
+We define $\run$ by guarded recursion to be the unique function satisfying the
+properties
+%
+\begin{mathpar}
+  \inferrule*
+    { \step{M} = \inl (V, eq) }
+    { \run{M} = T_{\mho sb}.\eta(V) }
+
+  \inferrule*
+    { \step{M} = \inr (\hat{N}, \mathit{ty}) }
+    { \run{M} = \delta_{\mathit{ty}} (\run^{\dag} {(\iota(f(\hat{N})))}) }
+\end{mathpar}
+%
+In the above:
+%
+\begin{itemize}
+  \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to T_{\mho}(X)$ is defined by
+  cases, mapping $\cpure{M}$ to $\eta^{T_{\mho}}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
+  to $T_{\mho}(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
+  (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
+  \item $\iota : T_{\mho}(X) \to T_{\mho sb}(X)$ is the inclusion of the free
+  model monad $T_{\mho}$ into $T_{\mho sb}$. 
+  \item The variable $\mathit{ty}$ has type $\steptype$.
+  \item $\delta_{\mathit{ty}} = \theta_{\mathit{ty}} \circ \nxt$ is the
+  ``delay'' function on $T_{\mho sb}$. The type of delay is determined by
+  $\mathit{ty}$.
+\end{itemize}
+%
+Notice that the recursive call to $\run$ is guarded by a $\theta$, so the
+guarded fixpoint operator provides a unique function satisfying the above
+properties.
+
+We next define a function that ``runs'' an evaluation context $E$. Specifically,
+if $E : A \multimap B$, then we define $\run{E} : T_{\mho sb}(\term A) \to
+T_{\mho sb}(\val B)$ as
+%
+\[ \run{E} := (\lambda M. \run{(E[M])})^\dag, \]
+%
+where $\dag$ is the Kleisli extension operator for the monad $T_{\mho sb}$.
+
+Then we have the following lemma, which says that running commutes with filling
+an evaluation context:
+%
+\begin{lemma}[Run is a Homomorphism]\label{lem:run-fill}
+  $\run{(E[M])} = (\run{E})(\run{M})$.
+\end{lemma}
+% TODO cite appendix.
+The proof uses \lob-induction; see the Appendix for details.
+
+
+
+% The $\run$ function satisfies the following additional properties that will be
+% useful in relating the operational and denotational semantics in Section
+% \ref{sec:relating-the-semantics}:
 
 
 \begin{comment}
