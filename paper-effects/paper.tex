@@ -2255,6 +2255,111 @@ for the dynamic value type.
 
 
 
+\section{Graduality for Free Theories}
+
+\max{TODO: find the right place to put this}
+
+Consider the case that our algebraic theory is a free theory generated
+by some signature, i.e., a set $\Sigma$ of operation names with
+arities $\ar : \Sigma \to \mathbb N$. Then we can form the type of
+finite trees with node types from the signature:
+
+\[ \textrm{FinTree}_\Sigma X = \mu T. X + ((\sigma : \Sigma) \times T^{\ar(\sigma)}) \]
+
+Then the globalization of a free algebra for this theory extended with
+$\mho, \theta$ is a certain kind of coinductive ``interaction tree'':
+
+\[ \textrm{ITree}_\Sigma X = \nu D. \textrm{FinTree}_\Sigma(X + \{ \mho \} + D) \]
+
+For clarity, the $X$ case of a $\textrm{FinTree}X$ will be called
+$\textrm{leaf}(x)$ and the $X$ case of $X + \{ \mho \} + D$ in
+$\textrm{ITree}_\Sigma X$ will be called $\eta(x)$.
+
+The reason for the interleaving of $\textrm{FinTree}_\Sigma$ is that
+because only the $\theta$ operation is guarded, there can be only
+finitely depth of operations from the signature unless they are
+interrupted by a $\theta$.
+We define $M \leadsto N$ to mean that $M = \textrm{leaf}(\delta(N))$,
+representing that $M$ ``steps'' to $N$ in one internal ($\tau$) step.
+
+To define a concrete extensional error ordering on interaction trees,
+we define a type extensional execution traces. These traces are
+finitary observations of an interaction tree, but ignoring the $\tau$
+nodes.
+
+We define two mutually inductive
+types, $\textrm{PTrace}, \textrm{OTrace}$ which represent traces
+starting with ``Player's'' turn or ``Opponent's'' turn, with
+terminology inspired by game semantics. Here Player represents the
+interaction tree, and the opponent represents the external system
+interacting with the tree. Fix a type $V$ of final values.
+\begin{mathpar}
+  \textrm{PTrace} = V \uplus \{ \mho \} \uplus (\sigma : \Sigma) \times \textrm{OTrace}(\ar(\sigma))\\
+  \textrm{OTrace}(R) = \{ \textrm{end} \} \uplus R \times \textrm{PTrace}
+\end{mathpar}
+A player trace is either terminated with a value, terminated with an
+error or a pair of an operation $\sigma$ and an opponent trace, where
+the opponent is expected to respond with the type of the arity of
+$\sigma$. An opponent trace with response type $R$ is either empty,
+marked by $\textrm{end}$ or it is a pair of a response $R$ and a
+player trace. The role of the opponent trace is to allow for
+observation of finite prefixes of infinitely long productive
+sequences. Without it, the only observations would be of termination
+behavior.
+
+We write $t \downarrow \eta V$, $t \downarrow \mho$ and $t \downarrow
+\textrm{end}$ to indicate that a player trace terminates in a
+particular way.
+
+We define by induction on the traces satisfaction
+relations $M \vDash t$ between an ITree $M$ and a $\textrm{PTrace}$
+$t$ and $f \vDash t$ between an $R$-indexed family of ITrees and an
+$\textrm{OTrace}R$:
+\begin{align*}
+  {M \vDash \eta(V)} &= M \leadstomany \leaf(\eta(V))\\
+  {M \vDash \mho} &= M \leadstomany \leaf(\mho)\\
+  {M \vDash \sigma; o} &= M \leadstomany \sigma(f) \wedge f \vDash o\\
+\end{align*}
+\begin{align*}
+  f \vDash \textrm{end} &= \top \\
+  f \vDash r; p &= f(r) \vDash p
+\end{align*}
+
+Additionally, we inductively define an error ordering $\sqsubseteq$ on
+player and opponent traces which intuitively means if $p \sqsubseteq q$ then $p$ is either
+equal to $q$ or it is a prefix of $q$ that ends in $\mho$:
+\begin{mathpar}
+  \mho \sqsubseteq p
+
+  \eta V \sqsubseteq \eta V
+
+  \inferrule{o \sqsubseteq o'}{\sigma; o \sqsubseteq \sigma; o'}
+
+  {\textrm{end} \sqsubseteq \textrm{end}}
+
+  \inferrule{p \sqsubseteq q}{r; p \sqsubseteq r; q}
+\end{mathpar}
+
+Then the extensional error ordering can be defined as saying that $M
+\sqsubseteq N$ when the results of observing $M$ are either the same as
+$N$ or result in an error earlier on. 
+
+\max{TODO: this should be the version with a tilde but I don't see that defined anywhere}
+\begin{align*}
+   M \sqsubseteq N &= \forall (t : \textrm{PTrace}). \\
+   &((N \vDash t) \Rightarrow \exists s \sqsubseteq t.~ M \vDash s)\\
+   &\wedge ((M \vDash t) \wedge (t \downarrow \eta V \vee t \downarrow \textrm{end}) \Rightarrow N \vDash t)
+\end{align*}
+
+In plain english: if $N$ exhibits a finite trace $t$, then $M$ must
+exhibit $t$ or an $\mho$-ending prefix of $t$, and if $M$ exhibits a
+trace ending in a value or opponents move, then $N$ must exhibit the
+same trace.
+
+This relation is clearly transitive. We should also be able to show
+that it is implied by both the strong error ordering as well as weak
+bisimilarity of ITrees.
+
 \bibliographystyle{ACM-Reference-Format}
 \begin{DIFnomarkup}
 \bibliography{\bibliographypath}
