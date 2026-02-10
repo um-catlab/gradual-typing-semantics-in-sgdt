@@ -29,7 +29,9 @@
 
 \begin{document}
 
-\title{Denotational Semantics for Effectful Gradually Typed Languages using Guarded Type Theory}
+% \title{Adequacy for Effectful Gradually Typed Languages using Guarded Type Theory}
+\title{Operational Semantics of Effectful Gradually Typed Languages in Guarded Type Theory}
+% \title{Guarded Operational Semantics for Effectful Gradually Typed Languages}
 \author{Eric Giovannini}
 \affiliation{
   \department{Electrical Engineering and Computer Science}
@@ -63,10 +65,28 @@
     chance the meaning of the program except to possibly catch more type errors.
     %
     
-    In this work, we address two limitations of the work of Giovannini et al.
-    First, we generalize their model to allow for languages with algebraic
-    effects, such as I/O, global state, nondeterminism, etc. Second, we relate
-    the denotational semantics to a more familiar operational semantics.
+    % In this work, we address two limitations of the work of Giovannini et al.
+    % First, we generalize their model to allow for languages with algebraic
+    % effects, such as I/O, global state, nondeterminism, etc. Second, we relate
+    % the denotational semantics to a more familiar operational semantics.
+
+    % In this work, we define an operational semantics for a gradually-typed cast
+    % calculus parameterized by a collection of algebriac effects. Our main result
+    % is a graduality theorem for the operational semantics. To prove this result, we...
+
+    % In this work, we build on the techniques of Giovannini et al, using
+    % guarded type theory to prove graduality of an operational semantics for a
+    % gradually-typed cast calculus with algebraic effects
+
+    In this work, we use guarded type theory to prove graduality of an
+    operational semantics for a gradually-typed cast calculus with algebraic
+    effects. We first define a guarded denotational semantics following the
+    techinques of Giovannini et al. Our denotational semantics satisfies a
+    guarded version of graduality; we then connect this result back to the
+    operational semantics via an adequacy theorem. Lastly, we consider special
+    cases in which our result globalizes to the setting of ordinary set theory,
+    obtaining for closed terms of base type a coinductive semantics that
+    satisfies graduality.
 \end{abstract}
 
 \maketitle
