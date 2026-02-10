@@ -2136,6 +2136,95 @@ finite trace of the computation.
 % Extension to Kripke models
 % Discuss Møgelberg + Paviotti paper on denotational semantics of FPC in SGDT
 % Discuss work on runners and comodels
+% Discuss What Monads Can and Cannot Do paper
+
+\subsection{Operational Semantics in Guarded Type Theory}
+
+Møgelberg and Paviotti \cite{mogelberg-paviotti2016} use guarded type theory (in
+particular, what they call Guarded Dependent Type Theory) to define a
+denotational semantics for FPC (STLC extended with recursive types). They then
+prove soundness and adequacy for their model using a logical relation
+constructed in the type theory using guarded recursion. Particular care is taken
+to ensure that the operational and denotational semantics are in lock-step. To
+do this, the small-step operational semantics tracks the non-well-founded steps,
+and the logical relation ensures that each such step corresponds to a $\theta$
+operation in the denotational semantics.
+
+\subsection{Guarded Type Theory and Algebraic Effects}
+
+
+\subsection{Interaction Trees}
+
+Interaction trees \cite{TODO} are a popular framework for representing effectful
+programs in dependent type theory. While the original formulation of interaction
+trees was as a coinductive type, this has been extended to \emph{guarded}
+interaction trees which are capable of modelling higher-order effects
+\cite{guarded-interaction-trees}.
+% TODO more to say?
+
+The explicit construction we give of the free model for a guarded algebraic
+theory is closely related to guarded interaction trees, but is in one way more
+general and in another way less so. Our approach is more general in the sense
+that we allow a mix of inductive and guarded operations, whereas with guarded
+interaction trees, all operations are guarded. On the other hand, guarded
+interaction trees allow for negative occurrences guarded by a later; our
+construction does not require this generality since in our notion of guarded
+algebraic theories, all occurrences of the type are positive.
+
+\subsection{Adequacy and Algebraic Effects}
+
+Kavvos \cite{kavvos-2025} defines an operational and denotational semantics for
+a language parameterized by a signature of effects, and then proves adequacy of
+the denotational semantics for operational reasoning. The high-level methodology
+is similar to our approach, with a few key differences. Similar to our approach,
+Kavvos defines a small-step operational semantics and then extracts a big-step
+semantics valued in interaction trees. However, the interaction trees are
+defined coinductively, whereas the analogous construction in our approach is
+defined using induction and guarded recursion.
+
+Additionally, Kavvos's small-step semantics is inherently nondeterministic, in
+that an effect operation can step to its continuation instantiated with all
+possible response values. As a result, it is difficult to account for concrete
+effectful small-step semantics, such as for state, where a pair of term and
+state steps to a new term and a new state. In contrast, in our small-step
+semantics, we allow for effectful steps using the endofunctor induced by the
+algebraic signature $\Sigma$. As a result, a term is allowed to take an
+effectful step
+
+% big-step operational semantics using interaction trees and proves adequacy for
+% an operational semantics constructed from
+
+% Additionally, in Kavvos's approach, the small-step semantics is such that an
+% effect operation steps nondeterministically...
+
+
+\subsection{Future Work}
+
+% other operations in the guarded algebraic theory besides just \theta
+
+Our next goal is to extend the effectful semantics to account for more advanced
+effects such as higher-order store or dynamic type-tag generation. This was the
+original motivation of Giovannini et al., and with the experience gained in
+incorporating algebraic effects and operational semantics into their framework,
+we believe it will be feasible to extend the semantics to account for such
+effects. There are two key challenges that must be overcome to handle
+higher-order store. First, dynamic allocation must be modelled. In the
+denotational setting this would take the form of a presheaf over a category of
+worlds, where the world specifies the currently-allocated names. Second, the
+ability to store functions makes the model viciously self-referential. Prior
+work has investigated the use of guarded type theory to solve the resulting
+domain equation \cite{TODO}. The challenge is to incorporate these approaches
+into our denotational model, in particular, the relational aspects (e.g.,
+squares) and the perturbations.
+
+Another possible direction would be to adapt the model to allow for gradual
+\emph{effect systems}, such as that of the language GrEff
+\cite{new-giovannini-licata-2022}. This would necessitate changes to the
+denotational semantics, including adding effect tracking. We would also need to
+solve a domain equation for the dynamic effect type analogous to the equation
+for the dynamic value type.
+
+
 
 \bibliographystyle{ACM-Reference-Format}
 \begin{DIFnomarkup}
