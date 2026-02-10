@@ -1993,6 +1993,141 @@ operational semantics:
 % functor constructing the free error-effect algebra as discussed in Section
 % \ref{sec:denotational-semantics}.
 
+
+\section{Globalization and Extensional Collapse}\label{sec:globalization}
+
+The last step of the graduality proof involves using the results obtained in the
+prior sections to derive extensional properties of the semantics that do not
+mention any features of guarded type theory. The result is a statement about the
+operational behavior of terms that can be made in ordinary type theory. The
+process we will follow here involves globalization \cite{atkey-mcbride2013},
+which is a process that takes a construction in guarded type theory and turns it
+into a coinductive object in ordinary type theory. Not all constructions in
+guarded type theory can be globalized into coinductive definitions, but the
+specific definitions we will be globalizing do satisfy the required technical
+condition.
+% TODO: mention the notion of a functor commuting with clock quantification.
+
+Unfortunately, carrying out the process of globalization for an arbitrary
+algebraic theory $\calA$ appears difficult, and we are not aware of an approach
+that works at this level of generality. On the other hand, there are two special
+cases where we can explicitly describe the globalization process, which we
+describe below.
+
+\subsection{Monad Transformers}
+
+The first special case occurs when we know that the input theory $\calA$ is
+constructed from certain ``base'' theories using sum and tensor. The idea is
+that in combining one of these base theories with another theory $\calA$, we
+obtain for free a corresponding monad transformer taking the free-model monad
+for $\calA$ to the free-model monad of the combined theory. 
+
+One example of this phenomenon involves the theory of exceptions:
+%
+\begin{lemma}[Error Monad Transformer]\label{lem:error-monad-transformer} Let
+$\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad for
+$\calA$, then the free-model monad for the theory $\calA + \th{\mho}$ is given
+by
+%
+\[ T'(A) := T(A + 1). \] 
+\end{lemma}
+
+Another example of this phenomenon involves the theory of global mutable state:
+%
+\begin{lemma}[State Monad Transformer]\label{lem:state-monad-transformer}
+Let $\calA$ be a guarded algebraic theory. Suppose that $\calA$ has an operation
+$\theta$ of arity $(0, 1)$. If $T_\calA$ is the free-model monad for $\calA$,
+then the free-model monad for the theory $\calA \otimes \th{\text{State}_S}$ is
+given by
+%
+\[ T'(A) := S \to T_\calA(S \times A). \]
+%
+\end{lemma}
+
+Such results allow us to build up the free-model monad in a compositional
+manner. If the innermost monad is the usual guarded lift monad $L(X) \cong X +
+\later L(X)$, then we can then globalize the overall monad and use known results
+about the globalization of the guarded lift monad to obtain a characterization
+of the combined monad.
+
+\subsection{Trace Semantics}
+
+If the provided algebraic theory has no equations, then the free-model monad for
+the theory $T(X)$ is isomorphic to the type of unquotiented terms with variables
+in $X$.
+
+To motivate the forthcoming definitions, we begin with a simple example where
+the only effects are error and computational steps. Consider the guarded
+algebraic theory $\calA = \th{\mho} + \th{\step}$ (see Section
+\ref{sec:guarded-algebraic-theories} for the definitions). In particular, note
+that there are two operations $\mho : (0, 0)$ and $\theta : (0, 1)$. The
+free-model monad for this theory is the unique type $T(X)$ solving the
+guarded-recursive equation
+%
+\[ T(X) \cong X + 1 + \later (T(X)). \]
+
+We now review the notion of \emph{clocks}, which are a tool allowing us to
+extract coinductive definitions from guarded ones. Clocks were introduced by
+Atkey and McBride \cite{atkey-mcbride2013}. The idea is that all guarded
+constructions are indexed by a clock variable $k$, e.g., $\later^k A$ is the
+type of $A$-values available after one time step on clock $k$.
+%
+The key aspect of clocks is that universal quantification over clocks gives a
+means to turn a guarded definition into a coinductive one
+\cite{atkey-mcbride2013, kristensen-mogelberg-vezzosi2022}.
+
+Define $T^{gl}(X) := \forall k. T^k(X)$. Then provided $X$ satisfies a technical
+condition known as \emph{clock-irrelevance}, we have
+%
+\begin{align*}
+  T^{gl}(X) &= \forall k. (X + 1 + \later T^k(X)) \\
+  &\cong \forall k. X + \forall k. 1 + \forall k. \later T^k(X) \\
+  &\cong X + 1 + \forall k. T^k(X).
+\end{align*}
+%
+Moreover, $T^{gl}(X)$ is the final coalgebra for the functor $F_X(Y) = (X + 1) +
+Y$. This follows from a theorem of Kristensen et al.
+\cite{kristensen-mogelberg-vezzosi2022}. The final coalgebra for $F_X$ can be
+expressed using Capretta's \emph{delay monad} $D(X)$, which is defined as the
+final coalgebra of the functor $F_X(Y) = X + Y$ \cite{lmcs:2265}. Elements of
+$D(X)$ can be thought of as computations that may either return a value in $X$,
+or take an observable computational step. Such computations may run forever,
+which makes $D(X)$ a constructive method for modelling non-termination in type
+theory.
+
+Altenkirch et al. \cite{Altenkirch-Danielsson-Kraus-2017} show that the delay
+monad $D(X)$ is equivalent to the type of \emph{monotone sequences} $\mathbb{N}
+\to (X + 1)$ (see Section 4.1 of their paper). By a monotone sequence, we mean a
+function $f : \mathbb{N} \to (X + 1)$ satisfying that if $f(n) = \inl x$, then
+$f(n+1) = \inl x$. The intuition is that while we cannot decide in general
+whether an arbitrary computation terminates or runs forever, for any
+\emph{finite} amount of ``fuel'' $n$, we can ask whether it has terminated in
+$n$ steps or fewer. If it has, then $f$ tells us the value with which the
+computation terminated; if not, we are simply told that it is still running.
+Monotonicity says that these answers must be consistent: if the computation
+terminates in $n$ or fewer steps with result $x$, then it certainly also
+terminates in $n+1$ or fewer steps with the same result $x$.
+
+Observe that the delay monad is an intensional representation of
+potentially-nonterminating computations. That is, two computations that return
+the same value but take a different number of steps are considered distinct.
+Since the statement of graduality is oblivious to the number of steps a program
+takes, the delay monad is not suitable as a denotational domain for closed
+programs. To remedy this situation, one may consider the delay monad quotiented
+by weak bisimilarity. However, in order to show that the resulting type is a
+monad in type theory, it is believed that the axiom of countable is required
+\cite{TODO}.
+
+To generalize the situation to arbitrary effects, we assume that our theory
+$\calA$ contains no equations. Then we consider the theory $\calA + \th{\mho} +
+\th{\step}$. Then as above, we form the free-model monad for this theory,
+and consider the globalized version by performing clock quantification.
+%
+The analogue of the monotone sequences for the simple setting of error and
+stepping will be functions that take a generalized notion of fuel and return a
+finite trace of the computation.
+
+
 \section{Discussion}\label{sec:discussion}
 
 % Comparison with guarded interaction trees
