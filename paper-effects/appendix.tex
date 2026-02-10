@@ -1,0 +1,450 @@
+\section{Omitted Proofs Section \ref{sec:modeling-effects}}
+
+\section{Omitted Proofs Section \ref{sec:operational-semantics}}
+
+\begin{lemma}
+    Let $\hat{N} : \Sigmahat(\term{A})$. We have 
+    %
+    \[ \iota(f (\Sigmahat(E[\cdot])(\hat{N})) ) = (\eta' \circ E[\cdot])^{\ddag} (\iota(f(\hat{N}))). \]
+\end{lemma}
+\begin{proof}
+    We proceed by cases on $\hat{N}$. If $\hat{N} = \cpure{M}$, then we have
+    \begin{align*}
+        \iota(f (\Sigmahat(E[\cdot])(\cpure{M})) )
+        &= \iota(f (\cpure{E[M]}) ) \\
+        &= \iota(\eta(E[M])) \\
+        &= \eta'(E[M]),
+    \end{align*}
+    and
+    \begin{align*}
+        (\eta' \circ E[\cdot])^{\ddag} (\iota(f(\cpure{M})))
+        &= (\eta' \circ E[\cdot])^{\ddag} (\iota(\eta(M))) \\
+        &= (\eta' \circ E[\cdot])^{\ddag} (\eta'(M)) \\
+        &= (\eta' \circ E[\cdot])(M) \\
+        &= \eta'(E[M]).
+    \end{align*}
+
+    If $\hat{N} = \ceff{(\oper, u)}$, then we have
+    \begin{align*}
+        \iota(f (\Sigmahat(E[\cdot])(\ceff{(\oper, u)})) )
+        &= \iota(f (\ceff{(\oper, E[\cdot] \circ u)}) ) \\
+        &= \iota(T_{\mho}(\term{A}).\oper(\eta \circ E[\cdot] \circ u)) \\
+        &= T_{\mho sb}(\term{A}).\oper(\iota \circ \eta \circ E[\cdot] \circ u) \\
+        &= T_{\mho sb}(\term{A}).\oper(\eta' \circ E[\cdot] \circ u)
+    \end{align*}
+    and
+    \begin{align*}
+        (\eta' \circ E[\cdot])^{\ddag} (\iota(f(\ceff{(\oper, u)})))
+        &= (\eta' \circ E[\cdot])^{\ddag} (\iota(T_{\mho}(\term{A}).\oper(\eta \circ u))) \\
+        &= (\eta' \circ E[\cdot])^{\ddag} (T_{\mho sb}(\term{A}).\oper(\iota \circ \eta \circ u)) \\
+        &= (\eta' \circ E[\cdot])^{\ddag} (T_{\mho sb}(\term{A}).\oper(\eta' \circ u)) \\
+        &= (T_{\mho sb}(\term{A}).\oper(((\eta' \circ E[\cdot])^{\ddag}) \circ \eta' \circ u)) \\
+        &= (T_{\mho sb}(\term{A}).\oper(((\eta' \circ E[\cdot])) \circ u)). \\
+    \end{align*}
+
+\end{proof}
+
+
+Proof of Lemma \ref{lem:run-fill}:
+\begin{proof}
+  
+    In the below:
+    %
+    \begin{itemize}
+        \item We let $\eta$ denote $T_{\mho}.\eta$ and $\eta'$ denote $T_{\mho sb}.\eta$.
+        %
+        \item We let $(-)^\dag$ denote Kleisli extension for $T_{\mho}$ and
+        $(-)^\ddag$ denote Kleisli extension for $T_{\mho sb}$.
+        %
+        \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to T_{\mho}(X)$ is
+        defined by cases, mapping $\cpure{M}$ to $\eta^{T_{\mho}}(M)$, and
+        mapping $\ceff{(\oper, u, g)}$ to 
+        $T_{\mho}(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
+        %
+        (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
+        %
+        \item $\iota : T_{\mho}(X) \to T_{\mho sb}(X)$ is the inclusion of the
+        free model monad $T_{\mho}$ into $T_{\mho sb}$. 
+    \end{itemize}
+
+    We want to show that $\run{(E[M])} = (\run{E})(\run{M})$. We proceed by
+    guarded recursion and cases on whether $M$ is a value, or $M$ steps.
+
+    If $M$ is a value $V$, then by definition of $\run$ on terms, we have
+    $\run{V} = \eta\, V$.
+
+    Now suppose $M \stepsin{k} \hat{N}$, where $\hat{N} : \Sigmahat(\term A)$.
+    Then we have, by definition of $\run{}$:
+
+    \begin{equation} 
+        \run{M} = \delta_{\sty} (\run^{\ddag} {(\iota(f(\hat{N})))}).
+    \end{equation}
+
+    We also have $E[M] \stepsin{k} \Sigmahat(E[\cdot])(\hat{N})$. Thus, by the
+    definition of $\run{}$, we have:
+    \begin{equation} 
+        \run{(E[M])} = \delta_{\sty} (\run^{\ddag} {(\iota(f (\Sigmahat(E[\cdot])(\hat{N})) ))}).
+    \end{equation}
+    
+    Now, we have:
+    \begin{align*}
+        \run{(E[M])} 
+        &= \delta_{\sty} [\run^{\ddag} {(\iota(f (\Sigmahat(E[\cdot])(\hat{N})) ))}] \\
+        &= \delta_{\sty} [\run^{\ddag} {((\eta' \circ E[\cdot])^{\ddag} (\iota(f(\hat{N})))) }] \\
+        &= \delta_{\sty} [(\run^{\ddag} \circ (\eta' \circ E[\cdot]))^{\ddag} (\iota(f(\hat{N}))) ] \\
+        &= \delta_{\sty} [(\run \circ E[\cdot])^{\ddag} (\iota(f(\hat{N}))) ] \\
+        &= \delta_{\sty} [(\lambda M. \run {(E[M])})^{\ddag} (\iota(f(\hat{N}))) ]. \\
+    \end{align*}
+
+    On the other hand, we have
+    \begin{align*}
+        (\run E)(\run M) 
+        &= (\lambda V. \run{(E[V])})^{\ddag} (\delta_{\sty} (\run^{\ddag} {(\iota(f(\hat{N})))}) ) \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run^{\ddag} {(\iota(f(\hat{N})))})] \\
+        &= \delta_{\sty} [((\lambda V. \run{(E[V])})^{\ddag} \circ \run)^{\ddag} {(\iota(f(\hat{N})))}] \\
+        &= \delta_{\sty} [(\lambda M. ((\run E) (\run M)))^{\ddag} {(\iota(f(\hat{N})))}]. \\
+    \end{align*}
+
+    So it suffices to show that the final lines of the above two chains of
+    equalities are equal. Since both sides are guarded by a $\delta_{\sty}$, it
+    suffices to show that the insides are equal later. This follows from our
+    \lob induction hypothesis.
+
+    % Thus, it will suffice to show that
+    % \[ 
+    %   \later[ (\run \circ E[\cdot])^{\ddag} (\iota(f(\hat{N}))) 
+    %     = ((\lambda V. \run{(E[V])})^{\ddag} \circ \run)^{\ddag} {(\iota(f(\hat{N})))} ]. 
+    % \]
+
+
+\end{proof}
+
+\section{Details and Omitted Proofs for Section \ref{sec:denotational-semantics}}
+
+\section{Omitted Proofs Section \ref{sec:relating-the-semantics}}
+
+\subsection{Properties of the Logical Relation}
+
+
+Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
+\begin{proof}
+    Let $\cdot \vdash M : A$, where $M \stepsin{0} \cpure{M'}$, and suppose
+    $\erel{A}{\xbar}{M'}$. We will show that $\erel{A}{\xbar}{M}$.
+
+    % Let $\sty$ be $\bstep$ or $\tstep$ according to whether $k$ is $0$ or $1$,
+    % respectively.
+
+    By the definition of $\run$, we have that
+    \begin{align*}
+        \run{M} &= \delta_{\bstep} (\run^{\ddag} {(\iota(f(\cpure{M'})))}) \\
+                &= \delta_{\bstep} (\run^{\ddag} {\eta^{T_{\mho sb}}(M)}) \\
+                &= \delta_{\bstep} (\run{M'}).
+    \end{align*}
+
+    Since $\erel{A}{\xbar}{M'}$, we have that $\liftvrel{A}{\xbar}{(\run M')}$.
+    By definition of the relational lifting, we have that
+    $\liftvrel{A}{\xbar}{\delta_{\bstep}(\run{M'})}$. Thus, we have
+    $\liftvrel{A}{\xbar}{\run{M}}$, which means that $\erel{A}{\xbar}{M}$.
+
+\end{proof}
+
+Proof of the Semantic Bind Lemma:
+\begin{proof}
+    Suppose for all values $x, V$ that $\vrel{A}{x}{V}$ implies
+    $\erel{B}{\phi(T_{\mho s}.\eta(x))}{(E[V])}$. Further, suppose that
+    $\erel{A}{\bar{x}}{N}$.
+    %
+    We will show that $\erel{B}{(\phi(\bar{x}))}{(E[N])}$, which by definition
+    is $\liftvrel{B}{\phi(\bar{x})}{(\run (E[N]))}$
+
+    The proof is by guarded recursion and induction over the proof that
+    $\erel{A}{\bar{x}}{N}$, since this is defined as
+    $\liftvrel{A}{\bar{x}}{(\run N)}$. We have the following cases:
+
+    \begin{itemize}
+        \item Case \textsc{RetRet}: This means that $\bar{x} = \eta\, x$ for
+        some $x \in \sem{A}$ and $\run N = \eta'\, V$ for some $V \in \val{A}$
+        where $\vrel{A}{x}{V}$. (Here, $\eta$ is the unit for $T_{\mho s}$ and
+        $\eta'$ is the unit for $T_{\mho sb}$.) Then by our assumption, we have
+        $\erel{B}{\phi(x)}{(E[V])}$, as required.
+
+        \item Case \textsc{OpOp}: In this case, we have
+        %
+        $\bar{x} = T_{\mho s}(\sem{A}).\oper(u, g)$ for some $u$ and $g$.
+        %
+        We also know that
+        %
+        $\run N = (T_{\mho sb}(\val A).\oper(u', g'))$
+        %
+        for some $u'$ and $g'$, where for all $s$, we have $\liftvrel{A}{(u\,
+        s)}{(u'\, s)}$ and $(g\, s) \binrel{(\later(\bbt{\vrel{A}}))} (g'\, s)$.
+
+        Now since $\phi$ is a homomorphism, we have
+        %
+        \[ \phi(T_{\mho s}(\sem{A}).\oper(u, g)) = 
+           T_{\mho s}(\sem{B}).\oper(\phi \circ u, (\later \phi) \circ g).
+        \]
+        %
+        Furthermore, by Lemma \ref{lem:run-fill}, we have $\run (E[N]) = (\run
+        E)(\run N)$ where we recall that $\run E$ is defined as $(\lambda V.
+        \run{(E[V])})^\dag$. In particular, this means that
+        \begin{align*}
+            \run (E[N]) &= (\lambda V.\run{(E[V])})^\dag (\run N)  \\
+                        &= (\lambda V.\run{(E[V])})^\dag (T_{\mho sb}(\val A).\oper(u', g')) \\
+                        &= T_{\mho sb}(\val B).\oper((\run E) \circ u', (\later (\run E)) \circ g')
+        \end{align*}
+
+        Thus, using rule $\textsc{OpOp}$ and the induction hypotheses, this case is complete.
+        % TODO: more detail?
+
+        
+        \item Case \textsc{IdStep}: In this case, we have
+        %
+        $\run N = \delta_b(\bar{V})$
+        %
+        for some $\bar{V} \in T_{\mho sb}(\val{A})$, and
+        $\liftrel{A}{\bar{x}}{\bar{V}}$.
+                
+        Then as above, we have
+        %
+        \begin{align*}
+            \run (E[N]) &= (\run E)(\run N) \\
+                &= T_{\mho sb}(\val B).\delta_b[(\run E)(\bar{V})] \\
+                &= 
+        \end{align*} 
+        %
+        so by rule \textsc{IdStep}, it suffices to show
+        %
+        \[ \liftrel{B}{\phi(\bar{x})}{(\run E)(\bar{V})} \]
+    \end{itemize}
+\end{proof}
+
+
+\subsection{Proof of the Fundamental Lemma for the Logical Relation}
+
+Towards proving the fundamental lemma, we prove a series of compatibility
+lemmas, one for each term constructor in the cast calculus.
+
+\begin{lemma}[Compatibility for Natural Numbers]
+    Let $n$ be a natural number, and let $V_n$ be the corresponding natural
+    number value in the cast calculus. Then we have $\simrel{\Gamma}{\nat}{\sem{V_n}}{V_n}$.
+\end{lemma}
+\begin{proof}
+    
+\end{proof}
+
+\begin{lemma}[Compatibility for Variables]
+
+\end{lemma}
+
+\begin{lemma}[Compatibility for Lambda]
+
+\end{lemma}
+
+\begin{lemma}[Compatibility for Function Application]
+
+\end{lemma}
+
+\begin{lemma}[Compatibility for If]
+
+\end{lemma}
+
+\begin{lemma}[Compatibility for Let]
+
+\end{lemma}
+
+\begin{lemma}[Compatibility for Casts]
+
+\end{lemma}
+
+Now we can prove the fundamental lemma:
+\begin{proof}
+
+\end{proof}
+
+
+
+\section{Omitted Proofs Section \ref{sec:globalization}}
+
+Proof of Lemma \ref{lem:error-monad-transformer}:
+\begin{proof}
+    Let $\calA = (\Sigma_\calA, E_\calA)$ be a guarded algebraic theory with
+    free-model monad given by $T_\calA$. Let $T'(A) = T(A + 1)$.
+
+    We first show that $T'(A)$ implements each operation in $\calA +
+    \th{\mho}$. We define 
+    %
+    \[ \sem{\mho} = T.\eta(\inr\, *). \]
+    %
+    For each operation $\oper : (\tau, \gamma)$ in $A$, we define $\sem{\oper} :
+    ((\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later (T'(A)))) \to T'(A)$
+    using the fact that $T(A+1)$ implements the operations, i.e, we define
+    %
+    \[ \sem{\oper}(u, g) = T(A+1).\sem{\oper}(u, g) \]
+    
+    We define the inclusion of generators $\eta' : A \to T'(A)$ by
+    %
+    \[ \eta'(x) = T(A+1).\eta(\inl\, x). \]
+
+    Next, we show that the equations are satisfied. Since there are no equations
+    in $\th{\mho}$, we need only show that the equations of $\calA$ hold.
+    Specifically, let $e = (\Gamma, l, r)$ be an equation in $E_\calA$, where
+    $l, r$ are terms in the signature $\Sigma_\calA$ with variables in $\Gamma$.
+    Consider an arbitrary $f : \Gamma \to T'(A)$. We need to show that
+    $\sem{l}_f = \sem{r}_f$. Since we know that $l$ and $r$ do not mention
+    $\mho$, we know that this equality holds by the fact that $T(A + 1)$ is a
+    model for $\calA$.
+
+    Finally, we show the universal property. Let $B$ be a model for $\calA +
+    \th{\mho}$ and let $f : A \to |B|$. We define $\fbar : T'(A) \to |B|$ using
+    the universal property of $T(A + 1)$. Namely, since $B$ is also a model for
+    $\calA$, it suffices to define a function $g : A + 1 \to |B|$. We define
+    %
+    \[ g(\inl x) = f(x) \] 
+    and
+    \[ g(\inr *) = B.\mho. \]
+    %
+    Then by the universal property this extends uniquely to a function $\ghat :
+    T(A + 1) \to |B|$ that preserves the operations in $\calA$.
+
+    Then it is clear that this is a homomorphism of models of $\calA =
+    \th{\mho}$ since $g(\sem{\mho}) = \ghat(T.\eta(\inr\, *)) = g(\inr\, *) =
+    B.\mho$.
+
+    For uniqueness, suppose $h, h' : T(A + 1) \to B$ are homomorphisms of
+    $(\calA + \th{\mho})$-models such that $h \circ \eta' = h' \circ \eta'$. We
+    show that $h = h'$. 
+
+\end{proof}
+
+\subsubsection{Proof of Lemma \ref{lem:state-monad-transformer}}
+
+Recall that we are given a guarded algebraic theory $\calA = (\Sigma, E)$ with
+free-model monad $T_\calA$. We will show that the free-model monad for the
+theory $\calA \otimes \th{\text{State}_S}$ is given by
+%
+\[ T'(A) := S \to T_\calA(S \times A). \]
+%
+We begin by defining the operations. We let
+
+\[ \sem{\get} f\, s = f\, s\, s, \]
+%
+\[ \sem{\put} m\, s\, s = m\, s, \]  
+%
+and $\sem{\oper} : [(\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later(T'(A)))] \to T'(A)$ defined by
+%
+\[ 
+  \sem{\oper}(u, g)\, s = 
+    T(A \times S).\sem{\oper}
+      [(\lambda w. u\, w\, s), (\lambda z. \lambda t. g\, z\, t\, s)].
+\]
+
+Now, we show that the required equations hold when interpreted in $T'(A)$.
+%
+The proofs of the get-put laws are analogous to those for the ordinary state
+monad and hence omitted.
+%
+We prove the tensor equations stating that $\get$ and $\put$ commute with each
+operation in $\calA$:
+\begin{enumerate}
+    \item \emph{Get commutes with each operation in $\calA$}: Let $\oper :
+    (\tau, \gamma) \in \calA$. Let $u : \tau \to S \to T'(A)$ and $g : \gamma \to
+    \later(S \to T'(A))$. Let
+    %
+    \[ 
+        M = \sem{\oper}[
+              (\lambda w. \sem{\get}(\lambda s. u\, w\, s)),
+              (\lambda z. \lambda t.\sem{\get}(\lambda s. g\, z\, t\, s))]
+    \] 
+    and
+    \[
+        N = \sem{\get}[\lambda s. 
+              \sem{\oper}((\lambda w. u\, w\, s), (\lambda z. \lambda t. g\, z\, t\, s))]
+    \]
+    %
+    We need to show that $M = N$. For brevity, let
+    %
+    $u_1 = (\lambda w. \sem{\get}(\lambda s. u\, w\, s))$ and let 
+    %
+    $g_1 = (\lambda z. \lambda t.\sem{\get}(\lambda s. g\, z\, t\, s))$.
+    %
+    We first observe that for any $w : \tau$ and $z : \gamma$, we have
+    %
+    $u_1(w) = (\lambda s. u\, w\, s\, s)$ of type $S \to T(S \times A)$ and 
+    %
+    $g_1(z) = (\lambda t. \lambda s. g\, z\, t\, s\, s)$ of type $\later (S \to T(S \times A))$.
+    
+    Now let $s \in S$. We have
+    \begin{align*}
+        M(s) &= \sem{\oper}(u_1, g_1)(s) \\
+             &= T(A \times S).\sem{\oper}[(\lambda w. u_1\, w\, s), (\lambda z. \lambda t. g_1\, z\, t\, s)] \\
+             &= T(A \times S).\sem{\oper}[(\lambda w. u\, w\, s\, s), (\lambda z. \lambda t. g\, z\, t\, s\, s) ]. \\
+    \end{align*}
+    
+    Now let $p(s) = (\lambda w. u\, w\, s)$ and $q(s) = (\lambda z. \lambda t. g\, z\, t\, s)$.
+    We have
+    %
+    \begin{align*}
+        N(s) &= (\sem{\get}[\lambda s'. \sem{\oper}(p(s'), q(s'))])(s)
+             &= (\lambda s'. \sem{\oper}(p(s'), q(s')))(s)(s) \\
+             &= [\sem{\oper}(p(s), q(s))](s) \\
+             &= T(A \times S).\sem{\oper}[(\lambda w. p(s)\, w\, s), (\lambda z. \lambda t. q(s)\, z\, t\, s)] \\
+             &= T(A \times S).\sem{\oper}[(\lambda w. u\, w\, s\, s), (\lambda z. \lambda t. g\, z\, t\, s\, s)].
+    \end{align*}
+    %
+    Thus, we conclude that $M = N$.
+    
+    \item \emph{Put commutes with each operation in $\calA$}: This is similar to
+    the above and hence omitted.
+\end{enumerate}
+
+Finally, we prove that the equations in $\calA$ hold. For this, we first prove
+the following lemma:
+%
+\begin{lemma}
+    % Let $t$ be a term in the signature $F_\Sigma(A)$ (recall $\Sigma$ is the
+    % signature of $\calA$), and let $f : \Gamma \to T'(A)$ be a function. 
+
+    Let $f : \Gamma \to T'(A)$ be a function. Then for all $s \in S$, there exists a
+    function $\fhat_s : \Gamma \to T(S \times A)$ such that, for all terms $t$ in
+    the signature $F_\Sigma(A)$, we have
+    %
+    \[ \sem{t}_{\fhat_s}^{T(S \times A)} = (\sem{t}_f^{T'(A)})(s). \]
+\end{lemma}
+
+\begin{proof}
+    For $s \in S$, we define $\fhat(x) = f(x)(s)$.
+
+    % TODO: finish
+\end{proof}
+
+Now we can show that the equations in $\calA$ hold:
+\begin{proof}
+    Let $e = (\Gamma, l, r) \in
+    E$, and let $f : \Gamma \to T'(A)$ be a function. We need to show
+
+    \[ \sem{l}_f^{T'(A)} = \sem{r}_f^{T'(A)}, \]
+
+    where both sides are functions $S \to T(S \times A)$. To this end, let $s \in
+    S$. Then by the Lemma, we have that there is $\fhat_s : \Gamma \to T(S \times
+    A)$ with the property described in the Lemma. In particular, we have
+    %
+    \begin{align*}
+        (\sem{l}_f^{T'(A)})(s) 
+        &= \sem{l}_{\fhat_s}^{T(S \times A)} \\
+        &= \sem{r}_{\fhat_s}^{T(S \times A)} \\
+        &= (\sem{t}_f^{T'(A)})(s),
+    \end{align*}
+    %
+    where the second equality holds because $T(S \times A)$ is a model of $\calA$
+    and hence the equation holds when interpreted in $T(S \times A)$.
+\end{proof}
+
+Next, we define $\eta' : A \to T'(A)$ by $\eta'(x) = \lambda s.\eta(s, x)$ where
+$\eta : (S \times A) \to T(S \times A)$ is the unit for $T$.
+
+Finally, we show the universal property:
+\begin{proof}
+    Let $B$ be a model of the theory $\calA \otimes \th{\text{State}_S}$.
+\end{proof}
+
