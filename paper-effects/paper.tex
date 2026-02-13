@@ -655,8 +655,10 @@ to the section on denotational semantics.
 \section{A Generic Syntax for Gradual Typing with Effects}\label{sec:syntax}
 
 To begin, we fix a framework for specifying gradual cast calculi with algebraic
-effects. The framework is parameterized by an ordinary algebraic theory $\calA$
-specifying the effects available in the syntax.
+effects. The framework is parameterized by an ordinary \emph{finitary} algebraic
+theory $\calA$ specifying the effects available in the syntax. Finitary here
+means that the arities of all operations are finite types; we write $[n]$ for
+the finite type with $n$ elements, unique up to isomorphism.
 
 The cast calculus is call-by-value and is presented in Figure
 \ref{fig:gtlc-syntax}.
@@ -687,19 +689,20 @@ order), whereas downcasts are effectful.
 % operation in $\calA$ and $M$ is of type $\sigma$, then $\synop{op}{M}$ is of
 % type $\tau$.
 
-Lastly, we have terms $\synop{op}{M}$ corresponding to each operation in the
+Lastly, we have terms $\synoper{M}{n}$ corresponding to each operation in the
 algebraic theory $\calA$. More concretely, if $\oper$ is an operation in $\calA$
-of arity $\tau_\oper$, then there is a term $\oper$ of type $\tau_\oper$.
+of finite arity $n$, then given $n$ terms of type $A$ (representing the $n$
+possible continuations), the operation $\synoper{M}{n}$ has type $A$.
 
 % We mention two notes about the relationship between the given algebraic theory
 % and the syntax. First, 
 
-We assume that the meta-level arity types of each operation exist as
-object-level types within the cast calculus. While these types are not
-\emph{equal}, there will be an isomorphism allowing us to translate between
-them. For example, if we have an operation $\oper$ of arity $\mathbb{N}$, then
-in the syntax the corresponding term will have type $\nat$. We leave implicit
-the conversion between the syntactic and semantic versions of the arities.
+% We assume that the meta-level arity types of each operation exist as
+% object-level types within the cast calculus. While these types are not
+% \emph{equal}, there will be an isomorphism allowing us to translate between
+% them. For example, if we have an operation $\oper$ of arity $\mathbb{N}$, then
+% in the syntax the corresponding term will have type $\nat$. We leave implicit
+% the conversion between the syntactic and semantic versions of the arities.
 
 
 % Terms:
@@ -751,13 +754,13 @@ the conversion between the syntactic and semantic versions of the arities.
   {\Gamma \vdash \dnc c N : A}
 
   \inferrule*[right=Eff]
-  {\eff{op}{\sigma}{\tau} 
-    \and \Gamma \vdash V : \sigma 
-    \and \Gamma,x : \tau \vdash M : A}
-  {\Gamma \vdash \synop{op}{V}{x}{M} : A}
+  {\oper : n 
+    \and \forall i \in [n]. \Gamma \vdash M_i : A}
+  {\Gamma \vdash \synoper{M}{n} : A}
 
   \inferrule{}{\Gamma \vdash \mho : A}
   \end{mathpar}
+  \hrule
   \begin{mathpar}
     \inferrule{}{r(A) : A \ltdyn A}\and
     \inferrule{c : A \ltdyn A' \and c' : A' \ltdyn A''}{cc' : A \ltdyn A''}\and
@@ -766,6 +769,9 @@ the conversion between the syntactic and semantic versions of the arities.
     \inferrule{}{\itimes \colon \dyn \times \dyn \ltdyn \dyn}\and
     \inferrule{c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o'}{c_i \ra c_o : (A_i \ra A_o) \ltdyn (A_i' \ra A_o')}\and
     \inferrule{c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2'}{c_1 \times c_2 : (A_1 \times A_2) \ltdyn (A_1' \times A_2')}\and
+  \end{mathpar}
+  \hrule
+  \begin{mathpar}
      r(A)c \equiv c\and
      c \equiv cr(A')\and
      c(c'c'') \equiv (cc')c''\and
@@ -1186,8 +1192,8 @@ In particular, our notational conventions are as follows:
     %   { \synop{op} V x M \stepslabel{\eff {op} V W} M[W/x] }
 
     \inferrule*[right=Eff, leftskip=2em]
-      { \oper : \tau }
-      { \lett {x} {\oper} {N} \stepsin{0} \ceff{(\oper, (\lambda (z : \tau).M[z/x]))} }  
+      { \oper : [n] }
+      { \synoper{M}{n} \stepsin{0} \ceff{(\oper, (\lambda\, (i : [n]).\, M_i))} }  
 
     % Congruence
     % Accounts for the fact that reduction may be impure
@@ -1235,8 +1241,9 @@ we check that the tag of the upcast matches the tag of the downcast, e.g., the
 upcast is $\iarr$ and the downcast is $\iarr$. If the tags match, then the cast
 steps to the original value. Otherwise, the term takes an effectful step to
 $\ceff{(\mho, *)}$, representing that an error was raised. Note that when
-downcasting a dynamically-typed function, we record one recursive unfolding. In
-the denotational semantics, this corresponds to inserting a $\theta$.
+downcasting a dynamically-typed function, we record a true step, i.e., a
+recursive unfolding. In the denotational semantics, this corresponds to
+inserting a $\theta$.
 %
 % Note also that these rules only mention the primitive injection forms $\inat$,
 % $\iarr$, and $\itimes$ rather than the composed forms $\injarr c$ and $\injtimes
@@ -1245,13 +1252,20 @@ the denotational semantics, this corresponds to inserting a $\theta$.
 % using the rules just discussed.
 
 Next, we have our second impure reduction rule. This rule states that for an
-operation $\oper$ with arity $\tau$, when we bind $x$ to the result of $\oper$
-in a term $N$, the let expression takes an effectful step to the metatheoretic
-value $\ceff{(\oper, (\lambda (z : \tau).M[z/x]))}$. Note that since $\tau$ is a
-metatheoretic type, strictly speaking a conversion is necessary to substitute
-$z$ in the object-level term $M$. As mentioned in Section \ref{sec:syntax}, we
-assume that the arity of each operation is isomorphic to a corresponding
-syntactic type. For the sake of simplicity, we elide these conversions.
+operation $\oper$ with arity $n$, the term $\synoper{M}{n}$ takes an effectful
+step to the metatheoretic value $\ceff{(\oper, (\lambda\, (i : [n]).\, M_i))}$.
+The intuition is that we are performing the operation at the meta-level.
+%
+Note that the operation is uninterpreted at this stage, i.e., there is no
+environment to provide the value $i$. Instead, when we interpret the semantics
+in a monad supporting the effects, we will invoke the corresponding operation on
+the monad. The continuation will then select the appropriate term $M_i$ based on
+the value of $i$ it receives from the environment.
+% Note that since $\tau$ is a metatheoretic type, strictly speaking a conversion
+% is necessary to substitute $z$ in the object-level term $M$. As mentioned in
+% Section \ref{sec:syntax}, we assume that the arity of each operation is
+% isomorphic to a corresponding syntactic type. For the sake of simplicity, we
+% elide these conversions.
 
 % for any possible request value $V$ and
 % response value $W$, the term $\synop{op} V x M$ steps to $M[W/x]$. This
