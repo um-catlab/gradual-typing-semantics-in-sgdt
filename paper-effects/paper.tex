@@ -1472,10 +1472,10 @@ $\bool$. The free models for this theory augmented with errors, true delays, and
 bureaucratic delays are given by $T(X) := \bool \to L(\bool \times X)$ where $LX
 \cong X + \{\mho\} + \later (LX) + \later (LX)$. Then the type of $\run$ becomes
 %
-\[ \run : \term{A} \to T(\val{A}) 
-    = \term{A} \to (\bool \to L(\bool \times \val{A}))
-    \cong (\term{A} \times \bool) \to L(\bool \times \val{A}).
-\]
+\begin{align*} \run : \term{A} \to T(\val{A}) 
+    &= \term{A} \to (\bool \to L(\bool \times \val{A})) \\
+    &\cong (\term{A} \times \bool) \to L(\bool \times \val{A}).
+\end{align*}
 %
 This is analogous to the usual notion of stateful operational semantics, in
 which a term and an initial state are mapped to a final state and a returned
