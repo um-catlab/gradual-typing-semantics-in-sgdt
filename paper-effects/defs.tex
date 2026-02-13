@@ -407,6 +407,9 @@
 
 \newcommand{\cpure}[1]{\mathsf{pure}{#1}}
 \newcommand{\ceff}[1]{\mathsf{impure}{#1}}
+% \DeclareMathOperator{\cpure}{pure}
+% \DeclareMathOperator{\ceff}{eff}
+
 \newcommand{\sty}{\mathit{ty}}
 
 \newcommand{\lett}[3]{\textrm{let } {#1} = {#2} \textrm{ in } {#3}}
@@ -420,3 +423,12 @@
 \newcommand{\ar}{\textrm{ar}}
 \newcommand{\leaf}{\textrm{leaf}}
 \newcommand{\leadstomany}{\mathrel{\leadsto^*}}
+
+\newcommand{\reader}{\text{reader}}
+\NewCommandCopy{\oldstate}{\state}
+\renewcommand{\state}{\text{state}}
+\newcommand{\nondet}{\text{nondet}}
+
+\NewCommandCopy{\oldchoose}{\choose}
+\renewcommand{\choose}{\text{choose}}
+\newcommand{\lookup}{\text{lookup}}

@@ -130,11 +130,12 @@ otherwise change the behavior of the program.
 
 Establishing graduality for a given cast calculus has traditionally been a
 tedious endeavor. One common approach involves defining a step-indexed logical
-relation over an operational semantics \cite{TODO}; these methods are inherently
-dependent on the particular calculus being modeled and offer little opportunity
-for reuse of mathematical abstractions across different developments. Another
-method, developed by New and Licata \cite{new-licata-18}, constructs a
-denotational semantics using \emph{classical} domain theory. While
+relation over an operational semantics \cite{new-ahmed2018,
+new-licata-ahmed2019, new-jamner-ahmed19, new-giovannini-licata-2022}; these
+methods are inherently dependent on the particular calculus being modeled and
+offer little opportunity for reuse of mathematical abstractions across different
+developments. Another method, developed by New and Licata \cite{new-licata18},
+constructs a denotational semantics using \emph{classical} domain theory. While
 compositional, this approach suffers from a lack of expressiveness: classical
 domain-theoretic techniques appear incapable of modeling viciously
 self-recursive structures such as higher-order store
@@ -214,17 +215,15 @@ operational semantics.
 
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
-The main contribution of this paper is a framework for giving an
-adequate operational semantics to an effectful gradually-typed cast
-calculus\max{and proving graduality surely!}. The input to the
-framework consists of a specification of the algebraic effects present
-in the cast calculus, given in the form of an \emph{algebraic theory},
-which contains the operations along with equations that they
-satisfy. More details on algebraic theories are given in Section
-\ref{sec:modeling-effects}. The cast calculus contains a term
-corresponding to each of the operations present in the provided
-algebraic theory $\calA$, allowing the programmer to perform the
-effects contained in the theory.
+The main contribution of this paper is a framework for giving an adequate
+operational semantics to an effectful gradually-typed cast calculus and proving
+that the resulting semantics satisfies graduality. The input to the framework
+includes a specification of the algebraic effects present in the cast calculus,
+given in the form of an \emph{algebraic theory}, which contains the operations
+along with equations that they satisfy. More details on algebraic theories are
+given in Section \ref{sec:modeling-effects}. The cast calculus contains a term
+corresponding to each of the operations present in the provided algebraic theory
+$\calA$, allowing the programmer to perform the effects contained in the theory.
 
 Every algebraic theory $\calA$ induces a monad, called the \emph{free-model
 monad} for $\calA$. In addition to an algebraic theory $\calA$ specifying the
@@ -238,9 +237,8 @@ form
 \[ \run : (\term{A} \to T'(\val{A})). \]
 %
 where $T'$ is the free-model monad $T_\calA$ augmented with an additional delay
-effect we call ``administrative delays''. The additional delay effect accounts
-for the fact that a priori, we do not know whether the given term will
-terminate.
+effect we call ``bureaucratic delays''. The additional delay effect accounts for
+the fact that a priori, we do not know whether the given term will terminate.
 
 The graduality property says that if a term $M$ is syntactically more precise
 than a term $N$, then the behavior of $M$ when run is a refinement of the
@@ -276,18 +274,36 @@ via an \textbf{adequacy theorem}:
 \end{theorem}
 %
 Here, $x \equiv_b y$ relates elements belonging to two different monads, where
-the monad in which $\run{M}$ lives supports a special ``bureaucratic''
-stepping operation that the monad where $\sem{M}$ lives does not. The reason
-for this discrepancy will be explained in the section on operational
-semantics, but for now it is sufficient to note that the relation $x \equiv_b
-y$ means that $x$ and $y$ are the same up-to a \emph{finite} number of
-bureaucratic steps in $x$. The adequacy theorem then says that running a term
-$M$ does not result in an infinite sequence of bureaucratic steps.\max{I think we can just say something specific here like ``bureaucratic steps are things like beta reductions that are invisible in the denotational semantics''}
+the monad in which $\run{M}$ lives supports a special ``bureaucratic'' stepping
+operation that the monad where $\sem{M}$ lives does not. Bureaucratic steps
+correspond to operational rules such as beta reductions that are invisible in
+the denotational semantics.
+% The reason for this discrepancy will be explained in the section on
+% operational semantics, but for now it is sufficient to note that
+The relation $x \equiv_b y$ means that $x$ and $y$ are the same up-to a
+\emph{finite} number of bureaucratic steps in $x$. The adequacy theorem then
+says that the denotational semantics is equivalent to the operational semantics
+modulo finitely many bureaucratic steps.
+% running a term $M$ does not result in an infinite sequence of bureaucratic
+% steps.\max{I think we can just say something specific here like ``bureaucratic
+% steps are things like beta reductions that are invisible in the denotational
+% semantics''}
 
-We prove the adequacy theorem using a logical relation constructed in the
-ambient guarded type theory. More details are given in Section
+To prove the adequacy theorem, we made an improvement to the denotational
+semantics of Giovannini et al. In their semantics, there were additional steps
+inserted in the semantics of certain casts. These steps are needed in the
+graduality proof, but their presence means that the operational and denotational
+semantics are not synchronized. To resolve this, we define a second semantics
+for casts that does not include the additional steps. The two semantics are
+weakly bisimilar, which is sufficient for graduality. Moreover, the version
+without the additional steps can be related in lock-step to the operational
+semantics without requiring any modifications to the operational rules.
+
+Having made the aforementioned adjustment to the denotational semantics, we then
+prove the adequacy theorem using a logical relation constructed in the ambient
+guarded type theory. More details are given in Section
 \ref{sec:relating-the-semantics}.
-\max{We should probably say something about the fact that we improve the denotational semantics from prior work in order to make this true}
+%\max{We should probably say something about the fact that we improve the denotational semantics from prior work in order to make this true}
 
 Putting the above two results together, we obtain \textbf{guarded
 operational graduality}:
@@ -404,9 +420,10 @@ specific form of guarded type theory with access to additional constructs called
 \emph{ticks} and \emph{clocks}.
 
 % TODO review and consider trimming
-Ticked Cubical Type Theory \cite{mogelberg-veltri2019} is an extension of
-Cubical Type Theory \cite{CohenCoquandHuberMortberg2017} that has an additional
-sort called \emph{ticks}. Ticks were originally introduced by Bahr et al.
+The specific type theory in which we work is called Ticked Cubical Type Theory
+\cite{mogelberg-veltri2019}, an extension of Cubical Type Theory
+\cite{CohenCoquandHuberMortberg2017} that has an additional sort called
+\emph{ticks}. Ticks were originally introduced by Bahr et al.
 \cite{bahr-grathwohl-bugge-mogelberg2017}. A tick $t : \tick$ intuitively acts
 as evidence that one unit of time has passed. In Ticked Cubical Type Theory, the
 type $\later A$ is the type of dependent functions from ticks to $A$. The type
@@ -572,66 +589,167 @@ category of sets, which is known as the \textbf{free model monad}.
 % when inspecting a value of the dynamic type.
 % % TODO cite GTT-SGDT paper?
 
-\subsection{Operations on Algebraic Theories}
-
-Given two guarded algebraic theories $\calA_1$ and $\calA_2$, we define their
-\emph{coproduct} $\calA_1 + \calA_2$ by combining the operations and the
-equations in $\calA_1$ and $\calA_2$. We do not impose any additional equations.
-% TODO cite paper on combining algebraic theories.
-% TODO example
-
-Given two theories $\calA_1$ and $\calA_2$, we define their \emph{tensor
-product} $\calA_1 \otimes \calA_2$ by combining the operations and equations as
-in the coproduct, but also imposing additional equations that state the
-commutativity of each of the operations in $\calA_1$ with all of those in
-$\calA_2$.
-% TODO example
-
 \subsection{Examples of Algebraic Theories}
 
-We introduce two specific guarded algebraic theories that will be used throughout
-the paper.
-
-\begin{example}[Errors]\label{ex:err}
-    The theory of computations that can error $\calA_{err}$ is defined as
-    follows. Let $\Sigma_{err}$ contain a single operation $\errop$ with
-    $\tau_{\errop} = 0$ and $G_{\errop}(X) = 1$. There are no equations
-    associated with this theory.
+We introduce some specific guarded algebraic theories that will be used
+throughout the paper.
+%
+\begin{example}[Errors]\label{ex:err} The theory of computations that can error
+    $\calA_{\err}$ is defined as follows. Let $\Sigma_{\err}$ contain a single
+    operation $\errop$ with $\tau_{\errop} = 0$ and $\gamma_{\errop} = 1$. There
+    are no equations associated with this theory.
 
     Then a model of this theory is a set $B$ equipped with a function $((0 \to
     B) \times 1) \to B$, i.e., a function $1 \to B$, which is just an element of
     $B$. In other words, models of this theory are simply pointed sets $(B,
     \mho)$ where $\mho \in B$.
-
-    The free-model monad for $\calA_{err}$ is given by freely adjoining a point
+  %
+    The free-model monad for $\calA_{\err}$ is given by freely adjoining a point
     to its argument:
     %
-    \[ F_{\calA_{err}}(X) \cong X + 1. \]
+    \[ F_{\calA_{\err}}(X) \cong X + 1. \]
     
 \end{example}
 
-In our next example, the guarded arity is nontrivial:
+\begin{example}[Reader]\label{ex:reader} The theory of immutable state
+  $\calA_{\reader_R}$ models computations that can read from a single, global
+  immutable variable of type $R$. The theory consists of a signature with a
+  single operation $\lookup$ of arity $\tau_\lookup = R$ and guarded arity
+  $\gamma_\lookup = 0$. In any algebra $B$ of this signature, the operation
+  $\lookup$ has type $(R \to B) \to B$.
+  %
+  The lookup operation satisfies the following two equations:
+  %
+  \[ \forall (x : B).\, \lookup(\lambda r.\, x) = x, \]
+  and
+  \[ \forall (f : R \to R \to X).\,
+    \lookup(\lambda r. \lookup (g\, r)) = \lookup(\lambda r.\, g\, r\, r\,). \]
+  The free-model monad for this theory is the \emph{reader monad}, given by
+  %
+  \[ F_{\calA_{\reader_R}}(X) \cong R \to X. \]
+   
+\end{example}
 
+\begin{example}[State]\label{ex:state} %The theory of stateful computations
+    The theory of global state $\calA_{\state_S}$ for state set $S$ models
+    computations that can read from and write to a global state --- a single
+    global variable of type $S$. The theory consists of a signature
+    $\Sigma_{\state}$ with the following operations:
+    %
+    \begin{itemize}
+        \item An operation $\get$ of arity $\tau_\get = S$ and guarded arity
+        $\gamma_{\get} = 0$.
+        \item A family of operations $\put_s$ for each $s \in S$, each of arity
+        $\tau_{\put_s} = 1$ and guarded arity $\gamma_{\put_s} = 0$.
+    \end{itemize}
+    
+    In any algebra $B$ of this signature, the operation $\get$ has type $(S \to
+    B) \to B$ and $\put_s$ has type $B \to B$. The argument to $\put_s$
+    represents the continuation, i.e., what we do after writing $s$ to the
+    state.
+    %
+    In the theory of state, these operations are subject to the following four
+    equations:
+    %
+    \begin{itemize}
+        \item \textbf{get-get}: $\forall f : (S \to (S \to B)).$
+            $\get(\lambda s. \get (f\, s)) = \get(\lambda s. f\, s\, s)$
+        \item \textbf{get-put}:
+            $\get(\lambda s.\put_s(x)) = x$
+        \item \textbf{put-get}: $\forall g : (S \to B).\forall s : S.$
+            $\put_s(\get g) = \put_s(g\, s)$.    
+        \item \textbf{put-put}: $\forall x : B. \forall s, t : S.$
+            $\put_t(\put_s(x)) = \put_s(x)$.
+    \end{itemize}
+    %
+    Models of this theory are computations that can read from and write to a
+    global state $S$.
+    %
+    The free-model monad for this theory is the \emph{global state monad}
+    %
+    \[ F_{\calA_{\state_S}}(X) \cong S \Rightarrow (S \times X). \]
+
+\end{example}
+
+\begin{example}[Nondeterminism]\label{ex:nondeterminism}
+  The theory of nondeterminism $\calA_{\nondet}$ models computations that
+  can make nondeterministic choices.
+  The signature $\Sigma_{\nondet}$ contains a single operation $\choose$ with $\tau_{\choose} =
+  2$ and $\gamma_{\choose} = 0$. The equations specify that the operation is associative, commutative, and idempotent.
+
+  Models of this theory are join-semilattices, that is, a set $B$ equipped with
+  a binary operation that is associative, commutative, and idempotent. The
+  free-model monad for this theory is given by the finite powerset monad
+  $P_f(X)$, the collection of all non-empty finite subsets of $X$; this is the
+  free join-semilattice on $X$. It is possible to define $P_f(X)$ as a
+  higher-inductive type \cite{10.1145/3167085, 10.3217/jucs-023-01-0063}.
+\end{example}
+
+In our next example, the guarded arity is nontrivial:
+%
 \begin{example}[Computational Steps]\label{ex:steps}
     %We define the theory $\calA_{step}$ of computational steps as follows. 
-    The theory of computational steps $\calA_{step}$ models computations that
+    The theory of computational steps $\calA_{\step}$ models computations that
     can take an observable computational step. The theory is defined as follows.
-    Let $\Sigma_{step}$ contain a single operation $step$ with $\tau_{step} = 0$
-    and $G_{step}(X) = X$. There are no equations associated with this theory.
+    Let $\Sigma_{\step}$ contain a single operation $\step$ with $\tau_{\step} =
+    0$ and $\gamma_{\step} = 1$. There are no equations associated with this
+    theory.
 
     Then a model of this theory is a set $B$ equipped with a function
-    $\sem{step} : ((0 \to B) \times (\later B)) \to B$, i.e., a function $\later
-    B \to B$. We call this function $\theta_B$ in accordance with prior work
-    using guarded type theory.
-
-    The free-model monad for $\calA_{step}$ is the so-called \emph{guarded-lift
-    monad} defined as the unique solution to the guarded-recursive equation
+    $\sem{\step} : ((0 \to B) \times (\later B)) \to B$, i.e., a function
+    $\later B \to B$. We call this function $\theta_B$ in accordance with prior
+    work using guarded type theory.
+    %
+    The free-model monad for $\calA_{\step}$ is the so-called \emph{guarded-lift
+    monad} \cite{mogelberg-paviotti2016} defined as the unique solution to the
+    guarded-recursive equation
     %
     \[ L(X) \cong X + \later L(X). \]
     % TODO cite paper on guarded lift monad
 \end{example}
 
-\max{state, reader, and non-determinism? Need to show off the generality here}
+%\max{state, reader, and non-determinism? Need to show off the generality here}
+
+\subsection{Operations on Algebraic Theories}
+
+We define two operations for combining algebraic theories, straightforward
+generalizations of the sum and tensor of algebraic theories described by Hyland
+et al. \cite{HYLAND200670}.
+
+Given two guarded algebraic theories $\calA_1$ and $\calA_2$, we define their
+\emph{sum} $\calA_1 + \calA_2$ by combining the operations and the equations in
+$\calA_1$ and $\calA_2$. We do not impose any additional equations.
+% TODO cite paper on combining algebraic theories.
+% TODO example
+
+Likewise, given two theories $\calA_1$ and $\calA_2$, we define their
+\emph{tensor product} $\calA_1 \otimes \calA_2$ by combining the operations and
+equations as in the coproduct, but also imposing additional equations that state
+the commutativity of each of the operations in $\calA_1$ with all of those in
+$\calA_2$.
+
+\begin{example}
+  The theory $\calA_{\state} \otimes \calA_{\step}$ models computations that can
+  take observable computational steps, as well as read and write to a single
+  global cell of type $S$. In addition to the equations from each theory (in
+  this case, the state equations), the $\get$ and $\put_s$ operations must
+  commute with the $\theta$ operation. This theory is described concretely by
+  Møgelberg and Zwart \cite{lmcs:14660}, who showed that the free-model monad is
+  given by $F(X) = S \to (L(S \times X))$, where $L$ is the guarded lift monad
+  discussed above.
+\end{example}
+
+\begin{remark}\label{remark:tensor-nullary-with-step} Consider a theory $\calA$
+  with a nullary operation $\oper$, i.e., $\tau_\oper = 0 = \gamma_\oper$. The
+  tensor of $\calA$ with the theory of stepping $\calA_{\step}$ includes an
+  equation $\theta(\lambda t.\, \oper) = \oper$. We can prove using
+  \lob-induction that this implies $\oper = \fix\, \theta$, i.e., we cannot
+  distinguish between performing $\oper$ and stepping indefinitely. As a result,
+  we will avoid using the tensor to combine a theory containing a nullary
+  operation with the theory of stepping.
+\end{remark}
+
+
 \subsection{Relational Aspects}
 
 An important aspect that we have elided so far is the fact that, since we are
@@ -1133,29 +1251,29 @@ In particular, our notational conventions are as follows:
 
     % Up/down cast of a paired value steps to the pair of the up/down casted
     % values:
-    \inferrule*[right=Up-Pair]
+    \inferrule*[right=Up-$\times$, leftskip=1em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2'}
       { \upc (c_1 \times c_2) (V_1, V_2) \stepsin{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
 
-    \inferrule*[right=Dn-Pair]
+    \inferrule*[right=Dn-$\times$, leftskip=2em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2'}
       { \dnc (c_1 \times c_2) (V_1, V_2) \stepsin{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
   
 
     % "Composition" of casts with inj-arr and inj-times:
-    \inferrule*[right=$\iarr$CompUp]
+    \inferrule*[right=$\iarr$Up, leftskip=1em]
       { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : A }
       { (\upc (\injarr c) M) \stepsin{0} (\upc \iarr (\upc c M))}
 
-    \inferrule*[right=$\iarr$CompDn]
+    \inferrule*[right=$\iarr$Dn, leftskip=2em]
       { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : \dyn }
       { (\dnc (\injarr c) M) \stepsin{0} (\dnc c (\dnc \iarr M))}
 
-    \inferrule*[right=$\itimes$CompUp]
+    \inferrule*[right=$\itimes$Up]
       { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : A }
       { (\upc (\injtimes c) M) \stepsin{0} (\upc \itimes (\upc c M))}
 
-    \inferrule*[right=$\itimes$CompDn]
+    \inferrule*[right=$\itimes$Dn, leftskip=2em]
       { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : \dyn }
       { (\dnc (\injtimes c) M) \stepsin{0} (\dnc c (\dnc \itimes M))}
 
@@ -1344,48 +1462,39 @@ an evaluation context:
 The proof uses \lob-induction; see the Appendix for details.
 
 
-
-% The $\run$ function satisfies the following additional properties that will be
-% useful in relating the operational and denotational semantics in Section
-% \ref{sec:relating-the-semantics}:
-
-
-\begin{comment}
-  Following the work of Kavvos, our operational semantics has two kinds of
-  reductions. There are \emph{pure reductions}, which comprise the usual $\beta$
-  reductions in an ordinary lambda calculus as well as reductions involving casts.
-  There are also \emph{impure reductions}, which result from the program making a
-  request to its environment and receiving a value in response.
-
-  The pure reductions are labeled by a natural number $i \in \{0, 1\}$, which
-  intuitively tracks the number of recursive unfoldings involved in each step. The
-  source of such steps is the downcast from the dynamic type to a function, since
-  in the denotational semantics the function is only available later and hence the
-  downcast involves an observable computational step. We track the recursive
-  unfolding of terms in the operational semantics to help us relate the
-  operational and denotational semantics, which we address in a subsequent
-  section.
-  %
-
-  The impure reductions do not involve any recursive unfolding, so they are not
-  labeled by a natural number. A general impure reduction has the form
-  %
-  \[ M \stepseff{op}{V}{W} N, \]
-  %
-  which means that $M$ sends value $V$ to the environment and continues as $N$
-  upon receiving response $W$.
-
-  % TODO if this is for fine-grain call-by-value, then do we need rules involving
-  % function application?
-  % TODO define evaluation contexts
-  % TODO need to define a subset of "first-order values" to be used in the effect
-  % operations.
-
-
-  \subsection{A Guarded Interaction Tree Semantics}
-\end{comment}
-
 \max{I think we need examples here of how this is really the normal operational semantics when we take specific examples like state, reader, probability etc.}
+\eric{I added an example with state.}
+
+We conclude this section with an example of how our semantics works for a
+specific algebraic theory. Consider the theory of global state as discussed in
+Section \ref{sec:modeling-effects}, and suppose the type $S$ is taken to be
+$\bool$. The free models for this theory augmented with errors, true delays, and
+bureaucratic delays are given by $T(X) := \bool \to L(\bool \times X)$ where $LX
+\cong X + \{\mho\} + \later (LX) + \later (LX)$. Then the type of $\run$ becomes
+%
+\[ \run : \term{A} \to T(\val{A}) 
+    = \term{A} \to (\bool \to L(\bool \times \val{A}))
+    \cong (\term{A} \times \bool) \to L(\bool \times \val{A}).
+\]
+%
+This is analogous to the usual notion of stateful operational semantics, in
+which a term and an initial state are mapped to a final state and a returned
+value. Here, $L$ accounts for errors and steps. 
+
+% Consider the program $M:= \get(M_{t}, M_{f})$ where $M_t :=
+% \put_f(\zro)$ and $M_f := \put_t(\suc\, \zro)$. The program reads a boolean from
+% the state; if it reads $t$, it writes $f$ and returns $\zro$. Otherwise, it
+% writes $t$ and returns $\suc\, \zro$. 
+% %
+% \[ 
+%   \run M = \delta_b(\sem{\get}(
+%     \delta_b(\sem{\put_f}(\eta\,\zro)), 
+%     \delta_b(\sem{\put_t}(\eta\, (\suc\, \zro))))). 
+% \]
+% For the state monad above, we have $\sem{\get}\,f\, s = f\, s\, s$, and
+% $\sem{\put_s}\,x \,s' = x\, s$, while $\sem{\delta_b}\,x\, s = L.\delta_b(x\,
+% s)$. Then simplifying in the above expression, we obtain that $\run M = \lambda
+% s.\, L.\delta_b()$
 
 \section{Denotational Semantics}\label{sec:denotational-semantics}
 
@@ -1393,10 +1502,12 @@ In this section, we discuss how to adapt the denotational model of Giovannini et
 al. \cite{gtt-sgdt} to accommodate algebraic effects. After reviewing the key
 aspects of their model, we discuss the generalizations necessary to extend their
 semantics to accommodate an arbitrary algebraic theory. We additionally correct
-a subtle limitation with their semantics related to the denotation of certain
-casts\max{limitation is maybe the wrong word. Just say it is a mismatch with the step counting in the operational semantics}. While this limitation was not problematic for their result, this change
-will prove crucial for us in relating the operational and denotational semantics
-in Section \ref{sec:relating-the-semantics}.
+a mismatch with step counting between their semantics and the operational
+semantics related to the denotation of certain casts.
+% \max{limitation is maybe the wrong word. Just say it is a mismatch with the step counting in the operational semantics}.
+While this mismatch was not problematic for their result, this change will prove
+crucial for us in relating the operational and denotational semantics in Section
+\ref{sec:relating-the-semantics}.
 
 % Recall that in their model, pure values were modeled as elements of a
 % \emph{predomain}, and effectful computations were modeled as elements of an
@@ -1742,11 +1853,12 @@ On the other hand, morphisms are not required to interact with the
 perturbations.
 % TODO more detail on the definition of quasi-representability?
 
-It turns out\max{Don't start a paragrpah with ``It turns out''. Say something more active like ``their proof cleanly generalizes''} that the construction of perturbations and quasi-representable
-relations is independent of the details of the adjunction between predomains and
-(our generalized notion of) error domains. This means that the constructions
-used in the model of Giovannini et al. will work in our more general setting
-without any major modifications.
+% It turns out\max{Don't start a paragrpah with ``It turns out''. Say something more active like ``their proof cleanly generalizes''}
+The construction of perturbations and quasi-representable relations is
+independent of the details of the adjunction between predomains and (our
+generalized notion of) error domains. This means that the constructions used in
+the model of Giovannini et al. will generalize cleanly to our setting without
+any major modifications.
 %
 Details as to the definitions of the perturbations associated with each of the
 type constructors can be found in the Appendix. % TODO cite appendix
@@ -1791,8 +1903,8 @@ additional steps. While the intensional behavior of these two kinds of casts are
 distinct, they are extensionally related in that they are \emph{weakly
 bisimilar}, which is sufficient for the final proof of graduality.
 
-For concreteness, recall\max{is ``recall'' the correct word here? Did we say this earlier or do we expect them to have read the previous paper} that in the prior model, term precision $M \ltdyn N :
-A$ is modeled by $\sem{M} \ltbisim \sem{N}$ where
+For concreteness, term precision $M \ltdyn N : A$ is modeled in the prior
+semantics by $\sem{M} \ltbisim \sem{N}$ where
 %
 \[ f \ltbisim g := \exists f', g'. f \bisim f' \ltdyn g' \bisim g. \]
 %
@@ -2355,19 +2467,19 @@ equal to $q$ or it is a prefix of $q$ that ends in $\mho$:
 \end{mathpar}
 
 Then the extensional error ordering can be defined as saying that $M
-\sqsubseteq N$ when the results of observing $M$ are either the same as
+\ltbisim N$ when the results of observing $M$ are either the same as
 $N$ or result in an error earlier on. 
 
-\max{TODO: this should be the version with a tilde but I don't see that defined anywhere}
+%\max{TODO: this should be the version with a tilde but I don't see that defined anywhere}
 \begin{align*}
-   M \sqsubseteq N &= \forall (t : \textrm{PTrace}). \\
+   M \ltbisim N &= \forall (t : \textrm{PTrace}). \\
    &((N \vDash t) \Rightarrow \exists s \sqsubseteq t.~ M \vDash s)\\
    &\wedge ((M \vDash t) \wedge (t \downarrow \eta V \vee t \downarrow \textrm{end}) \Rightarrow N \vDash t)
 \end{align*}
 
-In plain english: if $N$ exhibits a finite trace $t$, then $M$ must
+In plain English: if $N$ exhibits a finite trace $t$, then $M$ must
 exhibit $t$ or an $\mho$-ending prefix of $t$, and if $M$ exhibits a
-trace ending in a value or opponents move, then $N$ must exhibit the
+trace ending in a value or opponent's move, then $N$ must exhibit the
 same trace.
 
 This relation is clearly transitive. We should also be able to show
