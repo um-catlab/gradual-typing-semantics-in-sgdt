@@ -2425,6 +2425,30 @@ interrupted by a $\theta$.
 We define $M \leadsto N$ to mean that $M = \textrm{leaf}(\delta(N))$,
 representing that $M$ ``steps'' to $N$ in one internal ($\tau$) step.
 
+Then the globalization of the strict error ordering $\sqsubseteq$ and
+weak bisimilarity $\bisim$ for ITrees imply the following
+coinductively generated relations on $\textrm{ITree}_\Sigma X$:
+
+\begin{mathpar}
+  \inferrule{}{\eta x \sqsubseteq \eta x}
+
+  \inferrule{}{\err \sqsubseteq N}
+
+  \inferrule{M \sqsubseteq N}{\delta(M) \sqsubseteq \delta(N)}
+
+  \inferrule{\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)}{\sigma(f) \sqsubseteq \sigma(g)}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule{N \leadstomany \eta x}{\eta x \bisim N}\and
+  \inferrule{M \leadstomany \eta x}{M \bisim \eta x}\and
+  \inferrule{N \leadstomany \err}{\err \bisim N}\and
+  \inferrule{M \leadstomany \err}{M \bisim \err}\and
+  \inferrule{N \leadstomany \sigma(g)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{\sigma(f) \bisim N}\and
+  \inferrule{M \leadstomany \sigma(f)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{M \bisim \sigma(g)}\and
+  \inferrule{M \bisim N}{\delta(M) \bisim \delta(N)}
+\end{mathpar}
+
 To define a concrete extensional error ordering on interaction trees,
 we define a type extensional execution traces. These traces are
 finitary observations of an interaction tree, but ignoring the $\tau$
@@ -2487,7 +2511,6 @@ Then the extensional error ordering can be defined as saying that $M
 \ltbisim N$ when the results of observing $M$ are either the same as
 $N$ or result in an error earlier on. 
 
-%\max{TODO: this should be the version with a tilde but I don't see that defined anywhere}
 \begin{align*}
    M \ltbisim N &= \forall (t : \textrm{PTrace}). \\
    &((N \vDash t) \Rightarrow \exists s \sqsubseteq t.~ M \vDash s)\\
@@ -2499,9 +2522,40 @@ exhibit $t$ or an $\mho$-ending prefix of $t$, and if $M$ exhibits a
 trace ending in a value or opponent's move, then $N$ must exhibit the
 same trace.
 
-This relation is clearly transitive. We should also be able to show
-that it is implied by both the strong error ordering as well as weak
-bisimilarity of ITrees.
+\begin{lemma}[Properties of $\sqsubseteq$]
+  \label{lem:itree-strong-err}
+  Assume $M \sqsubseteq N$.
+  \begin{enumerate}
+  \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+  \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \sqsubseteq g(r)$.
+  \item If $N \leadsto \err$ then $M \leadsto \err$
+  \item If $N \leadsto \eta x$ then $M \leadsto \err$ or $M \leadsto \eta x$
+  \item If $N \leadsto \sigma(f)$ then $M \leadsto \err$ or $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)$
+  \end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Properties of $\bisim$]
+  \label{lem:itree-bisim}
+  Assume $M \sqsubseteq N$.
+  \begin{enumerate}
+  \item If $M \leadsto \err$ then $N \leadsto \err$
+  \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+  \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \bisim g(r)$.
+  \item If $N \leadsto \err$ then $M \leadsto \err$
+  \item If $N \leadsto \eta x$ then $M \leadsto \err$ or
+  \item If $N \leadsto \sigma(f)$ then $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \bisim g(r)$
+  \end{enumerate}
+\end{lemma}
+
+\begin{theorem}[Properties of $\ltbisim$]
+  $\ltbisim$ is transitive.
+  If $M \sqsubseteq N$ then $M \ltbisim N$.
+  If $M \bisim N$ then $M \ltbisim N$.
+\end{theorem}
+\begin{proof}
+  Transitivity is clear. The other two implicications follow by induction on the structure of the input trace and the lemmas \ref{lem:itree-strong-err,lem:itree-bisim}
+  By induction on the structure of the input trace.
+\end{proof}
 
 \bibliographystyle{ACM-Reference-Format}
 \begin{DIFnomarkup}
