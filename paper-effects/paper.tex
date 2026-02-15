@@ -750,8 +750,13 @@ $\calA_2$.
 \end{remark}
 
 
+\max{Shouldn't this be the part where we discuss monad transformers as
+  well? I think this is where we should basically list theory/monad
+  transformers we handle and what you can get out of them.}
+
 \subsection{Relational Aspects}
 
+\max{This paragraph could be more concise and more informative}
 An important aspect that we have elided so far is the fact that, since we are
 modeling gradual typing, we need our mathematical structures to be equipped with
 a notion of relation to model the graduality ordering. This theory was developed
@@ -1041,6 +1046,7 @@ algebraic theories:
 
   \item We define the theory combining $\calA$ with errors and both true and
   bureaucratic steps:
+  \max{define macros for this and make sb not be in textrm}
   % 
   $\calA_{\mho sb} := 
     (\calA \otimes (\th{\mho} + \th{\step} + \th{\step}))$. 
@@ -1477,9 +1483,10 @@ bureaucratic delays are given by $T(X) := \bool \to L(\bool \times X)$ where $LX
     &\cong (\term{A} \times \bool) \to L(\bool \times \val{A}).
 \end{align*}
 %
-This is analogous to the usual notion of stateful operational semantics, in
-which a term and an initial state are mapped to a final state and a returned
-value. Here, $L$ accounts for errors and steps. 
+This is analogous to the usual notion of stateful operational
+semantics, in which a term and an initial state are mapped to a final
+state and a returned value. Here, $L$ accounts for errors and our two
+notions of computational steps.
 
 % Consider the program $M:= \get(M_{t}, M_{f})$ where $M_t :=
 % \put_f(\zro)$ and $M_f := \put_t(\suc\, \zro)$. The program reads a boolean from
@@ -1624,6 +1631,8 @@ congruence with respect to the operations $\theta$ and $\mho$:
      (\tilde{y}))$. 
   \end{enumerate}
 \end{definition}
+Note that because $\mho_B$ is a least element this implies the
+stronger property $\mho_B \binrel{d} y$ for any term $y: B'$.
 %
 There is again a reflexive error domain relation $r(B)$ given by the ordering.
 The relational composition of two error domain relations in general is not an
@@ -2163,11 +2172,21 @@ specific definitions we will be globalizing do satisfy the required technical
 condition.
 % TODO: mention the notion of a functor commuting with clock quantification.
 
-Unfortunately, carrying out the process of globalization for an arbitrary
-algebraic theory $\calA$ appears difficult, and we are not aware of an approach
-that works at this level of generality. On the other hand, there are two special
-cases where we can explicitly describe the globalization process, which we
-describe below.
+We are not aware of any general theorem to globalize free algebras for
+an arbitrary guarded algebraic theory $\calA$. However, we have
+identified two constructions that allow us to construct many examples:
+free theories (those with no equations) provide a base case, and then
+well-behaved theory/monad transformers allow us to construct more
+complex examples that do contain equations.
+
+\max{This was pretty weaselish before I tried to make it punchier. Please review Eric.}
+
+\max{I feel like free theory should come first because it's the base
+  case.}
+
+\max{We should also comment on theories we don't support and that
+  taking the free theory without equations is a somewhat reasonable
+  alternative in those cases (non-det/probability)}.
 
 \subsection{Monad Transformers}
 
@@ -2281,7 +2300,7 @@ and consider the globalized version by performing clock quantification.
 The analogue of the monotone sequences for the simple setting of error and
 stepping will be functions that take a generalized notion of fuel and return a
 finite trace of the computation.
-
+\max{need to update this section to focus on the traces/trees not lift and certainly not clocks}
 
 \section{Discussion}\label{sec:discussion}
 
@@ -2378,8 +2397,6 @@ Another possible direction would be to adapt the model to allow for gradual
 denotational semantics, including adding effect tracking. We would also need to
 solve a domain equation for the dynamic effect type analogous to the equation
 for the dynamic value type.
-
-
 
 \section{Graduality for Free Theories}
 
