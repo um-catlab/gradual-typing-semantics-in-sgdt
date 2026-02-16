@@ -1025,41 +1025,35 @@ The logical relation defined in Section \ref{sec:relating-the-semantics} will
 imply that when running any term, there can be at most finitely many consecutive
 bureaucratic steps between any two operations.
 
-From the given ordinary algebraic theory $\calA$, we define two related guarded
-algebraic theories:
+To account for errors and computational steps, the construction of the
+operational semantics is parameterized by three guarded algebraic theories that
+extend $\calA$. We write $\calA[\oper_1, \oper_2, \dots, \oper_n]$ to denote the
+collection of guarded theories that have the operations and equations of $\calA$
+plus the operations $\oper_1, \dots, \oper_n$, and possibly contain equations
+relating $\oper_i$ to the operations of $\calA$. The guarded extensions taken as
+input are as follows:
 %
 \begin{enumerate}
-  \item We define the theory combining $\calA$ with errors:
-  %
-  $\calA_\mho := \calA \otimes \th{\mho}$,
-  %
-  where $\th{\mho}$ is the theory of errors.
+  \item $\calAerr \in \calA[\mho]$, i.e., $\calA$ extended with errors.
 
-  \item We define the theory combining $\calA$ with errors and true steps:
-  %
-  $\calA_{\mho s} := \calA \otimes (\th{\mho} + \th{\step})$,
-  %
-  where $\th{\step}$ and $\th{\mho}$ are the theories of computational steps and
-  error, respectively, and $\otimes$ and $+$ are the tensor and coproduct of
-  algebraic theories (see Section \ref{TODO}). Notice that we take the coproduct
-  with $\th{\mho}$ rather than the tensor. This is because otherwise, by Remark
-  \ref{TODO}, we would end up with the equation $\mho = \fix\, \theta$.
+  \item $\calAs \in \calAerr[\theta^s]$, i.e., $\calA$ extended with errors and
+  (true) steps.
 
-  \item We define the theory combining $\calA$ with errors and both true and
-  bureaucratic steps:
-  \max{define macros for this and make sb not be in textrm}
-  % 
-  $\calA_{\mho sb} := 
-    (\calA \otimes (\th{\mho} + \th{\step} + \th{\step}))$. 
+  \item $\calAsb \in \calAs[\theta^b]$, i.e., $\calA$ with errors, true steps,
+  and bureaucratic steps.
+  % \max{define macros for this and make sb not be in textrm}
+  % % 
+  % $\calA_{\mho sb} := 
+  %   (\calA \otimes (\th{\mho} + \th{\step} + \th{\step}))$. 
 %
-  We denote the first step operation by $\theta^{s}$ and the second step
-  operation by $\theta^{b}$.
+  % We denote the first step operation by $\theta^{s}$ and the second step
+  % operation by $\theta^{b}$.
 \end{enumerate}
 
 We write $T_\mho$, $T_{\mho s}$ and $T_{\mho sb}$ to denote the free-model
-monads for the theories $\calA_{\mho}$, $\calA_{\mho s}$, and $\calA_{\mho +
-sb}$, respectively. (Recall that the free-model monad for a theory is unique up
-to isomorphism of monads.)
+monads for the theories $\calAerr$, $\calAs$, and $\calAsb$, respectively.
+(Recall that the free-model monad for a theory is unique up to isomorphism of
+monads.)
 %
 The monad $T_{\mho}$ supports each of the operations of the input theory
 $\calA$, in addition to a nullary error operation $\mho$. This means that for
