@@ -1810,6 +1810,23 @@ B''$ that is inductively generated from the relational composition. See the
 Appendix for the precise definition.
 % TODO cite appendix.
 
+\subsubsection{Extending to Predomains}
+
+Let $\calA$ be a theory containing error and stepping operations. In order for
+the strong adjunction between sets and models of $\calA$ to lift to a strong
+adjunction between predomains and $\calA$-domains, we need to define the error
+ordering and weak bisimilarity on $T(X)$. Because we require the error ordering
+to be antisymmetric, we cannot define it generically. Instead, the construction
+of the denotational semantics takes this data as input. Concretely, the data
+consists of the definition of the weak bisimilarity relation, and the lifting of
+a predomain relation $c : A \rel A'$ to a $\calA$-domain relation $T(c)$. The
+latter has the property that given a reflexive, antisymmetric relation
+$\ltdyn_A$, the lifting is also reflexive and antisymmetric. In addition, it
+satisfies the following universal property: if we have a predomain square $f
+\ltsq{c}{Ud} g$ where $f : A \to UB$ and $g : A' \to UB'$ and $d : B \rel B'$ is
+a $\calA$-domain relation, then there is a square $f^* \ltsq{T(c)}{d} g^*$ where
+$f^*$ denotes the extension of $f$ to a homomorphism $T(A) \to B$.
+
 \subsection{Perturbations and Quasi-Representable Relations}
 
 We next review how the model of Giovannini et al. validates the graduality
