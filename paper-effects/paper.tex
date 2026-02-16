@@ -34,8 +34,8 @@
 
 \begin{document}
 
+\title{An Effect-Generic Approach to Proving Operational Graduality}
 % \title{Adequacy for Effectful Gradually Typed Languages using Guarded Type Theory}
-\title{Operational Semantics of Effectful Gradually Typed Languages in Guarded Type Theory}
 % \title{Guarded Operational Semantics for Effectful Gradually Typed Languages}
 \author{Eric Giovannini}
 \affiliation{
@@ -57,24 +57,29 @@
 \orcid{0000-0001-8141-195X}
 
 \begin{abstract}
-    Gradually-typed languages allow for soundly mixing static and dynamically
-    typed programming styles and support migration from a dynamic to static
-    typing style. Establishing the desired metatheoretic properties for
-    real-world gradually-typed languages has proved challenging.
-    %
-    In recent work, Giovannini et al. gave a denotational semantics for a simple
-    gradually-typed lambda calculus using the tools of guarded type theory, and
-    furthermore showed that their semantics was sufficient for establishing the
-    crucial metatheoretic property known as \emph{graduality}, which states that
-    migrating a program by making the types more precise does not fundamentally
-    chance the meaning of the program except to possibly catch more type errors.
-    %
-    
-    In this work, we address two limitations of the work of Giovannini et al.
-    First, we generalize their model to allow for languages with algebraic
-    effects, such as I/O, global state, nondeterminism, etc. Second, we relate
-    the denotational semantics to a more familiar operational semantics.
-    \max{Expand this second paragraph}
+    Gradually-typed languages allow for soundly mixing static and
+    dynamically typed programming styles and support migration from a
+    dynamic to static typing style. A key theorem for such languages
+    is graduality, which ensures that the transition from dynamic to
+    static typing preserves semantics up to introduction of stricter
+    checking. Establishing this property is a metatheoretic challenge,
+    and even the correct formulation of this property must be given
+    anew for languages with different observable effects.
+
+    In this work we establish a generic graduality theorem for a
+    gradually typed lambda calculus parameterized by an algebraic
+    theory describing the effects available in the program. Each
+    instantiation of this theory provides a concrete operational and
+    denotational semantics that generalizes . We then provide a
+    adequacy theorem for this denotational semantics and generic
+    graduality theorem. The foundations of the framework are built in
+    guarded type theory, extending prior work on denotational
+    graduality. We show how the generic framework can be instantiated
+    to produce many concrete examples of effects: a generic
+    trace-based graduality theorem for interaction trees, as well as
+    monad transformer theorems that allow us to combine standard
+    semantics of state and exception-like effects in a compositional
+    manner to produce new instantiations.
 
     % In this work, we define an operational semantics for a gradually-typed cast
     % calculus parameterized by a collection of algebriac effects. Our main result
