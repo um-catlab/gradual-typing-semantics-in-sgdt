@@ -998,7 +998,7 @@ loosely on the recent work of Kavvos \cite{kavvos-2025}, who gave a generic
 operational semantics for a language with algebraic effects.
 
 Recall that our framework is parameterized by an \emph{ordinary} algebraic
-theory $\calA$; recall that this means there are no guarded operations in
+theory $\calA$; in particular, this means there are no guarded operations in
 $\calA$.
 %
 Because we are modeling gradual typing, at a minimum we want to ensure that our
@@ -1014,7 +1014,8 @@ distinguish between two different kinds of semantic stepping operations:
 such as the dynamic type, and \textbf{bureaucratic steps}, which represent all
 other steps in the operational semantics. A key difference between the two is
 that bureaucratic steps are invisible in the denotational semantics; they are
-merely a bookkeeping tool necessary in defining the operational semantics.
+merely a bookkeeping tool necessary in defining the big-step operational
+semantics.
 %
 If we view steps as having an associated ``cost'', we can think of true steps as
 having a nonzero cost, while bureaucratic have zero cost.
