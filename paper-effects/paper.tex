@@ -2064,12 +2064,16 @@ product case $\calV_{A \times A'}$.
         \wedge (y \binrel{\calV_{A'}} V_2) \\
     \end{array}
 
+    \inferrule*[right=DynNat]
+    { n = V_n }
+    { \vrel{dyn}{\inat(n)}{\tagnat {V_n}} }
+
     \inferrule*[right=DynProd]
     { \vrel{\dyn \times \dyn}{(d_1, d_2)}{V_{d\times}} }
     { \vrel{\dyn}{\itimes(d_1, d_2)}{ \tagtimes{V_{d\times}}} }
 
     \inferrule*[right=DynFun]
-    { \forall x\, V.\, (\later(\vrel{\dyn}{x}{V})) \to \erel{\dyn}{(f\, x)}{(V_f\, V)} }
+    { \forall x\, V.\, (\later(\vrel{\dyn}{x}{V}) \to \erel{\dyn}{(f\, x)}{(V_f\, V)}) }
     { \vrel{\dyn}{\iarr(f)}{\tagarr{V_f}} }
 
 
