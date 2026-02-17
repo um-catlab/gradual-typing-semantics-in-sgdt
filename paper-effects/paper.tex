@@ -1303,56 +1303,66 @@ In particular, our notational conventions are as follows:
       { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o' 
         \and \Gamma \vdash V_f : A_i \ra A_o 
         \and \Gamma \vdash V : A_i'}
-      { (\dnc (c_i \ra c_o) V_f) \stepsin{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
+      { (\dnc {(c_i \ra c_o)} V_f) \stepsin{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
 
 
     % Up/down cast of a paired value steps to the pair of the up/down casted
     % values:
     \inferrule*[right=Up-$\times$, leftskip=1em]
-      { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2'}
-      { \upc (c_1 \times c_2) (V_1, V_2) \stepsin{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
+      { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
+        \\\\ \Gamma \vdash V_1 : A_1 \and \Gamma \vdash V_2 : A_2}
+      { \upc {(c_1 \times c_2)} (V_1, V_2) \stepsin{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
 
     \inferrule*[right=Dn-$\times$, leftskip=2em]
-      { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2'}
-      { \dnc (c_1 \times c_2) (V_1, V_2) \stepsin{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
+      { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
+        \\\\ \Gamma \vdash V_1 : A_1' \and \Gamma \vdash V_2 : A_2'}
+      { \dnc {(c_1 \times c_2)} (V_1, V_2) \stepsin{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
   
 
     % "Composition" of casts with inj-arr and inj-times:
-    \inferrule*[right=$\iarr$Up, leftskip=1em]
-      { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : A }
-      { (\upc (\injarr c) M) \stepsin{0} (\upc \iarr (\upc c M))}
+    \inferrule*[right=CmpUp]
+      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_1 }
+      { \upc {(cc')} V \stepsin{0} (\upc c' (\upc c V)) }
 
-    \inferrule*[right=$\iarr$Dn, leftskip=2em]
-      { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : \dyn }
-      { (\dnc (\injarr c) M) \stepsin{0} (\dnc c (\dnc \iarr M))}
+    \inferrule*[right=CmpDn]
+      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_3 }
+      { \dnc {(cc')} V \stepsin{0} (\dnc c (\dnc c' V)) }
 
-    \inferrule*[right=$\itimes$Up]
-      { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : A }
-      { (\upc (\injtimes c) M) \stepsin{0} (\upc \itimes (\upc c M))}
+    % \inferrule*[right=$\iarr$Up, leftskip=1em]
+    %   { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : A }
+    %   { (\upc (\injarr c) M) \stepsin{0} (\upc \iarr (\upc c M))}
 
-    \inferrule*[right=$\itimes$Dn, leftskip=2em]
-      { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : \dyn }
-      { (\dnc (\injtimes c) M) \stepsin{0} (\dnc c (\dnc \itimes M))}
+    % \inferrule*[right=$\iarr$Dn, leftskip=2em]
+    %   { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : \dyn }
+    %   { (\dnc (\injarr c) M) \stepsin{0} (\dnc c (\dnc \iarr M))}
+
+    % \inferrule*[right=$\itimes$Up]
+    %   { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : A }
+    %   { (\upc (\injtimes c) M) \stepsin{0} (\upc \itimes (\upc c M))}
+
+    % \inferrule*[right=$\itimes$Dn, leftskip=2em]
+    %   { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : \dyn }
+    %   { (\dnc (\injtimes c) M) \stepsin{0} (\dnc c (\dnc \itimes M))}
 
   \end{mathpar}
 
   \textbf{Casts involving dyn:}
   \begin{mathpar}
     % Downcasts of upcasted-to-dyn values:
-    \inferrule*
-      { }
+    \inferrule*[right=DnUpInjNat]
+      { \Gamma \vdash V : \nat }
       { \dnc \inat (\upc \inat V) \stepsin{0} V}
 
-    \inferrule*
-      { c : A \ltdyn (\dyn \times \dyn)}
-      { \dnc {\injtimes c} (\upc {\injtimes c} V) \stepsin{0} V}
+    \inferrule*[right=DnUpInj$\times$]
+      { \Gamma \vdash V : \dyn \times \dyn }
+      { \dnc {\itimes} (\upc {\itimes} V) \stepsin{0} V}
 
-    \inferrule*
-      { c : A \ltdyn (\dyntodyn)}
-      { \dnc {\injarr c} (\upc {\injarr c} V) \stepsin{1} V}
+    \inferrule*[right=DnUpInj$\arr$, leftskip=1em]
+      { \Gamma \vdash V : \dyntodyn }
+      { \dnc {\iarr} (\upc {\iarr} V) \stepsin{1} V}
 
-    \inferrule*
-     { \text{tag}_1, \text{tag}_2 \in \{ \mathbb{N}, \times, \ra \} }
+    \inferrule*[right=TagMismatch, leftskip=1em]
+     { \text{tag}_1, \text{tag}_2 \in \{ \mathbb{N}, \times, \ra \} \and \text{tag}_1 \neq \text{tag}_2 }
      { \dnc {\text{Inj}_{\text{tag}_1}} (\upc {\text{Inj}_{\text{tag}_2}} V) \stepsin{0} \ceff{(\mho, *)} }
 
 
