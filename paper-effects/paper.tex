@@ -835,6 +835,18 @@ another. Following prior work, our calculus uses an explicit syntax of type
 precision \emph{derivations} of the form $c : A \ltdyn A'$. Such a derivation
 should be thought of as a proof that $A \ltdyn A'$. This presentation is
 particularly convenient for carrying out proofs by induction.
+%
+As in prior work, the rules for precision include reflexivity $r(A)$,
+transitivity $cc'$, and monotonicity $c \ra c'$ and $c \times c'$, as well as
+generators $\inat,\iarr,\itimes$ that correspond to the tags of the dynamic
+type.
+
+Following Giovannini et al., we also specify an equational theory $c \equiv c'$
+on the type precision derivations; the idea is that that while the denoted
+relations are not necesseasaily equal in the denotational semantics, they are
+\emph{quasi-equivalent}: if two terms are related by $\sem{c}$, then they are
+related by $\sem{c'}$ other up to the insertion of delays, and vice versa. See
+their paper for more details \cite{gtt-sgdt}.
 
 The cast calculus has special coercion terms called casts, which come in two
 forms: upcasts and downcasts. Given $c : A \ltdyn A'$ and $M$ of type $A$, the
@@ -887,7 +899,7 @@ possible continuations), the operation $\synoper{M}{n}$ has type $A$.
       \alt c \ra c' \alt c \times c'\\
     \text{Values } V &::=
       & x 
-      \alt \upc c V \alt \zro 
+      \alt \upc \inat V \alt \upc \itimes V \alt \upc \iarr V \alt \zro 
       \alt \suc\, V \alt \lda{x}{M} 
       \alt (V,V') \\ 
     \text{Terms } M,N &::=
@@ -897,10 +909,19 @@ possible continuations), the operation $\synoper{M}{n}$ has type $A$.
       \alt \lda{x}{M} \\ 
       &&\alt M\, N   \alt (M,N) 
       \alt \textrm{split } (x,y) = M \textrm{ in } N 
-      \alt \textrm{let } x = M \textrm{ in } N 
+      %\alt \textrm{let } x = M \textrm{ in } N 
       \alt \synop{op}{V}{x}{M} \\
     \text{Contexts } \Gamma &::= &\cdot \alt \Gamma, x : A \\
-    \text{Ctx Precision } \Delta &::=& \cdot \alt \Delta,x:c
+    \text{Ctx Precision } \Delta &::=& \cdot \alt \Delta,x:c \\
+    \text{Evaluation Contexts } E &::= & \bullet
+      \alt \textrm{split } (x,y) = E \textrm{ in } N
+      \alt (E, M)
+      \alt (V, E) \\
+      %\alt \textrm{let } x = E \textrm{ in } N
+      &&\alt E\, M
+      \alt V\, E
+      \alt \upc c E 
+      \alt \dnc c E
   \end{array}
 
   \inferrule*[right=Up]
@@ -972,9 +993,10 @@ Using these congruence rules, reflexivity $M \ltdyn M$ is admissible. As in the
 syntax of Giovannini et al. \cite{gtt-sgdt}, and in accordance with the original
 formulation of the dynamic gradual guarantee \cite{siek_et_al:LIPIcs:2015:5031},
 we do not take transitivity of term precision as a primitive rule.
-%
-% We include a rule that says that equivalent type precision derivations
-% $c \equiv c'$ are equivalent for the purposes of term precision.
+
+As in prior work, we have a rule \textsc{EquivTyPrec} stating that equivalent
+type precision derivations $c \equiv c'$ are interchangeable for the purposes of
+term precision \cite{gtt-sgdt}.
 
 Lastly, we have the four fundamental rules for reasoning about casts (\upl,
 \upr, \dnl, \dnr), which axiomatize the upcasts and downcasts as behaving like
@@ -987,10 +1009,9 @@ least upper bounds and greatest lower bounds, respectively.
 \begin{figure}
   \begin{mathpar}
 
-  % TODO do we need this rule?
-  % \inferrule*[right=EquivTyPrec]
-  % {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
-  % {\Delta\vdash M \ltdyn M' : c'}
+  \inferrule*[right=EquivTyPrec]
+  {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
+  {\Delta\vdash M \ltdyn M' : c'}
 
   \inferrule*[right=ErrBot]
   {}
