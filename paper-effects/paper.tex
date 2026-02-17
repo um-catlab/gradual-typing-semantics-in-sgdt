@@ -115,23 +115,87 @@
 
 \emph{Gradually typed languages} \cite{siek-taha06, tobin-hochstadt06} allow for
 safe interoperability between static and dynamic typing disciplines in the same
-codebase, and they support the smooth, \emph{gradual} migration from dynamic
+codebase, and support the smooth, \emph{gradual} migration from dynamic
 typing to static typing via the addition of explicit typing information.
+without needing to rewrite the entire project in a completely different language.
 %
-% As a result, the programmer can begin with fully dynamically-typed code and
-% \emph{gradually} add explicit typing information to migrate portions of the
-% codebase to a statically typed style without needing to rewrite the entire
-% project in a completely different language.
+This allows gradually typed programs to support mixed states where
+only part of the code has received explicit static typing information,
+and developers can gradually attain the benefits of static type
+information.
 %
-One of the fundamental theorems for gradually typed languages is
-\emph{graduality}, also known as the \emph{dynamic gradual guarantee},
-originally defined by Siek, Vitousek, Cimini, and Boyland
-\cite{siek_et_al:LIPIcs:2015:5031, new-ahmed2018}.
+One of the fundamental theorems for gradually typed languages
+formalizing this idea is \emph{graduality}, also known as the
+\emph{dynamic gradual guarantee}, originally defined by Siek,
+Vitousek, Cimini, and Boyland \cite{siek_et_al:LIPIcs:2015:5031,
+  new-ahmed2018}.
 %
-Informally, graduality says that migrating code from dynamic to static typing
-should only allow for the introduction of static or dynamic type errors, and not
-otherwise change the behavior of the program.
-%
+Informally, graduality says that migrating code from dynamic to static
+typing should only allow for the introduction of static or dynamic
+type errors from the stricter checking, and not otherwise change the
+observable behavior of the program.
+
+More formally, consider a simple gradually typed language where
+programs can diverge or raise a dynamic type error but have no other
+visible effects. Then we define a syntactic precision ordering on
+terms $M \sqsubseteq N$ that says that $M$ is syntactically identical
+to $N$ other than containing more statically precise type
+information. Then the graduality theorem says that if $M, N$ are
+closed programs with a simple output type such as integers, then
+either $M$ and $N$ have the same behavior (both diverge, both
+terminate with the same result, both error) or $M$ raises a dynamic
+type error.
+
+Despite being a conceptually simple idea, graduality has been a
+challenge to prove. The main approaches in prior work are (1) tedious
+operational simulation results \cite{siek-stuff} (2) fitting the
+language into a particular framework such as abstracting gradual
+typing \cite{agt-stuff} or (3) operational logical-relations based
+methods \cite{new-ahmed2018} or (4) denotational methods
+\cite{new-licata18,gtt-sgdt}. Among these, the advantage of the
+denotational approach is a decoupling of the mathematical arguments to
+particular syntactic details, so that the lemmas that are core to the
+graduality proof can be reused modularly across different
+developments. A downside of the denotational approach in prior work
+has been that it only proves a graduality statement about a
+denotational semantics, and so does not prove the same theorem exactly
+as prior graduality results, which are defined over operational
+semantics.
+
+One of the main challenges in developing a graduality proof for a new
+language is that even the statement of the theorem itself is sensitive
+to the details of what effects are present. For instance if we were to
+extend the language above to have (1) system calls to print to stdout
+(2) exceptions distinct from the dynamic type error and (3) some
+global mutable variables, then we would need to accommodate these in
+our theorem. With work the experienced semanticist can come up with a
+theorem such as: for any initial state of the global variables, $M$
+and $N$, when executed with those variables, make a sequence of
+matching system calls up until the point that either $M$ terminates
+with a dynamic type error (at which point $N$ can continue in any
+manner), they both terminate with the same exceptions, or they both
+return the same value with matching outputs in the final mutable
+state. This then has to be adjusted for the effects present in
+whatever language is being modeled, and the proofs need to be redone
+with the appropriate notion of reduction for that system and
+observable behavior. The result is a tedious recapitulation of prior
+arguments adapted to new effects, but where fundamentally very little
+of the argument for graduality truly has changed.
+
+In this work, we develop a framework for proving graduality that
+abstracts the concrete details of what effects are present so that the
+above systems, and many other combinations can all be developed as
+particular instantiations. The core idea of the work is to abstract
+over different concrete effects using \emph{algebraic theories}, an
+idea commonly known as \emph{algebraic effects}\cite{alg-effects}. We
+define a gradual lambda calculus whose effects are given by an
+algebraic theory that is a parameter to the system. By instantiating
+the system with a particular theory and implementation of the free
+algebras of the theory, our framework produces (1) an operational
+semantics (2) a denotational semantics (3) an adequacy theorem
+relating operational and denotational semantics (4) a graduality proof
+for the denotational semantics, which is then transported via adequacy
+to the operational semantics.
 
 Establishing graduality for a given cast calculus has traditionally been a
 tedious endeavor. One common approach involves defining a step-indexed logical
@@ -214,9 +278,6 @@ operational semantics.
 % The missing step in both the operational and denotational semantics is supplied
 % by a suitable notion of algebra that interprets the guarded interaction trees as
 % a concrete element of an ``observation'' type.
-
-
-
 
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
@@ -370,6 +431,7 @@ The organization of the remainder of the paper is as follows:
     compare to prior work, and conclude with directions for future work.
 \end{enumerate}
 
+\section{Background: Guarded Type Theory and Algebraic Effects}
 
 \subsection{Metatheoretic Preliminaries}
 
@@ -439,14 +501,11 @@ For the sake of brevity, we will also write tick application as $M_t$. The
 constructions we carry out in this paper will take place in a guarded type
 theory with ticks.
 
-
-
-\section{Background on Algebraic Theories}\label{sec:modeling-effects}
+\section{Modeling Effects with Algebraic Theories}\label{sec:modeling-effects}
 
 In this section, we discuss our approach to modeling algebraic effects in the
 context of gradual typing. These concepts will be employed in both our
 denotational and operational semantics.
-
 
 \subsection{Guarded Algebraic Theories}\label{sec:guarded-algebraic-theories}
 
@@ -943,7 +1002,6 @@ possible continuations), the operation $\synoper{M}{n}$ has type $A$.
 \end{figure}
 
 
-
 % rules for term precision
 Next, we have the axioms for reasoning about terms. First is the equational
 theory, including the usual CBV $\beta\eta$ rules for function and product
@@ -966,7 +1024,7 @@ that the error term $\mho$ is the most precise term.
 Next, we have a congruence rule for each term constructor, e.g., the rule for
 application says that if $M \ltdyn M'$ and $N \ltdyn N'$ then $M\,N \ltdyn
 M'\,N'$. For the sake of brevity, the congruence rules are elided from the
-figure.
+figure.\max{TODO: add congruence for operations}
 %
 Using these congruence rules, reflexivity $M \ltdyn M$ is admissible. As in the
 syntax of Giovannini et al. \cite{gtt-sgdt}, and in accordance with the original
