@@ -106,7 +106,6 @@
 \drafttrue
 \renewcommand{\max}[1]{\ifdraft{\color{blue}[{\bf Max}: #1]}\fi}
 \newcommand{\eric}[1]{\ifdraft{\color{orange}[{\bf Eric}: #1]}\fi}
-\newcommand{\tingting}[1]{\ifdraft{\color{red}[{\bf Tingting}: #1]}\fi}
 
 % Question: should we present algebraic effects as having a request and response
 % type, or should we fold the request type into the type of operations?
@@ -195,25 +194,51 @@ algebras of the theory, our framework produces (1) an operational
 semantics (2) a denotational semantics (3) an adequacy theorem
 relating operational and denotational semantics (4) a graduality proof
 for the denotational semantics, which is then transported via adequacy
-to the operational semantics.
+to the operational semantics. These proofs require only that the given
+algebraic effect can be lifted to relations, the concrete details of
+the use of those relations are then used modularly in the graduality
+and adequacy proofs.
 
-Establishing graduality for a given cast calculus has traditionally been a
-tedious endeavor. One common approach involves defining a step-indexed logical
-relation over an operational semantics \cite{new-ahmed2018,
-new-licata-ahmed2019, new-jamner-ahmed19, new-giovannini-licata-2022}; these
-methods are inherently dependent on the particular calculus being modeled and
-offer little opportunity for reuse of mathematical abstractions across different
-developments. Another method, developed by New and Licata \cite{new-licata18},
-constructs a denotational semantics using \emph{classical} domain theory. While
-compositional, this approach suffers from a lack of expressiveness: classical
-domain-theoretic techniques appear incapable of modeling viciously
-self-recursive structures such as higher-order store
-\cite{Birkedal-Stovring-Thamsborg-2009}, which are common in real-world
-gradually-typed languages.
-%
-Thus, it remained an open question whether one could give a semantics for
-gradual typing that combined the expressiveness of the step-indexed approach
-with the compositional nature of denotational semantics.
+The foundation for our work is \emph{guarded type theory} which allows
+us to define the semantics, adequacy and graduality proofs in a
+concise way. Guarded type theory extends dependent type theory with a
+later modality and axiomatizes that all guarded recursive definitions
+have a fixed point. This provides a concise alternative to the
+explicit use of step-indexing\cite{}. Guarded type theory can be
+interpreted in the topos of trees, and so any results proven can be
+interpreted as ordinary step-indexed mathematical results. It requires
+work, however to bridge the gap from the guarded proof of graduality
+to the standard results, a process we call \emph{globalization}. To
+make our final results as standard as possible, we work through
+concrete descriptions of the resulting graduality
+results. specifically, we provide two kinds of constructions. first we
+give a construction for uninterpreted effects like operating system
+calls as a kind of trace semantics over coinductively defined
+interaction trees \cite{trace,itree}. second, we give a
+monad-transformer-like construction for state and exception-like
+effects. with the interaction trees as a base case, the monad
+transformers can be iterated to construct new models on demand.
+
+%% The tradeoff is that results in
+%% guarded type theory are constructions 
+
+%% Establishing graduality for a given cast calculus has traditionally been a
+%% tedious endeavor. One common approach involves defining a step-indexed logical
+%% relation over an operational semantics \cite{new-ahmed2018,
+%% new-licata-ahmed2019, new-jamner-ahmed19, new-giovannini-licata-2022}; these
+%% methods are inherently dependent on the particular calculus being modeled and
+%% offer little opportunity for reuse of mathematical abstractions across different
+%% developments. Another method, developed by New and Licata \cite{new-licata18},
+%% constructs a denotational semantics using \emph{classical} domain theory. While
+%% compositional, this approach suffers from a lack of expressiveness: classical
+%% domain-theoretic techniques appear incapable of modeling viciously
+%% self-recursive structures such as higher-order store
+%% \cite{Birkedal-Stovring-Thamsborg-2009}, which are common in real-world
+%% gradually-typed languages.
+%% %
+%% Thus, it remained an open question whether one could give a semantics for
+%% gradual typing that combined the expressiveness of the step-indexed approach
+%% with the compositional nature of denotational semantics.
 
 % Graduality has remained a difficult property to establish, with existing
 % methods being largely tied to syntactic or operational specifics of the
@@ -224,37 +249,38 @@ with the compositional nature of denotational semantics.
 % step-indexed approach with the compositional nature of denotational semantics
 % by...
 
-Recently, Giovannini et al. \cite{gtt-sgdt} answered this question affirmatively
-by constructing a denotational semantics for a simple gradually-typed
-programming language using the tools of guarded type theory
-\cite{birkedal-mogelberg-schwinghammer-stovring2011}, and proved that their
-model validates the graduality property. Their model combines the expressive
-power of step-indexing techniques with the compositional nature of denotational
-semantics.
-%
-However, the semantics developed by Giovannini et al. has the limitation that it
-is a single model for a quite bare-bones gradually-typed language. Real-world
-languages can include effects, polymorphism, dependent types, etc.
-%
-Furthermore, it is unclear how to relate their model to a more typical
-operational semantics for a cast calculus. It is desirable to establish an
-adequacy result relating their denotational semantics to an operational model.
-More specifically, writing $\sem{M}$ for the denotation of a term $M$, adequacy
-states that an equality of denotations $\sem{M} = \sem{N}$ implies that $M$ and
-$N$ behave the same operationally. This allows one to use facts proved in the
-denotational semantics to reason about the operational behavior of terms.
-%
-More specifically, an adequacy result provides a means of translating the
-graduality theorem --- a statement about the \emph{denotations} of terms ---
-into a statement about the \emph{operational behavior} of terms.
+%% Recently, Giovannini et al. \cite{gtt-sgdt} answered this question affirmatively
+%% by constructing a denotational semantics for a simple gradually-typed
+%% programming language using the tools of guarded type theory
+%% \cite{birkedal-mogelberg-schwinghammer-stovring2011}, and proved that their
+%% model validates the graduality property. Their model combines the expressive
+%% power of step-indexing techniques with the compositional nature of denotational
+%% semantics.
+%% %
+%% However, the semantics developed by Giovannini et al. has the limitation that it
+%% is a single model for a quite bare-bones gradually-typed language. Real-world
+%% languages can include effects, polymorphism, dependent types, etc.
+%% %
+%% Furthermore, it is unclear how to relate their model to a more typical
+%% operational semantics for a cast calculus. It is desirable to establish an
+%% adequacy result relating their denotational semantics to an operational model.
+%% More specifically, writing $\sem{M}$ for the denotation of a term $M$, adequacy
+%% states that an equality of denotations $\sem{M} = \sem{N}$ implies that $M$ and
+%% $N$ behave the same operationally. This allows one to use facts proved in the
+%% denotational semantics to reason about the operational behavior of terms.
+%% %
+%% More specifically, an adequacy result provides a means of translating the
+%% graduality theorem --- a statement about the \emph{denotations} of terms ---
+%% into a statement about the \emph{operational behavior} of terms.
 
 % In this work, we seek to address these limitations by
 % In this work, we seek to address the limitations of the prior model by 
-In this work, we take a step towards modeling more realistic gradually-typed
-languages using guarded type theory: we extend the denotational semantics of
-Giovannini et al. to account for arbitrary algebraic effects, and we establish
-an adequacy theorem relating the resulting denotational model to an effectful
-operational semantics.
+
+%% In this work, we take a step towards modeling more realistic gradually-typed
+%% languages using guarded type theory: we extend the denotational semantics of
+%% Giovannini et al. to account for arbitrary algebraic effects, and we establish
+%% an adequacy theorem relating the resulting denotational model to an effectful
+%% operational semantics.
 
 % The level of generality needed to model arbitrary algebraic effects means that
 % the semantics we produce is correspondingly generic. This is true both
@@ -281,43 +307,55 @@ operational semantics.
 
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
-The main contribution of this paper is a framework for giving an adequate
-operational semantics to an effectful gradually-typed cast calculus and proving
-that the resulting semantics satisfies graduality. The input to the framework
-includes a specification of the algebraic effects present in the cast calculus,
-given in the form of an \emph{algebraic theory}, which contains the operations
-along with equations that they satisfy. More details on algebraic theories are
-given in Section \ref{sec:modeling-effects}. The cast calculus contains a term
-corresponding to each of the operations present in the provided algebraic theory
-$\calA$, allowing the programmer to perform the effects contained in the theory.
+The main contribution of this paper is a parameterized effectful
+gradually-typed cast calculus with operational semantics satisfying graduality.
 
-Every algebraic theory $\calA$ induces a monad, called the \emph{free-model
-monad} for $\calA$. In addition to an algebraic theory $\calA$ specifying the
-effects, our framework also takes as input a presentation of the free-model
-monad for the theory $\calA$, which we denote $T_\calA$.
+The framework is parameterized an \emph{algebraic theory} which
+specifies what effectful operations are available (reading from a
+state, writing to a state, printing, raising an error) and what
+equations are expected to hold (e.g., that the state does not change
+between consecutive reads). More details on algebraic theories are
+given in Section \ref{sec:modeling-effects}. The parameterized cast
+calculus extends a standard gradual cast calculus with terms
+corresponding to each of the effect operations present in the provided
+algebraic theory $\calA$, giving the programmer access to these
+effects.
 
-Given this data as input, we define an operational semantics for the cast
-calculus with effects specified by $\calA$. The operational semantics has the
-form
+Every algebraic theory $\calA$ induces a monad, called the
+\emph{free-model monad} $T_\calA$ for which $T_\calA(X)$ is the free
+algebra of the theory generated by $X$. For particular theories like
+state and exceptions, these monads are given by the familiar state and
+exception monads \cite{state-exn-thy-monad}. We define a small-step
+operational semantics and this induces a multi-step execution
+semantics:
 %
-\[ \run : (\term{A} \to T'(\val{A})). \]
+\[ \run : (\term{A} \to T_{\calAsb}\val{A})). \]
 %
-where $T'$ is the free-model monad $T_\calA$ augmented with an additional delay
-effect we call ``bureaucratic delays''. The additional delay effect accounts for
-the fact that a priori, we do not know whether the given term will terminate.
+where $\calAsb$ is the input theory extended with operations
+corresponding to explicit operational reductions steps, marked as
+either ``bureaucratic'' reductions or non-well-founded. The result is
+a coinductive monad $T_{\calAsb}$ that combines the possibility of
+diverging with an infinite sequence of non-bureaucratic steps with the
+effect operations of the input theory. For particular theories we can
+extract a concrete description of this monad $T_{\calAsb}$ and confirm
+that this is the usual sort of multi-step execution semantics that we
+would define by hand.
 
-The graduality property says that if a term $M$ is syntactically more precise
-than a term $N$, then the behavior of $M$ when run is a refinement of the
-behavior of $N$. More concretely, graduality says that for any closed terms $M,
-N$ of type $\nat$, if $M \ltdyn N$, then $\run{M} \lesssim \run{N}$. Here,
-$\lesssim$ is an error ordering on monadic values capturing when two
-computations behave the same up-to the left side terminating with an error.
+The graduality property says that if a term $M$ is syntactically more
+precise than a term $N$, then the behavior of $M$ when run is a
+refinement of the behavior of $N$. More formally, graduality says that
+for any closed terms $M, N$ of type $\nat$, if $M \ltdyn N$, then
+$\run{M} \lesssim \run{N}$. Here, $\lesssim$ is an error ordering on
+monadic values capturing when two computations behave the same up-to
+the left side terminating with an error. To perform the full
+graduality proof, we require also an extension of the free algebra
+monad for the theory from sets to act on the error ordering and
+bismilarity relations we use in the proof.
 
-To prove graduality, we proceed in several steps:
+The final proof of graduality results from the composition of several constructions.
 % We leverage the existing denotational model of gradual typing of Giovannini et
 % al. \cite{gtt-sgdt}.
 %
-
 %\begin{enumerate}
 % First, we develop a guarded denotational model of gradual typing with
 % effects, taking as inspiration the existing model of Giovannini et al.
@@ -339,89 +377,83 @@ via an \textbf{adequacy theorem}:
   Let $\cdot \vdash M : \nat$. Then we have $\run{M} \equiv_b \sem{M}$.
 \end{theorem}
 %
-Here, $x \equiv_b y$ relates elements belonging to two different monads, where
-the monad in which $\run{M}$ lives supports a special ``bureaucratic'' stepping
-operation that the monad where $\sem{M}$ lives does not. Bureaucratic steps
-correspond to operational rules such as beta reductions that are invisible in
-the denotational semantics.
+Here, $x \equiv_b y$ relates elements belonging to two different
+monads, where the monad used in $\run{M}$ supports the
+``bureaucratic'' stepping operation while the monad used in $\sem{M}$
+only contains the ``true'' steps. This is to account for the fact that
+bureaucratic steps correspond to operational rules such as beta
+reductions that are equalities in the denotational semantics.
 % The reason for this discrepancy will be explained in the section on
 % operational semantics, but for now it is sufficient to note that
-The relation $x \equiv_b y$ means that $x$ and $y$ are the same up-to a
-\emph{finite} number of bureaucratic steps in $x$. The adequacy theorem then
-says that the denotational semantics is equivalent to the operational semantics
-modulo finitely many bureaucratic steps.
+The relation $x \equiv_b y$ means that $x$ and $y$ are the same up-to
+a \emph{finite} number of bureaucratic steps in $x$. The adequacy
+theorem then states that the denotational semantics is in lock-step
+with the operational semantics on true steps, but the operational
+semantics may contain finite sequences of bureaucratic steps. As a
+corollary, this proves that any sequence of bureaucratic steps must
+eventually terminate. In order for this strict lock-step equivalence
+to hold, we needed to modify the denotational semantics slightly from prior work.
 % running a term $M$ does not result in an infinite sequence of bureaucratic
 % steps.\max{I think we can just say something specific here like ``bureaucratic
 % steps are things like beta reductions that are invisible in the denotational
 % semantics''}
+With this adjustment, the adequacy theorem is proven as usual by a logical relations
+argument, given in Section \ref{sec:relating-the-semantics}.
 
-To prove the adequacy theorem, we made an improvement to the denotational
-semantics of Giovannini et al. In their semantics, there were additional steps
-inserted in the semantics of certain casts. These steps are needed in the
-graduality proof, but their presence means that the operational and denotational
-semantics are not synchronized. To resolve this, we define a second semantics
-for casts that does not include the additional steps. The two semantics are
-weakly bisimilar, which is sufficient for graduality. Moreover, the version
-without the additional steps can be related in lock-step to the operational
-semantics without requiring any modifications to the operational rules.
-
-Having made the aforementioned adjustment to the denotational semantics, we then
-prove the adequacy theorem using a logical relation constructed in the ambient
-guarded type theory. More details are given in Section
-\ref{sec:relating-the-semantics}.
-%\max{We should probably say something about the fact that we improve the denotational semantics from prior work in order to make this true}
-
-Putting the above two results together, we obtain \textbf{guarded
-operational graduality}:
+Finally, we want to simplify the combination of adequacy and
+denotational graduality into the simple statement about operational
+semantics that we would write by hand. To do this we require one final
+step, which is to map our results in guarded type theory to an
+ordinary statement about the coinductive semantics $\run{-}$.  This
+translation process is called \emph{globalization} \cite{TODO}. The
+motivation is that the statements of the results up to this point
+involve features of guarded type theory, e.g., the later modality. The
+technique of globalization produces a semantics that does not rely on
+any features of guarded type theory, but instead makes sense in
+standard type or set theoretic foundations.
 %
-\begin{corollary}[Guarded Operational Adequacy]
-  If $\cdot \vdash M \ltdyn N: \nat$, then $\run{M} \lesssim \run{N}$.
-\end{corollary}
-%
-In the above, $x \lesssim y$ (where $x$ and $y$ are monadic values) means that,
-disregarding the number of steps taken by each side, $x$ behaves the same as $y$
-except that $x$ may be an error where $y$ is not.
+This step requires some further effect theory-specific technical
+conditions in order to produce the final operational graduality
+theorem.
 
-Lastly, we translate the guarded operational graduality result to the ordinary
-set-theoretic world via a process known as \emph{globalization} \cite{TODO}. The
-motivation is that the statements of the results up to this point involve
-features of guarded type theory, e.g., the later modality. The technique of
-globalization produces a semantics that does not rely on any features of guarded
-type theory, and the result we obtain is a statement that can be made in
-ordinary set theory.
-%
-Unlike the prior steps, the details in this step are sensitive to the
-presentation of the free-model monad $T_\calA$, and there is not a general
-result that can be stated at the level of an arbitrary algebraic theory
-$\calA$.
+%% %
+%% Unlike the prior steps, the details in this step are sensitive to the
+%% presentation of the free-model monad $T_\calA$, and there is not a general
+%% result that can be stated at the level of an arbitrary algebraic theory
+%% $\calA$.
+We package all of the input data for our construction above into a
+``graduality schema'' consisting of an algebraic theory, lifting of
+the free algebras to act on relations and final global ordering
+relations. In order to show the applicability of our framework, we
+give two methods for constructing graduality schema.
 
-However, there are two special cases where we can describe the globalization.
-First, if we know that $T_\calA$ can be presented as application of a
-suitably-generalized concept of monad transformers applied to the guarded lift
-monad $T(\li(X))$, then we can directly generalize the globalization technique
-of Giovannini et al.
+First, for a \emph{free} theory, meaning a theory with operations but
+no equations, then the semantics can be understood as an
+\emph{interaction tree}, and the graduality theorem can be formalized
+as a concrete relation on finite execution traces of the trees,
+generalizing prior work that used an ordering on the delay monad.
 %
-Second, if the algebraic theory $\calA$ has \emph{no equations}, then there is a
-presentation of the global version of the monad in terms of \emph{finite
-computation traces}. We describe both of these special cases in Section
-\ref{sec:globalization}. 
-
+Secondly, many familiar effect theories can be constructed from
+\emph{theory transformers} and their monads from corresponding
+\emph{monad transformers}, which are typically much simpler than a
+trace semantics. We provide several examples implementing graduality
+schemata for common monad transformers. So starting from an
+interaction tree base case we can build up a complex effect theory
+with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
 \begin{enumerate}
-    \item In Section \ref{sec:modeling-effects}, we provide background on
-    algebraic theories which will be used in the remainder of the paper.
-    \item In Section \ref{sec:syntax}, we specify the syntax for gradual typing
-    used in the remainder of the paper. Given a collection of algebraic effects
-    specified as an algebraic theory $\calA$, we define a cast calculus
-    supporting those effects. The cast calculus includes an inequational theory
-    in the form of axioms for type and term precision.
-    \item In Section \ref{sec:operational-semantics}, we define an operational
+    \item In Section \ref{sec:modeling-effects}, we provide background
+      on guarded type theory and algebraic theories that will be used
+      in the remainder of the paper.
+    \item In Section \ref{sec:syntax}, we specify the syntax for the cast calculus and definitions of type and term precision used to define the graduality property.
+    \item In Section \ref{sec:operational-semantics}, we define the operational
     semantics for the cast calculus defined in the previous section.
-    \item In Section \ref{sec:denotational-semantics}, we show how to construct
-    a denotational semantics for the effectful cast calculus by adapting the
-    construction of Giovannini et al. \cite{gtt-sgdt} to account for arbitrary
-    algebraic effects.
+    \item In Section \ref{sec:denotational-semantics}, we show how to
+      construct a denotational semantics that is ``gradual by
+      construction'' for the effectful cast calculus by adapting the
+      construction of Giovannini et al. \cite{gtt-sgdt} to account for
+      arbitrary algebraic effects.
     \item In Section \ref{sec:relating-the-semantics}, we prove an adequacy
     theorem relating the operational and denotational models in the expected
     manner.
