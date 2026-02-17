@@ -1106,7 +1106,7 @@ input are as follows:
   % operation by $\theta^{b}$.
 \end{enumerate}
 
-We write $T_\mho$, $T_{\mho s}$ and $T_{\mho sb}$ to denote the free-model
+We write $T_\mho$, $\Ts$ and $\Tsb$ to denote the free-model
 monads for the theories $\calAerr$, $\calAs$, and $\calAsb$, respectively.
 (Recall that the free-model monad for a theory is unique up to isomorphism of
 monads.)
@@ -1116,15 +1116,15 @@ $\calA$, in addition to a nullary error operation $\mho$. This means that for
 each operation $\oper$, of arity $\tau_\oper$, there is a function
 $\sem{\oper}^{T X} : (\tau_\oper \to T X) \to T X$.
 %
-The monad $T_{\mho s}$ supports each of the above, in addition to a guarded step
-operation $\theta^s : \later T_{\mho s}(X) \to T_{\mho s}(X)$.
+The monad $\Ts$ supports each of the above, in addition to a guarded step
+operation $\theta^s : \later \Ts(X) \to \Ts(X)$.
 %
 The same is true of $T_{\mho sb}$, but it has two guarded step operations
-$\theta^s, \theta^b : \later T_{\mho sb}(X) \to T_{\mho sb}(X)$.
+$\theta^s, \theta^b : \later \Tsb(X) \to \Tsb(X)$.
 
-Since $\calA_{\mho}$ is a subtheory of $\calA_{\mho + s}$, there is a morphism
-of monads $\iota : T_\mho \to T_{\mho s}$ and likewise there is a morphism of
-monads $\iota' : T_{\mho s} \to T_{\mho sb}$.
+% Since $\calA_{\mho}$ is a subtheory of $\calA_{\mho + s}$, there is a morphism
+% of monads $\iota : T_\mho \to T_{\mho s}$ and likewise there is a morphism of
+% monads $\iota' : T_{\mho s} \to T_{\mho sb}$.
 
 % TODO: are specific presentations of the monads taken as input?
 
@@ -1192,8 +1192,8 @@ $0$ or $1$) indicates whether the step is a true step or a bureaucratic step. In
 the cost analogy discussed above, $k$ represents the ``cost'' of performing the
 step, where true steps have cost $1$ and bureaucratic steps have cost $0$.
 %
-For a pure reduction step $\hat{N} = \cpure N$, we sometimes omit the
-$\cpure{}$ and simply write $M \stepsin{k} N$.
+For a pure reduction step $\hat{N} = \cpure N$, we often omit the $\cpure{}$ and
+simply write $M \stepsin{k} N$.
 
 
 
@@ -1475,25 +1475,23 @@ properties
 \begin{mathpar}
   \inferrule*
     { \step{M} = \inl (V, eq) }
-    { \run{M} = T_{\mho sb}.\eta(V) }
+    { \run{M} = \Tsb.\eta(V) }
 
   \inferrule*
     { \step{M} = \inr (\hat{N}, \mathit{ty}) }
-    { \run{M} = \delta_{\mathit{ty}} (\run^{\dag} {(\iota(f(\hat{N})))}) }
+    { \run{M} = \delta_{\mathit{ty}} (\run^{\dag} {(f(\hat{N}))}) }
 \end{mathpar}
 %
 In the above:
 %
 \begin{itemize}
-  \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to T_{\mho}(X)$ is defined by
-  cases, mapping $\cpure{M}$ to $\eta^{T_{\mho}}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
-  to $T_{\mho}(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
+  \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to \Tsb(X)$ is defined by
+  cases, mapping $\cpure{M}$ to $\eta^{\Tsb}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
+  to $\Tsb(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
   (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
-  \item $\iota : T_{\mho}(X) \to T_{\mho sb}(X)$ is the inclusion of the free
-  model monad $T_{\mho}$ into $T_{\mho sb}$. 
   \item The variable $\mathit{ty}$ has type $\steptype$.
   \item $\delta_{\mathit{ty}} = \theta_{\mathit{ty}} \circ \nxt$ is the
-  ``delay'' function on $T_{\mho sb}$. The type of delay is determined by
+  ``delay'' function on $\Tsb$. The type of delay is determined by
   $\mathit{ty}$.
 \end{itemize}
 %
@@ -1502,12 +1500,12 @@ guarded fixpoint operator provides a unique function satisfying the above
 properties.
 
 We next define a function that ``runs'' an evaluation context $E$. Specifically,
-if $E : A \multimap B$, then we define $\run{E} : T_{\mho sb}(\term A) \to
-T_{\mho sb}(\val B)$ as
+if $E : A \multimap B$, then we define $\run{E} : \Tsb(\term A) \to
+\Tsb(\val B)$ as
 %
 \[ \run{E} := (\lambda M. \run{(E[M])})^\dag, \]
 %
-where $\dag$ is the Kleisli extension operator for the monad $T_{\mho sb}$.
+where $\dag$ is the Kleisli extension operator for the monad $\Tsb$.
 
 Then we have the following lemma, which says that running commutes with filling
 an evaluation context:
