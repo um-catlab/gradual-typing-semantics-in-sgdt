@@ -1201,7 +1201,7 @@ $\cpure{}$ and simply write $M \stepsin{k} N$.
 %   \end{enumerate}
 % \end{theorem}
 
-\subsection{Defining the Small-Step Semantics}
+\subsection{Defining the Small-Step Semantics}\label{sec:small-step-semantics}
 
 Figure \ref{fig:operational-semantics} defines the small-step semantics. The
 presentation is as a series of rules, but these can be converted to the form of
@@ -1428,7 +1428,7 @@ the function taking a term $M$ to $E[M]$.
 % The final rules are simply congruence rules allowing us to perform pure and
 % impure reductions under an arbitrary evaluation context.
 
-\subsection{Defining a Runnable Semantics}
+\subsection{Defining a Runnable Semantics}\label{sec:big-step-semantics}
 
 Now that we have defined a small-step semantics, we discuss how to extract a
 runnable ``big-step'' semantics. More concretely, recall that our goal is a function
@@ -2443,6 +2443,56 @@ Another possible direction would be to adapt the model to allow for gradual
 denotational semantics, including adding effect tracking. We would also need to
 solve a domain equation for the dynamic effect type analogous to the equation
 for the dynamic value type.
+
+
+\section{Description of the Framework}
+
+Let $\calA$ be an ordinary algebraic theory. An $\calA$-graduality schema
+consists of the following data:
+\begin{itemize}
+\item A guarded extension $\calAs \in \calA[\mho, \theta]$ and $\calAsb \in
+\calA[\mho, \theta^s, \theta^b]$.
+\item A presentation of the free models for $\calAs$, given by an adjunction 
+$F \dashv U$ between sets and models of $\calAs$.
+Likewise for $\calAsb$. Let $\Ts$ and $\Tsb$ be the respective monads.
+\item A lifting of the adjunction for $\calAs$ to a strong adjunction between
+the double categories of predomains and $\calAs$-domains. Let $T := UF$ be the
+associated monad on predomains and let $T^{gl}(A) := \forall k.T^k(A)$.
+\item For globalization: $T$ commutes with clock quantification: the canonical
+map $T(\forall k.X[k]) \to \forall k. T(X[k])$ is an isomorphism.
+\item For the extensional collapse: A family of types $E(A)$ along with
+functions $\col : T^{gl}(A) \to E(A)$, along with...
+\item ...A partial order $\ltbisim$ on each $E(A)$, such that...
+\item ...$x \ltdyn^{gl} y$ and $x \bisim^{gl} y$ imply $\col{x} \ltbisim \col{y}$.
+\end{itemize}
+
+Given this data, we prove graduality and adequacy as follows:
+\begin{enumerate}
+  \item We define the small-step operational semantics as in Section
+  \ref{sec:small-step-semantics}, and then extract a big-step $\run$ function as
+  discussed in Section \ref{sec:big-step-semantics}. This uses the guarded
+  extensions $\calAs$ and $\calAsb$ and their associated monads $\Ts$ and $\Tsb$.
+  \item We define a denotational semantics as described in Section
+  \ref{sec:denotational-semantics}, using the provided adjunction between
+  predomains and $\calAs$-domains. The perturbations and quasi-representability
+  are the same as in the prior guarded model. The definition of the dynamic
+  type is also as before, $D \cong \mathbb{N} + D \times D + \later U (D \to F D)$.
+  \item We establish adequacy of the denotational semantics with respect to the
+  operational semantics as described in Section \ref{sec:relating-the-semantics}:
+  \[ \run M \equiv_b \sem{M}. \]
+  \item Now to prove graduality for the operational semantics, we start by
+  assuming $M \ltdyn N : \nat$. Then by adequacy and guarded denotational
+  graduality, we have
+  \[ \exists f,g.\, \run M \equiv_b \sem{M} \bisim f \ltdyn g \bisim \sem{N} \equiv_b \run N. \] 
+  \item We then map the bureaucratic delays in $\run M$ and $\run N$ to true delays.
+  Then $\equiv_b$ turns into $\bisim$:
+  \[ d(\run M) \bisim \sem{M} \bisim f \ltdyn g \bisim \sem{N} \bisim d(\run N). \]   
+  \item We perform globalization and extensional collapse.
+  \[ \gl(d(\run M)) \bisim^{gl} \gl(\sem{M}) \bisim^{gl} \gl(f) \ltdyn^{gl} \gl(g) \bisim^{gl} \gl(\sem{N}) \bisim^{gl} \gl(d(\run N)). \]
+  Then taking the extensional collapse we obtain
+  \[ \col(\gl(d(\run M))) \ltbisim \col(\gl(d(\run N))). \]
+\end{enumerate}
+
 
 \section{Graduality for Free Theories}
 
