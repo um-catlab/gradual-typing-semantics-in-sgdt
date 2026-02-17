@@ -749,6 +749,36 @@ $\calA_2$.
   operation with the theory of stepping.
 \end{remark}
 
+\subsection{Theory Transformers and Monad Transformers}
+
+% Another operation on guarded algebraic theories involves augmenting a given
+% theory $\calA$ with the operations and equations of a second theory $\calA_0$;
+% we call such an operation a \textbf{theory transformer} for $\calA_0$.
+
+Taking the sum or tensor with a fixed guarded algebraic theory gives a notion of
+\textbf{theory transformer}.
+%
+For example, there is a theory transformer $M_{\exn{E}}$ for adding exceptions
+to a guarded algebraic theory, given by $M_{\exn{E}}(\calA) := \calA +
+\th{\exn{E}}$. Each theory transformer $M$ induces a corresponding \textbf{monad
+transformer} that takes the free models of $\calA$ to the free models of
+$M(\calA)$. Below we list the theory transformers we support, and their
+corresponding monad transformers:
+%
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Theory       & Theory Transformer         & Monad Transformer \\
+    \hline
+    Exceptions   & $- + \th{\exn{E}}$         & $T'(A) = T(A + E)$ \\
+    Reader       & $- \otimes \th{\reader_R}$ & $T'(A) = R \to T(A)$ \\
+    Writer       & $- \otimes \th{\writer_W}$ & $T'(A) = T(W \times A)$ \\
+    Global State & $- \otimes \th{\state_S}$  & $T'(A) = S \to T(S \times A)$ \\
+    \hline
+  \end{tabular}
+  \label{tab:theory-and-monad-transformers}
+\end{table}
 
 \max{Shouldn't this be the part where we discuss monad transformers as
   well? I think this is where we should basically list theory/monad
