@@ -707,7 +707,7 @@ throughout the paper.
 \end{example}
 
 \begin{example}[Reader]\label{ex:reader} The theory of immutable state
-  $\calA_{\reader_R}$ models computations that can read from a single, global
+  $\reader{R}$ models computations that can read from a single, global
   immutable variable of type $R$. The theory consists of a signature with a
   single operation $\lookup$ of arity $\tau_\lookup = R$ and guarded arity
   $\gamma_\lookup = 0$. In any algebra $B$ of this signature, the operation
@@ -721,15 +721,15 @@ throughout the paper.
     \lookup(\lambda r. \lookup (g\, r)) = \lookup(\lambda r.\, g\, r\, r\,). \]
   The free-model monad for this theory is the \emph{reader monad}, given by
   %
-  \[ F_{\calA_{\reader_R}}(X) \cong R \to X. \]
+  \[ F_{\reader{R}}(X) \cong R \to X. \]
    
 \end{example}
 
 \begin{example}[State]\label{ex:state} %The theory of stateful computations
-    The theory of global state $\calA_{\state_S}$ for state set $S$ models
+    The theory of global state ${\state{S}}$ for state set $S$ models
     computations that can read from and write to a global state --- a single
     global variable of type $S$. The theory consists of a signature
-    $\Sigma_{\state}$ with the following operations:
+    $\Sigma_{\state{S}}$ with the following operations:
     %
     \begin{itemize}
         \item An operation $\get$ of arity $\tau_\get = S$ and guarded arity
@@ -762,7 +762,7 @@ throughout the paper.
     %
     The free-model monad for this theory is the \emph{global state monad}
     %
-    \[ F_{\calA_{\state_S}}(X) \cong S \Rightarrow (S \times X). \]
+    \[ F_{\state{S}}(X) \cong S \Rightarrow (S \times X). \]
 
 \end{example}
 
@@ -824,7 +824,7 @@ the commutativity of each of the operations in $\calA_1$ with all of those in
 $\calA_2$.
 
 \begin{example}
-  The theory $\calA_{\state} \otimes \calA_{\step}$ models computations that can
+  The theory $\state{S} \otimes \steptheory$ models computations that can
   take observable computational steps, as well as read and write to a single
   global cell of type $S$. In addition to the equations from each theory (in
   this case, the state equations), the $\get$ and $\put_s$ operations must
@@ -855,7 +855,7 @@ Taking the sum or tensor with a fixed guarded algebraic theory gives a notion of
 %
 For example, there is a theory transformer $M_{\exn{E}}$ for adding exceptions
 to a guarded algebraic theory, given by $M_{\exn{E}}(\calA) := \calA +
-\th{\exn{E}}$. Each theory transformer $M$ induces a corresponding \textbf{monad
+\exn{E}$. Each theory transformer $M$ induces a corresponding \textbf{monad
 transformer} that takes the free models of $\calA$ to the free models of
 $M(\calA)$. Below we list the theory transformers we support, and their
 corresponding monad transformers:
@@ -866,10 +866,10 @@ corresponding monad transformers:
     \hline
     Theory       & Theory Transformer         & Monad Transformer \\
     \hline
-    Exceptions   & $- + \th{\exn{E}}$         & $T'(A) = T(A + E)$ \\
-    Reader       & $- \otimes \th{\reader_R}$ & $T'(A) = R \to T(A)$ \\
-    Writer       & $- \otimes \th{\writer_W}$ & $T'(A) = T(W \times A)$ \\
-    Global State & $- \otimes \th{\state_S}$  & $T'(A) = S \to T(S \times A)$ \\
+    Exceptions   & $- + \exn{E}$          & $T'(A) = T(A + E)$ \\
+    Reader       & $- \otimes \reader{R}$ & $T'(A) = R \to T(A)$ \\
+    Writer       & $- \otimes \writer{W}$ & $T'(A) = T(W \times A)$ \\
+    Global State & $- \otimes \state{S}$  & $T'(A) = S \to T(S \times A)$ \\
     \hline
   \end{tabular}
   \label{tab:theory-and-monad-transformers}

@@ -433,17 +433,19 @@
 \newcommand{\leaf}{\textrm{leaf}}
 \newcommand{\leadstomany}{\mathrel{\leadsto^*}}
 
-\newcommand{\reader}{\text{Reader}}
-\newcommand{\writer}{\text{Writer}}
+\newcommand{\reader}[1]{\text{Reader}_{#1}}
+\newcommand{\writer}[1]{\text{Writer}_{#1}}
 \NewCommandCopy{\oldstate}{\state}
-\renewcommand{\state}{\text{State}}
+\renewcommand{\state}[1]{\text{State}_{#1}}
 \newcommand{\nondet}{\text{Nondet}}
+\newcommand{\steptheory}{\text{Step}}
 
 \NewCommandCopy{\oldchoose}{\choose}
 \renewcommand{\choose}{\text{choose}}
 \newcommand{\lookup}{\text{lookup}}
 
 \newcommand{\exn}[1]{\text{Exn}_{#1}}
+\newcommand{\ex}[1]{\text{error}_{#1}}
 
 \DeclareMathOperator{\col}{col}
 \DeclareMathOperator{\gl}{gl}
