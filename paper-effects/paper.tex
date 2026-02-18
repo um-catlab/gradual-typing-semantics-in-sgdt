@@ -145,21 +145,20 @@ either $M$ and $N$ have the same behavior (both diverge, both
 terminate with the same result, both error) or $M$ raises a dynamic
 type error.
 
-Despite being a conceptually simple idea, graduality has been a
-challenge to prove. The main approaches in prior work are (1) tedious
-operational simulation results \cite{siek-stuff} (2) fitting the
-language into a particular framework such as abstracting gradual
-typing \cite{agt-stuff} or (3) operational logical-relations based
-methods \cite{new-ahmed2018} or (4) denotational methods
-\cite{new-licata18,gtt-sgdt}. Among these, the advantage of the
-denotational approach is a decoupling of the mathematical arguments to
-particular syntactic details, so that the lemmas that are core to the
-graduality proof can be reused modularly across different
-developments. A downside of the denotational approach in prior work
-has been that it only proves a graduality statement about a
-denotational semantics, and so does not prove the same theorem exactly
-as prior graduality results, which are defined over operational
-semantics.
+Despite being a conceptually simple idea, graduality has been a challenge to
+prove. The main approaches in prior work are (1) tedious operational simulation
+results \cite{siek_et_al:LIPIcs:2015:5031, siek-chen2021} (2) fitting the
+language into a particular framework such as Abstracting Gradual Typing or the
+Gradualizer \cite{garcia-clark-tanter2016, cimini-siek2016} or (3) operational
+logical-relations based methods \cite{new-ahmed2018, new-jamner-ahmed19,
+new-licata-ahmed2019} or (4) denotational methods \cite{new-licata18,gtt-sgdt}.
+Among these, the advantage of the denotational approach is a decoupling of the
+mathematical arguments to particular syntactic details, so that the lemmas that
+are core to the graduality proof can be reused modularly across different
+developments. A downside of the denotational approach in prior work has been
+that it only proves a graduality statement about a denotational semantics, and
+so does not prove the same theorem exactly as prior graduality results, which
+are defined over operational semantics.
 
 One of the main challenges in developing a graduality proof for a new
 language is that even the statement of the theorem itself is sensitive
@@ -186,7 +185,7 @@ abstracts the concrete details of what effects are present so that the
 above systems, and many other combinations can all be developed as
 particular instantiations. The core idea of the work is to abstract
 over different concrete effects using \emph{algebraic theories}, an
-idea commonly known as \emph{algebraic effects}\cite{alg-effects}. We
+idea commonly known as \emph{algebraic effects} \cite{PLOTKIN2001332, plotkinpower2003}. We
 define a gradual lambda calculus whose effects are given by an
 algebraic theory that is a parameter to the system. By instantiating
 the system with a particular theory and implementation of the free
@@ -199,7 +198,7 @@ algebraic effect can be lifted to relations, the concrete details of
 the use of those relations are then used modularly in the graduality
 and adequacy proofs.
 
-The foundation for our work is \emph{guarded type theory} which allows
+The foundation for our work is \emph{guarded type theory} \cite{birkedal-mogelberg-schwinghammer-stovring2011}, which allows
 us to define the semantics, adequacy and graduality proofs in a
 concise way. Guarded type theory extends dependent type theory with a
 later modality and axiomatizes that all guarded recursive definitions
@@ -211,12 +210,12 @@ work, however to bridge the gap from the guarded proof of graduality
 to the standard results, a process we call \emph{globalization}. To
 make our final results as standard as possible, we work through
 concrete descriptions of the resulting graduality
-results. specifically, we provide two kinds of constructions. first we
+results. Specifically, we provide two kinds of constructions. First, we
 give a construction for uninterpreted effects like operating system
 calls as a kind of trace semantics over coinductively defined
-interaction trees \cite{trace,itree}. second, we give a
+interaction trees \cite{trace,itrees}. Second, we give a
 monad-transformer-like construction for state and exception-like
-effects. with the interaction trees as a base case, the monad
+effects. With the interaction trees as a base case, the monad
 transformers can be iterated to construct new models on demand.
 
 %% The tradeoff is that results in
@@ -310,8 +309,8 @@ transformers can be iterated to construct new models on demand.
 The main contribution of this paper is a parameterized effectful
 gradually-typed cast calculus with operational semantics satisfying graduality.
 
-The framework is parameterized an \emph{algebraic theory} which
-specifies what effectful operations are available (reading from a
+The framework is parameterized by an \emph{algebraic theory}, which
+specifies what effectful operations are available (e.g., reading from a
 state, writing to a state, printing, raising an error) and what
 equations are expected to hold (e.g., that the state does not change
 between consecutive reads). More details on algebraic theories are
@@ -329,11 +328,11 @@ exception monads \cite{state-exn-thy-monad}. We define a small-step
 operational semantics and this induces a multi-step execution
 semantics:
 %
-\[ \run : (\term{A} \to T_{\calAsb}\val{A})). \]
+\[ \run : (\term{A} \to T_{\calAsb}\val{A}), \]
 %
 where $\calAsb$ is the input theory extended with operations
-corresponding to explicit operational reductions steps, marked as
-either ``bureaucratic'' reductions or non-well-founded. The result is
+corresponding to runtime errors and explicit operational reduction steps, marked as
+either ``bureaucratic'' reductions or non-well-founded steps. The result is
 a coinductive monad $T_{\calAsb}$ that combines the possibility of
 diverging with an infinite sequence of non-bureaucratic steps with the
 effect operations of the input theory. For particular theories we can
@@ -425,10 +424,10 @@ We package all of the input data for our construction above into a
 ``graduality schema'' consisting of an algebraic theory, lifting of
 the free algebras to act on relations and final global ordering
 relations. In order to show the applicability of our framework, we
-give two methods for constructing graduality schema.
+give two methods for constructing graduality schemata.
 
 First, for a \emph{free} theory, meaning a theory with operations but
-no equations, then the semantics can be understood as an
+no equations, the semantics can be understood as an
 \emph{interaction tree}, and the graduality theorem can be formalized
 as a concrete relation on finite execution traces of the trees,
 generalizing prior work that used an ordering on the delay monad.
@@ -438,7 +437,7 @@ Secondly, many familiar effect theories can be constructed from
 \emph{monad transformers}, which are typically much simpler than a
 trace semantics. We provide several examples implementing graduality
 schemata for common monad transformers. So starting from an
-interaction tree base case we can build up a complex effect theory
+interaction tree base case, we can build up a complex effect theory
 with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
