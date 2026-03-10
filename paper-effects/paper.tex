@@ -2518,6 +2518,9 @@ if the innermost monad is the free model-monad for a finitary free theory, then
 we can globalize the monad and apply the sequence of monad transformers to the
 result.
 %
+We discuss these constructions in greater detail in Sections
+\ref{sec:trace-semantics} and \ref{sec:monad-transformers}.
+
 While we do not support the usual theories of non-determinism or probabilistic
 computation since they involve equations and do not arise from one of our theory
 transformers, we \emph{do} support their free variants. This is a reasonable
@@ -2837,6 +2840,79 @@ The upshot of the above is the following theorem:
 \end{theorem}
 See the Appendix for the proof.
 
+
+\subsection{Monad Transformers}\label{sec:monad-transformers}
+
+The second special case occurs when we know that the input theory $\calA$ is
+constructed from certain ``base'' theories using sum and tensor. More
+concretely, recall the notion of theory transformer from Section
+\ref{sec:guarded-algebraic-theories}. As discussed in that section, certain
+theory transformers induce corresponding monad transformers taking the
+free-model monad for a guarded algebraic theory $\calA$ to the free-model monad
+for the transformed theory (see Table \ref{tab:theory-and-monad-transformers}
+for specific results).
+
+% The idea is that in combining one of these base theories with another theory
+% $\calA$, we obtain for free a corresponding monad transformer taking the
+% free-model monad for $\calA$ to the free-model monad of the combined theory. The
+% theory transformers we support are listed in Table
+% \ref{tab:theory-and-monad-transformers}.
+
+This theory-transformer correspondence extends to act on all the data of a
+graduality schema. First, it lifts to relations. For the sake of clarity, we
+illustrate this phenomenon for the specific case of the global state theory
+transformer, but similar results apply for the other theory transformers we
+support.
+%
+Let $\calA$ be an ordinary algebraic theory, and let $\calAs \in \calA[\mho,
+\theta]$ be a guarded extension. Let $T(X)$ be the free-model monad for $\calAs$
+on Set. Then applying the state theory transformer to $\calAs$ we obtain the
+transformed theory $\calAs \otimes \state{S}$ and corresponding free-model monad
+$T'(X) = S \to T(S \times X)$ on Set.
+%
+Now let $\That$ be a lifting of the free-model monad $T$ for $\calAs$ to a
+strong monad on predomains, as in \ref{itm:gs-lifting}. Then we obtain a lifting
+of $T'$ to predomains defined by $\That'(A) := S \to \That(S \times A)$, where
+importantly the type constructors are now acting on predomains rather than on
+sets (and $S$ is viewed as a discrete predomain).
+
+
+% In particular, let $\calA$ be an ordinary algebraic theory, and let $\calAs \in
+% \calA[\mho, \theta]$ be a guarded extension. Let $h$ denote one of the four
+% theory transformers in Table \ref{tab:theory-and-monad-transformers}, i.e., the
+% theory transformer for exceptions, reader, writer, or global state. Let $T(X)$
+% be the free-model monad for $\calAs$ on Set. Then applying $h$ to $\calAs$ we
+% obtain a transformed theory $h(\calAs)$ and corresponding free-model monad
+% $T'(X) = (M(T))(X)$ on Set, where $M$ is the monad transformer associated to
+% $h$. Now let $\That$ be a lifting of the free-model monad $T$ for $\calAs$ to
+% predomains, as in \ref{itm:gs-lifting}. Then we obtain a lifting of $T'$ to
+% predomains via $\That'(A) = (M(\That))(A)$ where now $M$ is a transformer of
+% monads on predomains.
+
+In addition to lifting to relations, the theory-transformer correspondence also
+applies to the data related to globalization and extensional collapse
+(\ref{itm:gs-globalization}-\ref{itm:gs-ext-ord}). In particular, if the
+free-model monad of $\calAs$ is globalizable and $T'$ is the transformed monad,
+then $T'$ is also globalizable. Likewise, the transformer acts on the type $E$
+of extensional computations returning natural numbers, as well as on the
+extensional ordering relation $\ltbisim_E$. The conditions relating the
+globalized ordering and bisimilarity relations to $\ltbisim_E$ are also
+preserved by the monad transformers.
+
+The key takeaway is that each of the four theory transformers we support induces
+a corresponding transformer of graduality schemata, mapping an
+$\calA$-graduality schema to a $h(\calA)$-graduality schema where $h$ stands for
+one of our supported theory transformers.
+%
+For concreteness, we state the theorem for the global state theory transformer;
+the remaining three theorems, along with the proofs for all four, can be found
+in the Appendix.
+%
+\begin{theorem}[Global State Transformer for Graduality Schemata]\label{thm:gs-global-state}
+  Let $S$ be a finite type. Let $\calA$ be an ordinary algebraic theory, and
+  suppose we are given an $\calA$-graduality schema. Then there is a graduality
+  schema for the transformed theory $(\calA \otimes \state{S})$.
+\end{theorem}
 
 
 \bibliographystyle{ACM-Reference-Format}
