@@ -403,7 +403,7 @@ Finally, we want to simplify the combination of adequacy and
 denotational graduality into the simple statement about operational
 semantics that we would write by hand. To do this we require one final
 step, which is to map our results in guarded type theory to an
-ordinary statement about the coinductive semantics $\run{-}$.  This
+ordinary statement about the coinductive semantics.  This
 translation process is called \emph{globalization} \cite{TODO}. The
 motivation is that the statements of the results up to this point
 involve features of guarded type theory, e.g., the later modality. The
@@ -415,16 +415,12 @@ This step requires some further effect theory-specific technical
 conditions in order to produce the final operational graduality
 theorem.
 
-%% %
-%% Unlike the prior steps, the details in this step are sensitive to the
-%% presentation of the free-model monad $T_\calA$, and there is not a general
-%% result that can be stated at the level of an arbitrary algebraic theory
-%% $\calA$.
-We package all of the input data for our construction above into a
-``graduality schema'' consisting of an algebraic theory, lifting of
-the free algebras to act on relations and final global ordering
-relations. In order to show the applicability of our framework, we
-give two methods for constructing graduality schemata.
+
+We package the input data for our construction above into a ``graduality
+schema'' consisting of an algebraic theory, a lifting of the free algebras to
+act on relations, and the final global ordering relations. In order to show the
+applicability of our framework, we give two methods for constructing graduality
+schemata.
 
 First, for a \emph{free} theory, meaning a theory with operations but
 no equations, the semantics can be understood as an
@@ -436,7 +432,7 @@ Secondly, many familiar effect theories can be constructed from
 \emph{theory transformers} and their monads from corresponding
 \emph{monad transformers}, which are typically much simpler than a
 trace semantics. We provide several examples implementing graduality
-schemata for common monad transformers. So starting from an
+schemata for common monad transformers. Then starting from an
 interaction tree base case, we can build up a complex effect theory
 with a concrete operational graduality result.
 
@@ -445,7 +441,9 @@ The organization of the remainder of the paper is as follows:
     \item In Section \ref{sec:modeling-effects}, we provide background
       on guarded type theory and algebraic theories that will be used
       in the remainder of the paper.
-    \item In Section \ref{sec:syntax}, we specify the syntax for the cast calculus and definitions of type and term precision used to define the graduality property.
+    \item In Section \ref{sec:syntax}, we specify the syntax for the cast
+    calculus and definitions of type and term precision used to define the
+    graduality property.
     \item In Section \ref{sec:operational-semantics}, we define the operational
     semantics for the cast calculus defined in the previous section.
     \item In Section \ref{sec:denotational-semantics}, we show how to
