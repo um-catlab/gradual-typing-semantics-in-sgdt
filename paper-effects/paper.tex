@@ -2570,30 +2570,99 @@ given by
 % of the combined monad.
 
 
+\section{Summary and Instantiations of the Framework}\label{sec:framework}
+In this section, we bring together the various steps of the framework and
+instantiate it with some examples corresponding to familiar algebraic theories.
+
+\subsection{Graduality Schemata}\label{sec:graduality-shemata}
+
+We bundle the required data for all the steps of our construction into a
+definition we call a graduality schema, defined below:
+%
+\begin{definition}[$\calA$-Graduality Schema]
+Let $\calA$ be an ordinary, finitary algebraic theory. An
+\textbf{$\calA$-graduality schema} consists of the following data:
+%
+\begin{enumerate}[label=\textbf{GS.\arabic*}, ref=GS.\arabic*]
+
+\item \label{itm:gs-guarded-extension} Guarded extensions $\calAs \in
+\calA[\mho, \theta^s]$ and $\calAsb \in \calAs[\theta^b]$.
+
+\item \label{itm:gs-free-models} A chosen presentation of the free models for
+$\calAs$, given by an adjunction $F \dashv U$ between sets and models of
+$\calAs$. Let $T := UF$ denote the associated free-model monad on Set.
+% Likewise for $\calAsb$. Let $\Ts$ and $\Tsb$ be the respective monads.
+
+\item \label{itm:gs-lifting} A lifting of the adjunction for $\calAs$ to a
+strong adjunction between the double categories of predomains and
+$\calAs$-domains (see Section \ref{sec:extending-to-predomains} for details).
+Let $\That := UF$ be the associated monad on predomains. Being a lifting means
+in particular that for any predomain $A$, we have $|\That(A)| = T(|A|)$ with $T$
+as above.
+
+%and let $\That^{gl}(A) := \forall k.\That^k(A)$.
+
+\item \label{itm:gs-globalization} For globalization: $T$ commutes with clock
+quantification, i.e., the canonical map $T(\forall k.X[k]) \to \forall k.
+T(X[k])$ is an isomorphism.
+
+\item \label{itm:gs-collapse} For the extensional collapse: A family of types
+$E(A)$ along with functions $\col : T^{gl}(A) \to E(A)$.
+
+\item \label{itm:gs-ext-ord} A partial order $\ltbisim$ on each $E(A)$, such
+that $x \ltdyn^{gl} y$ and $x \bisim^{gl} y$ imply $\col{x} \ltbisim \col{y}$.
+\end{enumerate}
+\end{definition}
+
+% In item \ref{itm:gs-guarded-extension}, the guarded extension
+
+Given this data, we construct the operational and denotational semantics, and
+prove operational graduality. We proceed as follows:
+%
 \begin{enumerate}
   \item We define the small-step operational semantics as in Section
-  \ref{sec:small-step-semantics}, and then extract a big-step $\run$ function as
+  \ref{sec:small-step-semantics}, and then define the $\run$ function as
   discussed in Section \ref{sec:big-step-semantics}. This uses the guarded
-  extensions $\calAs$ and $\calAsb$ and their associated monads $\Ts$ and $\Tsb$.
+  extensions $\calAs$ and $\calAsb$ and their associated free-model monads $\Ts$
+  and $\Tsb$.
+
   \item We define a denotational semantics as described in Section
   \ref{sec:denotational-semantics}, using the provided adjunction between
-  predomains and $\calAs$-domains. The perturbations and quasi-representability
-  are the same as in the prior guarded model. The definition of the dynamic
-  type is also as before, $D \cong \mathbb{N} + D \times D + \later U (D \to F D)$.
+  predomains and $\calAs$-domains (item \ref{itm:gs-lifting}). The perturbations
+  and quasi-representability are the same as in the prior guarded model. The
+  definition of the dynamic type is also as before, $D \cong \mathbb{N} + D
+  \times D + \later U (D \to F D)$.
+
   \item We establish adequacy of the denotational semantics with respect to the
   operational semantics as described in Section \ref{sec:relating-the-semantics}:
+  %
   \[ \run M \equiv_b \sem{M}. \]
-  \item Now to prove graduality for the operational semantics, we start by
+  %
+  \item Now, to prove graduality for the operational semantics, we start by
   assuming $M \ltdyn N : \nat$. Then by adequacy and guarded denotational
   graduality, we have
+  %
   \[ \exists f,g.\, \run M \equiv_b \sem{M} \bisim f \ltdyn g \bisim \sem{N} \equiv_b \run N. \] 
-  \item We then map the bureaucratic delays in $\run M$ and $\run N$ to true delays.
+  %
+  \item We map the bureaucratic delays in $\run M$ and $\run N$ to true delays. 
   Then $\equiv_b$ turns into $\bisim$:
+  %
   \[ d(\run M) \bisim \sem{M} \bisim f \ltdyn g \bisim \sem{N} \bisim d(\run N). \]   
-  \item We perform globalization and extensional collapse.
-  \[ \gl(d(\run M)) \bisim^{gl} \gl(\sem{M}) \bisim^{gl} \gl(f) \ltdyn^{gl} \gl(g) \bisim^{gl} \gl(\sem{N}) \bisim^{gl} \gl(d(\run N)). \]
-  Then taking the extensional collapse we obtain
-  \[ \col(\gl(d(\run M))) \ltbisim \col(\gl(d(\run N))). \]
+  %
+  \item We perform globalization and extensional collapse. First, we globalize:
+  \[ \gl(d(\run M)) 
+    \bisim^{gl} \gl(\sem{M}) 
+    \bisim^{gl} \gl(f) 
+    \ltdyn^{gl} \gl(g) 
+    \bisim^{gl} \gl(\sem{N}) 
+    \bisim^{gl} \gl(d(\run N)). \]
+  %
+  Then taking the extensional collapse, we obtain
+  %
+  \[ \col(\gl(d(\run M))) \ltbisim \col(\gl(d(\run N))), \]
+  %
+  where $\col$ is as described in item \ref{itm:gs-collapse} and $\ltbisim$ is
+  as described in item \ref{itm:gs-ext-ord}.
 \end{enumerate}
 
 
