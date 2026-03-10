@@ -887,11 +887,22 @@ Taking the sum or tensor with a fixed guarded algebraic theory gives a notion of
 \textbf{theory transformer}.
 %
 For example, there is a theory transformer $M_{\exn{E}}$ for adding exceptions
-to a guarded algebraic theory, given by $M_{\exn{E}}(\calA) := \calA +
-\exn{E}$. Each theory transformer $M$ induces a corresponding \textbf{monad
-transformer} that takes the free models of $\calA$ to the free models of
-$M(\calA)$. Below we list the theory transformers we support, and their
-corresponding monad transformers:
+to a guarded algebraic theory, given by $M_{\exn{E}}(\calA) := \calA + \exn{E}$.
+Some theory transformers induce a corresponding \textbf{monad transformer} that
+takes the free models of $\calA$ to the free models of the transformed theory.
+For example, we have the following result for the global state transformer:
+%
+\begin{theorem}[State Monad Transformer]\label{thm:state-monad-transformer}  
+Let $\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad
+for $\calA$, then the free-model monad for the theory $\calA \otimes \state{S}$
+is given by
+%
+\[ T'(A) := S \to T_\calA(S \times A). \]
+%
+\end{theorem}
+%
+Below we list the theory transformers we support, and their corresponding monad
+transformers:
 %
 \begin{table}[h!]
   \centering
@@ -908,9 +919,9 @@ corresponding monad transformers:
   \label{tab:theory-and-monad-transformers}
 \end{table}
 
-\max{Shouldn't this be the part where we discuss monad transformers as
-  well? I think this is where we should basically list theory/monad
-  transformers we handle and what you can get out of them.}
+% \max{Shouldn't this be the part where we discuss monad transformers as
+%   well? I think this is where we should basically list theory/monad
+%   transformers we handle and what you can get out of them.}
 
 \subsection{Relational Aspects}
 
