@@ -693,21 +693,29 @@ category of sets, which is known as the \textbf{free model monad}.
 We introduce some specific guarded algebraic theories that will be used
 throughout the paper.
 %
-\begin{example}[Errors]\label{ex:err} The theory of computations that can error
-    $\calA_{\err}$ is defined as follows. Let $\Sigma_{\err}$ contain a single
-    operation $\errop$ with $\tau_{\errop} = 0$ and $\gamma_{\errop} = 1$. There
+\begin{example}[Exceptions]\label{ex:exn} Fix a type $E$. The theory of
+    computations that can raise exceptions in $E$, denoted $\exn{E}$, is defined
+    as follows. For each $e : E$, the signature $\Sigma_{\exn{E}}$ contains an
+    operation $\ex{e}$ with $\tau_{\ex{e}} = 0$ and $\gamma_{\ex{e}} = 0$. There
     are no equations associated with this theory.
 
-    Then a model of this theory is a set $B$ equipped with a function $((0 \to
-    B) \times 1) \to B$, i.e., a function $1 \to B$, which is just an element of
-    $B$. In other words, models of this theory are simply pointed sets $(B,
-    \mho)$ where $\mho \in B$.
+    Then a model of this theory is a set $B$ along with, for each $e : E$, a
+    function $\sem{\ex{e}} : ((0 \to B) \times (0 \to \later B)) \to B$, i.e., a
+    function $1 \to B$, which is just an element of $B$. In other words, models
+    of this theory are simply pairs $(B, \{ \mho_e \}_{e : E})$ where $\mho_e
+    \in B$ for each $e : E$.
   %
-    The free-model monad for $\calA_{\err}$ is given by freely adjoining a point
-    to its argument:
+    The free-model monad for $\exn{E}$ is given by adjoining $E$ to its
+    argument:
     %
-    \[ F_{\calA_{\err}}(X) \cong X + 1. \]
+    \[ F_{\exn{E}}(X) \cong X + E. \]
     
+\end{example}
+\begin{example}[Error]\label{ex:err}
+    For the special case $\exn{\text{Unit}}$, i.e., where $E = \text{Unit}$, we
+    call the resulting theory $\error$. Models of this theory are simply pointed
+    sets $(B, \mho)$ where $\mho \in B$. The free-model monad for $\error$ is
+    given by freely adjoining a point to its argument.
 \end{example}
 
 \begin{example}[Reader]\label{ex:reader} The theory of immutable state
@@ -727,6 +735,26 @@ throughout the paper.
   %
   \[ F_{\reader{R}}(X) \cong R \to X. \]
    
+\end{example}
+
+\begin{example}[Writer]\label{ex:writer} Fix a monoid $W$. The theory
+  $\writer{W}$ models computations that can append elements in $W$ to an output.
+  The theory consists of a signature with a family of operations $\wrt{w}$ for
+  each $w \in W$ each of arity $\tau_{\wrt{w}} = 1$ and guarded arity
+  $\gamma_{\wrt{w}} = 0$. In any algebra $B$ of this signature, the operation
+  $\wrt{w}$ has type $B \to B$, with the argument representing what to do after
+  appending $w$ to the output.
+  %
+  The operations $\wrt{w}$ satisfy the following equations. First, for all $x :
+  B$, $\wrt{e_W}(x) = x$, where $e_W$ is the identity of $W$. This says that
+  appending the identity element has no effect. Second, for all $w_1, w_2 : W$
+  and $x : B$, we have $\wrt{w_1}(\wrt{w_2}(x)) = \wrt{w_1 \cdot w_2}(x)$, where
+  $\cdot$ is the multiplication in $W$.
+
+  Models of this theory are simply $W$-sets, i.e., sets equipped with an action
+  of $W$. The free-model monad is the \emph{writer monad}, given by
+  %
+  \[ F_{\writer{W}}(X) \cong W \times X. \]
 \end{example}
 
 \begin{example}[State]\label{ex:state} %The theory of stateful computations
