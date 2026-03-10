@@ -261,9 +261,9 @@
 
 \newcommand{\qordeq}{\bisim}
 
-\newcommand{\inat}{\text{Inj}_\mathbb{N}}
-\newcommand{\itimes}{\text{Inj}_\times}
-\newcommand{\iarr}{\text{Inj}_\to}
+\newcommand{\inat}{\text{Inj}_{\mathbb{N}}}
+\newcommand{\itimes}{\text{Inj}_{\times}}
+\newcommand{\iarr}{\text{Inj}_{\to}}
 
 \newcommand{\tnat}{\mathsf{nat}}
 \newcommand{\ttimes}{\mathsf{times}}
@@ -428,11 +428,14 @@
 \newcommand{\gambar}{\bar{\gamma}}
 \newcommand{\fhat}{\hat{f}}
 \newcommand{\ghat}{\hat{g}}
+\newcommand{\Tbar}{\bar{T}}
+\newcommand{\That}{\hat{T}}
 
 \newcommand{\ar}{\textrm{ar}}
 \newcommand{\leaf}{\textrm{leaf}}
 \newcommand{\leadstomany}{\mathrel{\leadsto^*}}
 
+% Algerbaic theories
 \newcommand{\reader}[1]{\text{Reader}_{#1}}
 \newcommand{\writer}[1]{\text{Writer}_{#1}}
 \NewCommandCopy{\oldstate}{\state}
@@ -443,9 +446,13 @@
 \NewCommandCopy{\oldchoose}{\choose}
 \renewcommand{\choose}{\text{choose}}
 \newcommand{\lookup}{\text{lookup}}
+\newcommand{\wrt}[1]{\text{write}({#1})}
 
 \newcommand{\exn}[1]{\text{Exn}_{#1}}
-\newcommand{\ex}[1]{\text{error}_{#1}}
+\newcommand{\error}{\text{Error}}
+\newcommand{\ex}[1]{\text{error}({#1})}
+
+\newcommand{\sfG}{\mathsf{G}}
 
 \DeclareMathOperator{\col}{col}
 \DeclareMathOperator{\gl}{gl}
