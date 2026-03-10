@@ -550,8 +550,11 @@ operation symbols $\Op$. Each operation symbol $\oper : \Op$ has an
 arity} given by a type $\gamma_\oper$. We write $\oper : (\tau, \gamma)$ to mean
 $\oper$ has ordinary arity $\tau$ and guarded arity $\gamma$.
 % Each operation \oper : (\tau, \gamma) has ordinary arity \tau and guarded arity \gamma.
-
+%
 % We do not require the arity types to be finite.
+If the arity types are finite, i.e., $\tau_\oper = [n]$ for some $n$ with $[n]$
+denoting the finite type with $n$ elements, and likewise for $\gamma_\oper$,
+then we say that the signature is \textbf{finitary}.
 
 \begin{remark}
   In defining algebraic effects, one typically defines an algebraic signature as
@@ -637,6 +640,9 @@ A \textbf{guarded algebraic theory} $\calA$ is given by a signature
 $\Sigma_\calA$ and a collection of equations $E_\calA$. An equation
 $e$ consists of a context $\Gamma_e$ of free variables, and a pair of terms
 $l$ and $r$ in $F_{\Sigma_\calA}(\Gamma_e)$.
+%
+If the signature $\Sigma_\calA$ is finitary, then we say that $\calA$ is a
+\textbf{finitary theory}.
 
 Models of a guarded algebraic theory are simply algebras of the associated
 signature (i.e., a set $B$ with an interpretation of the operations in
