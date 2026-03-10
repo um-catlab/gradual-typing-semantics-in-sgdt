@@ -2914,6 +2914,30 @@ in the Appendix.
   schema for the transformed theory $(\calA \otimes \state{S})$.
 \end{theorem}
 
+\subsection{End-to-End Examples}\label{sec:framework-examples}
+
+We consider three examples utilizing our framework, in increasing order of complexity.
+%
+\begin{example}[Empty Theory]
+  First, consider the empty theory $\calA = (\emptyset, \emptyset)$. Since
+  $\calA$ is in particular a free theory, we obtain by Theorem
+  \ref{thm:gs-free-theory} a graduality schema for $\calA$. Moreover, we can
+  characterize the data of this schema concretely. We have $\calAs = \error +
+  \steptheory$, the coproduct of the theory of errors with the theory of steps.
+  The free-model monad is given by $T(X) = X + \{ \mho \} + \later (T(X))$, with
+  the ordering and bisimilarity relations being lock-step error ordering and
+  weak bisimilarity respectively as defined in the model of Giovannini et al
+  \cite{gtt-sgdt}. Then we obtain the expected graduality theorem for the syntax:
+\end{example}
+
+\begin{example}[Global State]
+  Now suppose $\calA := \state{\bool}$.
+\end{example}
+
+\begin{example}[Several Effects]
+
+\end{example}
+
 
 \bibliographystyle{ACM-Reference-Format}
 \begin{DIFnomarkup}
