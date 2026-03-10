@@ -799,10 +799,11 @@ throughout the paper.
 \end{example}
 
 \begin{example}[Nondeterminism]\label{ex:nondeterminism}
-  The theory of nondeterminism $\calA_{\nondet}$ models computations that
-  can make nondeterministic choices.
-  The signature $\Sigma_{\nondet}$ contains a single operation $\choose$ with $\tau_{\choose} =
-  2$ and $\gamma_{\choose} = 0$. The equations specify that the operation is associative, commutative, and idempotent.
+  The theory of nondeterminism $\nondet$ models computations that can make
+  nondeterministic choices. The signature $\Sigma_{\nondet}$ contains a single
+  operation $\choose$ with $\tau_{\choose} = 2$ and $\gamma_{\choose} = 0$. The
+  equations specify that the operation is associative, commutative, and
+  idempotent.
 
   Models of this theory are join-semilattices, that is, a set $B$ equipped with
   a binary operation that is associative, commutative, and idempotent. The
@@ -816,9 +817,9 @@ In our next example, the guarded arity is nontrivial:
 %
 \begin{example}[Computational Steps]\label{ex:steps}
     %We define the theory $\calA_{step}$ of computational steps as follows. 
-    The theory of computational steps $\calA_{\step}$ models computations that
+    The theory of computational steps, denoted $\steptheory$, models computations that
     can take an observable computational step. The theory is defined as follows.
-    Let $\Sigma_{\step}$ contain a single operation $\step$ with $\tau_{\step} =
+    Let $\Sigma_{\steptheory}$ contain a single operation $\step$ with $\tau_{\step} =
     0$ and $\gamma_{\step} = 1$. There are no equations associated with this
     theory.
 
@@ -827,7 +828,7 @@ In our next example, the guarded arity is nontrivial:
     $\later B \to B$. We call this function $\theta_B$ in accordance with prior
     work using guarded type theory.
     %
-    The free-model monad for $\calA_{\step}$ is the so-called \emph{guarded-lift
+    The free-model monad for $\steptheory$ is the so-called \emph{guarded-lift
     monad} \cite{mogelberg-paviotti2016} defined as the unique solution to the
     guarded-recursive equation
     %
