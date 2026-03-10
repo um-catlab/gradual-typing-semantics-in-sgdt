@@ -1866,14 +1866,16 @@ can be seen as analogous to Section \ref{sec:guarded-algebraic-theories}, except
 now, instead of defining models of guarded algebraic theories in the category of
 sets, we define models in the category of predomains and their morphisms.
 
-Let $\calA = (\Sigma, E)$ be a guarded algebraic theory (see Section
+Let $\calA = (\Sigma, E)$ be an ordinary algebraic theory (see Section
 \ref{sec:guarded-algebraic-theories} for the relevant definitions). Recall that
 $\Sigma$ is a signature consisting of a type of operation names $\Op$, where
-each $\oper : \Op$ has ordinary arity $\tau_\oper$ and guarded arity
-$\gamma_\oper$. (For brevity, we write $\oper : (\tau_\oper, \gamma_\oper)$.)
-
-Furthermore, suppose that $\calA$ has a distinguished error operation $\err :
-(0, 0)$ and a distinguished step operation $\theta : (0, 1)$.
+each $\oper : \Op$ has ordinary arity $\tau_\oper$ and trivial guarded arity.
+%
+As in the section on operational semantics, let $\calAs = (\Sigma, E) \in
+\calA[\mho, \theta]$ be a guarded extension of $\calA$.
+%
+This means in particular that $\calAs$ has a distinguished error operation $\err
+: (0, 0)$ and a distinguished guarded step operation $\theta : (0, 1)$.
 
 In the following, we will need the fact that the induced polynomial endofunctor
 $\Sigma : \type \to \type$ extends to an endofunctor on the category of
@@ -1924,8 +1926,8 @@ More formally, we make the following definition:
 %
 \begin{definition}\label{def:sigma-domain} 
   
-  Let $\calA = (\Sigma, E)$ be a guarded algebraic theory as defined above. An
-  \textbf{$\calA$-domain} is a predomain $B$ with a morphism of predomains
+  Let $\calAs = (\Sigma, E) \in \calA[\mho, \theta]$ as above. An
+  \textbf{$\calAs$-domain} is a predomain $B$ with a morphism of predomains
   $\alpha : \Sigma(B) \to B$. In particular, for each $\text{op} \in
   \Sigma.\Op$, we have a morphism of predomains
   %
@@ -1942,7 +1944,7 @@ More formally, we make the following definition:
 \end{definition}
 %
 As with ordinary error domains, there are corresponding notions of morphisms,
-relations, and squares of $\calA$-domains. Before introducing these, we first
+relations, and squares of $\calAs$-domains. Before introducing these, we first
 discuss the action of the endofunctor $\Sigma$ on predomain morphisms and
 predomain relations.
 
@@ -1965,10 +1967,10 @@ $g \binrel{(\gamma_\oper \to \later c)} g'$.
 
 
 Now we can introduce the definitions of morphisms and relations of
-$\calA$-domains.
+$\calAs$-domains.
 %
 \begin{definition}\label{def:sigma-domain-mor-rel-sq} Let $B$ and $B'$ be
-  $\calA$-domains. A \textbf{morphism of $\calA$-domains} from $B$ to $B$' is a
+  $\calAs$-domains. A \textbf{morphism of $\calAs$-domains} from $B$ to $B$' is a
   morphism $\phi$ of the underlying predomains that preserves the algebraic
   structure.
   %
@@ -1976,13 +1978,13 @@ $\calA$-domains.
   %
   $\phi (\sem{\oper}_B(u, g)) = \sem{\oper}_{B'}((\phi \circ u), ((\later \phi) \circ g))$,
 
-  A \textbf{relation of $\calA$-domains} $d : B \rel B'$ is a relation $|d|$ of
+  A \textbf{relation of $\calAs$-domains} $d : B \rel B'$ is a relation $|d|$ of
   the underlying predomains that is a congruence with respect to the algebraic
   structure. In particular:
   %
   If $x \binrel{(\Sigma(|d|))} y$, then $\sem{\oper}_B(x) \binrel{|d|} \sem{\oper}_{B'}(y)$.
 
-  A \textbf{square of $\calA$-domains} $\phi \ltsq{d}{d'} \phi'$ is defined as a
+  A \textbf{square of $\calAs$-domains} $\phi \ltsq{d}{d'} \phi'$ is defined as a
   square of the underlying predomains. 
 \end{definition}
 
@@ -2000,30 +2002,39 @@ $\calA$-domains.
   ordering on both sides and that $\mho_{B'} \ltdyn y$ for all $y$.
 \end{remark}
 
-The usual relational composition of $\calA$-domain relations is not in general a
-$\calA$-domain relation. This is because congruence with respect to guarded
+The usual relational composition of $\calAs$-domain relations is not in general
+a $\calAs$-domain relation. This is because congruence with respect to guarded
 operations (such as $\theta : \later B \to B$) is not preserved by the
 relational composition. Thus, we instead define a free composition $dd' : B \rel
 B''$ that is inductively generated from the relational composition. See the
-Appendix for the precise definition.
+paper of Giovannini et al. for details \cite{gtt-sgdt}.
+% See the Appendix for the precise definition.
 % TODO cite appendix.
 
-\subsubsection{Extending to Predomains}
+\subsubsection{Lifting the Free Models to Predomains}\label{sec:extending-to-predomains}
 
-Let $\calA$ be a theory containing error and stepping operations. In order for
-the strong adjunction between sets and models of $\calA$ to lift to a strong
-adjunction between predomains and $\calA$-domains, we need to define the error
-ordering and weak bisimilarity on $T(X)$. Because we require the error ordering
-to be antisymmetric, we cannot define it generically. Instead, the construction
-of the denotational semantics takes this data as input. Concretely, the data
-consists of the definition of the weak bisimilarity relation, and the lifting of
-a predomain relation $c : A \rel A'$ to a $\calA$-domain relation $T(c)$. The
-latter has the property that given a reflexive, antisymmetric relation
-$\ltdyn_A$, the lifting is also reflexive and antisymmetric. In addition, it
-satisfies the following universal property: if we have a predomain square $f
-\ltsq{c}{Ud} g$ where $f : A \to UB$ and $g : A' \to UB'$ and $d : B \rel B'$ is
-a $\calA$-domain relation, then there is a square $f^* \ltsq{T(c)}{d} g^*$ where
-$f^*$ denotes the extension of $f$ to a homomorphism $T(A) \to B$.
+Let $\calA$ be an algebraic theory, and let $\calAs \in \calA[\mho, \theta^s]$
+be a guarded extension with error and step operations. Suppose the free models
+of $\calAs$ are given by a functor $F$ defining a strong adjunction between sets
+and $\calAs$-models. In analogy with the prior guarded denotational model of
+graduality, we seek to lift this adjunction to a strong adjunction between
+predomains and $\calAs$-domains. To do so, we need to define the error ordering
+and weak bisimilarity relation on $T(X)$. Because we require the error ordering
+to be antisymmetric, we cannot define it generically --- we cannot guarantee
+that the resulting relation will be antisymmetric. Instead, the construction of
+the denotational semantics takes this relational data as input. Concretely, the
+data consists of the definition of the weak bisimilarity relation, and the
+lifting of a predomain relation $c : A \rel A'$ to a $\calAs$-domain relation
+$T(c)$. The latter is required to have the property that given a reflexive,
+antisymmetric relation $\ltdyn_A$, the lifting is also reflexive and
+antisymmetric. In addition, it must satisfy the following universal property: if
+we have a predomain square $f \ltsq{c}{Ud} g$ where $f : A \to UB$ and $g : A'
+\to UB'$ and $d : B \rel B'$ is a $\calAs$-domain relation, then there is a
+square $f^* \ltsq{T(c)}{d} g^*$ where $f^*$ denotes the extension of $f$ to a
+homomorphism $T(A) \to B$.
+%
+Lastly, we require that the algebraic operations on $T(A)$ respect the ordering
+and bisimilarity relations.
 
 \subsection{Perturbations and Quasi-Representable Relations}
 
