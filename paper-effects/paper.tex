@@ -2385,79 +2385,14 @@ operational semantics:
 
 \section{Globalization and Extensional Collapse}\label{sec:globalization}
 
-The last step of the graduality proof involves using the results obtained in the
-prior sections to derive extensional properties of the semantics that do not
-mention any features of guarded type theory. The result is a statement about the
-operational behavior of terms that can be made in ordinary type theory. The
-process we will follow here involves globalization \cite{atkey-mcbride2013},
-which is a process that takes a construction in guarded type theory and turns it
-into a coinductive object in ordinary type theory. Not all constructions in
-guarded type theory can be globalized into coinductive definitions, but the
-specific definitions we will be globalizing do satisfy the required technical
-condition.
-% TODO: mention the notion of a functor commuting with clock quantification.
-
-We are not aware of any general theorem to globalize free algebras for
-an arbitrary guarded algebraic theory $\calA$. However, we have
-identified two constructions that allow us to construct many examples:
-free theories (those with no equations) provide a base case, and then
-well-behaved theory/monad transformers allow us to construct more
-complex examples that do contain equations.
-
-\max{This was pretty weaselish before I tried to make it punchier. Please review Eric.}
-
-\max{I feel like free theory should come first because it's the base
-  case.}
-
-\max{We should also comment on theories we don't support and that
-  taking the free theory without equations is a somewhat reasonable
-  alternative in those cases (non-det/probability)}.
-
-\subsection{Monad Transformers}
-
-The first special case occurs when we know that the input theory $\calA$ is
-constructed from certain ``base'' theories using sum and tensor. The idea is
-that in combining one of these base theories with another theory $\calA$, we
-obtain for free a corresponding monad transformer taking the free-model monad
-for $\calA$ to the free-model monad of the combined theory. 
-
-One example of this phenomenon involves the theory of exceptions:
-%
-\begin{lemma}[Error Monad Transformer]\label{lem:error-monad-transformer} Let
-$\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad for
-$\calA$, then the free-model monad for the theory $\calA + \th{\mho}$ is given
-by
-%
-\[ T'(A) := T(A + 1). \] 
-\end{lemma}
-
-Another example of this phenomenon involves the theory of global mutable state:
-%
-\begin{lemma}[State Monad Transformer]\label{lem:state-monad-transformer}
-Let $\calA$ be a guarded algebraic theory. Suppose that $\calA$ has an operation
-$\theta$ of arity $(0, 1)$. If $T_\calA$ is the free-model monad for $\calA$,
-then the free-model monad for the theory $\calA \otimes \th{\text{State}_S}$ is
-given by
-%
-\[ T'(A) := S \to T_\calA(S \times A). \]
-%
-\end{lemma}
-
-Such results allow us to build up the free-model monad in a compositional
-manner. If the innermost monad is the usual guarded lift monad $L(X) \cong X +
-\later L(X)$, then we can then globalize the overall monad and use known results
-about the globalization of the guarded lift monad to obtain a characterization
-of the combined monad.
-
-\subsection{Trace Semantics}
-
+\begin{comment}
 If the provided algebraic theory has no equations, then the free-model monad for
 the theory $T(X)$ is isomorphic to the type of unquotiented terms with variables
 in $X$.
 
 To motivate the forthcoming definitions, we begin with a simple example where
 the only effects are error and computational steps. Consider the guarded
-algebraic theory $\calA = \th{\mho} + \th{\step}$ (see Section
+algebraic theory $\calA = \error + \steptheory$ (see Section
 \ref{sec:guarded-algebraic-theories} for the definitions). In particular, note
 that there are two operations $\mho : (0, 0)$ and $\theta : (0, 1)$. The
 free-model monad for this theory is the unique type $T(X)$ solving the
@@ -2474,6 +2409,7 @@ type of $A$-values available after one time step on clock $k$.
 The key aspect of clocks is that universal quantification over clocks gives a
 means to turn a guarded definition into a coinductive one
 \cite{atkey-mcbride2013, kristensen-mogelberg-vezzosi2022}.
+
 
 Define $T^{gl}(X) := \forall k. T^k(X)$. Then provided $X$ satisfies a technical
 condition known as \emph{clock-irrelevance}, we have
@@ -2517,6 +2453,7 @@ by weak bisimilarity. However, in order to show that the resulting type is a
 monad in type theory, it is believed that the axiom of countable is required
 \cite{TODO}.
 
+
 To generalize the situation to arbitrary effects, we assume that our theory
 $\calA$ contains no equations. Then we consider the theory $\calA + \th{\mho} +
 \th{\step}$. Then as above, we form the free-model monad for this theory,
@@ -2526,127 +2463,113 @@ The analogue of the monotone sequences for the simple setting of error and
 stepping will be functions that take a generalized notion of fuel and return a
 finite trace of the computation.
 \max{need to update this section to focus on the traces/trees not lift and certainly not clocks}
+\end{comment}
 
-\section{Discussion}\label{sec:discussion}
+The last step of the graduality proof involves using the results obtained in the
+prior sections to derive extensional properties of the semantics that do not
+mention any features of guarded type theory. The result is a statement about the
+operational behavior of terms that can be made in ordinary dependent type
+theory. Furthermore, the statement is step-insensitive, in that it is invariant
+under finite differences in number of steps taken by a program.
+%
+The process we will follow here involves globalization \cite{atkey-mcbride2013},
+which is a process that takes a construction in guarded type theory and turns it
+into a coinductive object in ordinary type theory. Not all constructions in
+guarded type theory can be globalized into coinductive definitions, but the
+specific definitions we will be globalizing do satisfy the required technical
+condition.
+% TODO: mention the notion of a functor commuting with clock quantification.
 
-% Comparison with guarded interaction trees
-% Extension to arbitrary monads (i.e., not just those arising from an algebraic theory)
-% Comparison to Kavvos's approach
-% Extension to Kripke models
-% Discuss Møgelberg + Paviotti paper on denotational semantics of FPC in SGDT
-% Discuss work on runners and comodels
-% Discuss What Monads Can and Cannot Do paper
+At a high level, the goal of this last step of the graduality proof is to define
+a function transforming elements of the (guarded) free-model monad at base type
+$T(\mathbb{N})$ into elements of a type of extensional effectful computations
+$E$ that (provided they terminate) return natural numbers. Then we show that
+this process maps terms related in the guarded extensional error ordering of
+$T(\mathbb{N})$ to extensional computations related in $\ltbisim_E$, where the
+latter is a partial order on $E$.
 
-\subsection{Operational Semantics in Guarded Type Theory}
+Our approach is as follows. We first perform globalization in guarded type
+theory, on both the free-model monad $T(\mathbb{N})$ as well as its associated
+error ordering and weak bisimilarity relations. Though the results of
+glboalization are coinductive and do not utilize guarded type theory, they are
+still \emph{intensional}, in that computations that are weakly bisimilar (i.e.,
+differ by a finite number of steps) are considered distinct elements of the
+globalized free-model monad. Thus, our final step is to perform a ``collapse'',
+the result of which describes the \emph{extensional} behavior of a term. More
+concretelty, the extensional collapse is a function $\col : T^{gl}(\mathbb{N})
+\to E$, where $T^{gl}$ is the globalization of the free-model monad $T$. We then
+require that the global versions of strong error ordering and weak bisimilarity
+imply the relation $\ltbisim_E$.
+%
+More details on this stage of the proof and how it fits into the overall
+structure of the graduality proof are given in Section
+\ref{sec:graduality-shemata}. 
 
-Møgelberg and Paviotti \cite{mogelberg-paviotti2016} use guarded type theory (in
-particular, what they call Guarded Dependent Type Theory) to define a
-denotational semantics for FPC (STLC extended with recursive types). They then
-prove soundness and adequacy for their model using a logical relation
-constructed in the type theory using guarded recursion. Particular care is taken
-to ensure that the operational and denotational semantics are in lock-step. To
-do this, the small-step operational semantics tracks the non-well-founded steps,
-and the logical relation ensures that each such step corresponds to a $\theta$
-operation in the denotational semantics. Our operational semantics is similar in
-that we distinguish between non-well-founded steps and bureaucratic reductions.
+We are not aware of any general theorem to globalize free algebras for
+an arbitrary guarded algebraic theory $\calA$. However, we have
+identified two constructions that allow us to construct many examples:
+free theories (those with no equations) provide a base case, and then
+well-behaved theory/monad transformers allow us to construct more
+complex examples that do contain equations.
+%
+These results allow us to build up the free-model monad for a
+suitably-constructed algebraic theory in a compositional manner. In particular,
+if the innermost monad is the free model-monad for a finitary free theory, then
+we can globalize the monad and apply the sequence of monad transformers to the
+result.
+%
+While we do not support the usual theories of non-determinism or probabilistic
+computation since they involve equations and do not arise from one of our theory
+transformers, we \emph{do} support their free variants. This is a reasonable
+alternative, as the graduality result for the free theories --- a result about
+the behavior of programs --- is not invalidated by considering equations.
 
-\subsection{Guarded Type Theory and Algebraic Effects}
+% \max{This was pretty weaselish before I tried to make it punchier. Please review Eric.}
 
+% \max{I feel like free theory should come first because it's the base
+%   case.}
 
-\subsection{Interaction Trees}
-
-Interaction trees \cite{TODO} are a popular framework for representing effectful
-programs in dependent type theory. While the original formulation of interaction
-trees was as a coinductive type, this has been extended to \emph{guarded}
-interaction trees which are capable of modelling higher-order effects
-\cite{guarded-interaction-trees}.
-% TODO more to say?
-
-The explicit construction we give of the free model for a guarded algebraic
-theory is closely related to guarded interaction trees, but is in one way more
-general and in another way less so. Our approach is more general in the sense
-that we allow a mix of inductive and guarded operations, whereas with guarded
-interaction trees, all operations are guarded. On the other hand, guarded
-interaction trees allow for negative occurrences guarded by a later; our
-construction does not require this generality since in our notion of guarded
-algebraic theories, all occurrences of the type are positive.
-
-\subsection{Adequacy and Algebraic Effects}
-
-Kavvos \cite{kavvos-2025} defines an operational and denotational semantics for
-a language parameterized by a signature of effects, and then proves adequacy of
-the denotational semantics for operational reasoning. The high-level methodology
-is similar to our approach, with a few key differences. Similar to our approach,
-Kavvos defines a small-step operational semantics and then extracts a big-step
-semantics valued in interaction trees. However, the interaction trees are
-defined coinductively, whereas the analogous construction in our approach is
-defined using induction and guarded recursion.
-
-Additionally, Kavvos's small-step semantics is inherently nondeterministic, in
-that an effect operation can step to its continuation instantiated with all
-possible response values. As a result, it is difficult to account for concrete
-effectful small-step semantics, such as for state, where a pair of term and
-state steps to a new term and a new state. In contrast, in our small-step
-semantics, we allow for effectful steps using the endofunctor induced by the
-algebraic signature $\Sigma$. As a result, a term is allowed to take an
-effectful step
-
-% big-step operational semantics using interaction trees and proves adequacy for
-% an operational semantics constructed from
-
-% Additionally, in Kavvos's approach, the small-step semantics is such that an
-% effect operation steps nondeterministically...
-
-
-\subsection{Future Work}
-
-% other operations in the guarded algebraic theory besides just \theta
-
-Our next goal is to extend the effectful semantics to account for more advanced
-effects such as higher-order store or dynamic type-tag generation. This was the
-original motivation of Giovannini et al., and with the experience gained in
-incorporating algebraic effects and operational semantics into their framework,
-we believe it will be feasible to extend the semantics to account for such
-effects. There are two key challenges that must be overcome to handle
-higher-order store. First, dynamic allocation must be modelled. In the
-denotational setting this would take the form of a presheaf over a category of
-worlds, where the world specifies the currently-allocated names. Second, the
-ability to store functions makes the model viciously self-referential. Prior
-work has investigated the use of guarded type theory to solve the resulting
-domain equation \cite{TODO}. The challenge is to incorporate these approaches
-into our denotational model, in particular, the relational aspects (e.g.,
-squares) and the perturbations.
-
-Another possible direction would be to adapt the model to allow for gradual
-\emph{effect systems}, such as that of the language GrEff
-\cite{new-giovannini-licata-2022}. This would necessitate changes to the
-denotational semantics, including adding effect tracking. We would also need to
-solve a domain equation for the dynamic effect type analogous to the equation
-for the dynamic value type.
+% \max{We should also comment on theories we don't support and that
+%   taking the free theory without equations is a somewhat reasonable
+%   alternative in those cases (non-det/probability)}.
 
 
-\section{Description of the Framework}
+\begin{comment}
+One example of this phenomenon involves the theory of exceptions:
+%
+\begin{lemma}[Error Monad Transformer]\label{lem:error-monad-transformer} Let
+$\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad for
+$\calA$, then the free-model monad for the theory $\calA + \th{\mho}$ is given
+by
+%
+\[ T'(A) := T(A + 1). \] 
+\end{lemma}
 
-Let $\calA$ be an ordinary algebraic theory. An $\calA$-graduality schema
-consists of the following data:
-\begin{itemize}
-\item A guarded extension $\calAs \in \calA[\mho, \theta]$ and $\calAsb \in
-\calA[\mho, \theta^s, \theta^b]$.
-\item A presentation of the free models for $\calAs$, given by an adjunction 
-$F \dashv U$ between sets and models of $\calAs$.
-Likewise for $\calAsb$. Let $\Ts$ and $\Tsb$ be the respective monads.
-\item A lifting of the adjunction for $\calAs$ to a strong adjunction between
-the double categories of predomains and $\calAs$-domains. Let $T := UF$ be the
-associated monad on predomains and let $T^{gl}(A) := \forall k.T^k(A)$.
-\item For globalization: $T$ commutes with clock quantification: the canonical
-map $T(\forall k.X[k]) \to \forall k. T(X[k])$ is an isomorphism.
-\item For the extensional collapse: A family of types $E(A)$ along with
-functions $\col : T^{gl}(A) \to E(A)$, along with...
-\item ...A partial order $\ltbisim$ on each $E(A)$, such that...
-\item ...$x \ltdyn^{gl} y$ and $x \bisim^{gl} y$ imply $\col{x} \ltbisim \col{y}$.
-\end{itemize}
+Another example of this phenomenon involves the theory of global mutable state:
+%
+\begin{lemma}[State Monad Transformer]\label{lem:state-monad-transformer}
+Let $\calA$ be a guarded algebraic theory. Suppose that $\calA$ has an operation
+$\theta$ of arity $(0, 1)$. If $T_\calA$ is the free-model monad for $\calA$,
+then the free-model monad for the theory $\calA \otimes \th{\text{State}_S}$ is
+given by
+%
+\[ T'(A) := S \to T_\calA(S \times A). \]
+%
+\end{lemma}
+\end{comment}
 
-Given this data, we prove graduality and adequacy as follows:
+% These results allow us to build up the free-model monad for a
+% suitably-constructed theory in a compositional manner. In particular, if the
+% innermost monad is the free model-monad for a finitary free theory, then we can
+% globalize the monad and apply the sequence of monad transformers to the result.
+
+% Such results allow us to build up the free-model monad in a compositional
+% manner. If the innermost monad is the usual guarded lift monad $L(X) \cong X +
+% \later L(X)$, then we can then globalize the overall monad and use known results
+% about the globalization of the guarded lift monad to obtain a characterization
+% of the combined monad.
+
+
 \begin{enumerate}
   \item We define the small-step operational semantics as in Section
   \ref{sec:small-step-semantics}, and then extract a big-step $\run$ function as
