@@ -2943,6 +2943,263 @@ We consider three examples utilizing our framework, in increasing order of compl
 
 \end{example}
 
+\section{Discussion}\label{sec:discussion}
+
+% Comparison with guarded interaction trees
+% Extension to arbitrary monads (i.e., not just those arising from an algebraic theory)
+% Comparison to Kavvos's approach
+% Extension to Kripke models
+% Discuss Møgelberg + Paviotti paper on denotational semantics of FPC in SGDT
+% Discuss work on runners and comodels
+% Discuss What Monads Can and Cannot Do paper
+
+\subsection{Operational Semantics in Guarded Type Theory}
+
+Møgelberg and Paviotti \cite{mogelberg-paviotti2016} use guarded type theory (in
+particular, what they call Guarded Dependent Type Theory) to define a
+denotational semantics for FPC (STLC extended with recursive types). They then
+prove soundness and adequacy for their model using a logical relation
+constructed in the type theory using guarded recursion. Particular care is taken
+to ensure that the operational and denotational semantics are in lock-step. To
+do this, the small-step operational semantics tracks the non-well-founded steps,
+and the logical relation ensures that each such step corresponds to a $\theta$
+operation in the denotational semantics. Our operational semantics is similar in
+that we distinguish between non-well-founded steps and bureaucratic reductions.
+
+\subsection{Guarded Type Theory and Algebraic Effects}
+
+
+\subsection{Interaction Trees}
+
+Interaction trees \cite{TODO} are a popular framework for representing effectful
+programs in dependent type theory. While the original formulation of interaction
+trees was as a coinductive type, this has been extended to \emph{guarded}
+interaction trees which are capable of modelling higher-order effects
+\cite{guarded-interaction-trees}.
+% TODO more to say?
+
+The explicit construction we give of the free model for a guarded algebraic
+theory is closely related to guarded interaction trees, but is in one way more
+general and in another way less so. Our approach is more general in the sense
+that we allow a mix of inductive and guarded operations, whereas with guarded
+interaction trees, all operations are guarded. On the other hand, guarded
+interaction trees allow for negative occurrences guarded by a later; our
+construction does not require this generality since in our notion of guarded
+algebraic theories, all occurrences of the type are positive.
+
+\subsection{Adequacy and Algebraic Effects}
+
+Kavvos \cite{kavvos-2025} defines an operational and denotational semantics for
+a language parameterized by a signature of effects, and then proves adequacy of
+the denotational semantics for operational reasoning. The high-level methodology
+is similar to our approach, with a few key differences. Similar to our approach,
+Kavvos defines a small-step operational semantics and then extracts a big-step
+semantics valued in interaction trees. However, the interaction trees are
+defined coinductively, whereas the analogous construction in our approach is
+defined using induction and guarded recursion.
+
+Additionally, Kavvos's small-step semantics is inherently nondeterministic, in
+that an effect operation can step to its continuation instantiated with all
+possible response values. As a result, it is difficult to account for concrete
+effectful small-step semantics, such as for state, where a pair of term and
+state steps to a new term and a new state. In contrast, in our small-step
+semantics, we allow for effectful steps using the endofunctor induced by the
+algebraic signature $\Sigma$. As a result, a term is allowed to take an
+effectful step
+
+% big-step operational semantics using interaction trees and proves adequacy for
+% an operational semantics constructed from
+
+% Additionally, in Kavvos's approach, the small-step semantics is such that an
+% effect operation steps nondeterministically...
+
+
+\subsection{Future Work}
+
+% other operations in the guarded algebraic theory besides just \theta
+
+Our next goal is to extend the effectful semantics to account for more advanced
+effects such as higher-order store or dynamic type-tag generation. This was the
+original motivation of Giovannini et al., and with the experience gained in
+incorporating algebraic effects and operational semantics into their framework,
+we believe it will be feasible to extend the semantics to account for such
+effects. There are two key challenges that must be overcome to handle
+higher-order store. First, dynamic allocation must be modelled. In the
+denotational setting this would take the form of a presheaf over a category of
+worlds, where the world specifies the currently-allocated names. Second, the
+ability to store functions makes the model viciously self-referential. Prior
+work has investigated the use of guarded type theory to solve the resulting
+domain equation \cite{TODO}. The challenge is to incorporate these approaches
+into our denotational model, in particular, the relational aspects (e.g.,
+squares) and the perturbations.
+
+Another possible direction would be to adapt the model to allow for gradual
+\emph{effect systems}, such as that of the language GrEff
+\cite{new-giovannini-licata-2022}. This would necessitate changes to the
+denotational semantics, including adding effect tracking. We would also need to
+solve a domain equation for the dynamic effect type analogous to the equation
+for the dynamic value type.
+
+
+
+%\section{Graduality for Free Theories}
+
+%\max{TODO: find the right place to put this}
+
+% Consider the case that our algebraic theory is a free theory generated
+% by some signature, i.e., a set $\Sigma$ of operation names with
+% arities $\ar : \Sigma \to \mathbb N$. Then we can form the type of
+% finite trees with node types from the signature:
+
+% \[ \textrm{FinTree}_\Sigma X = \mu T. X + ((\sigma : \Sigma) \times T^{\ar(\sigma)}) \]
+
+% Then the globalization of a free algebra for this theory extended with
+% $\mho, \theta$ is a certain kind of coinductive ``interaction tree'':
+
+% \[ \textrm{ITree}_\Sigma X = \nu D. \textrm{FinTree}_\Sigma(X + \{ \mho \} + D) \]
+
+% For clarity, the $X$ case of a $\textrm{FinTree}X$ will be called
+% $\textrm{leaf}(x)$ and the $X$ case of $X + \{ \mho \} + D$ in
+% $\textrm{ITree}_\Sigma X$ will be called $\eta(x)$.
+
+% The reason for the interleaving of $\textrm{FinTree}_\Sigma$ is that
+% because only the $\theta$ operation is guarded, there can be only
+% finitely depth of operations from the signature unless they are
+% interrupted by a $\theta$.
+% We define $M \leadsto N$ to mean that $M = \textrm{leaf}(\delta(N))$,
+% representing that $M$ ``steps'' to $N$ in one internal ($\tau$) step.
+
+% Then the globalization of the strict error ordering $\sqsubseteq$ and
+% weak bisimilarity $\bisim$ for ITrees imply the following
+% coinductively generated relations on $\textrm{ITree}_\Sigma X$:
+
+% \begin{mathpar}
+%   \inferrule{}{\eta x \sqsubseteq \eta x}
+
+%   \inferrule{}{\err \sqsubseteq N}
+
+%   \inferrule{M \sqsubseteq N}{\delta(M) \sqsubseteq \delta(N)}
+
+%   \inferrule{\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)}{\sigma(f) \sqsubseteq \sigma(g)}
+% \end{mathpar}
+
+% \begin{mathpar}
+%   \inferrule{N \leadstomany \eta x}{\eta x \bisim N}\and
+%   \inferrule{M \leadstomany \eta x}{M \bisim \eta x}\and
+%   \inferrule{N \leadstomany \err}{\err \bisim N}\and
+%   \inferrule{M \leadstomany \err}{M \bisim \err}\and
+%   \inferrule{N \leadstomany \sigma(g)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{\sigma(f) \bisim N}\and
+%   \inferrule{M \leadstomany \sigma(f)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{M \bisim \sigma(g)}\and
+%   \inferrule{M \bisim N}{\delta(M) \bisim \delta(N)}
+% \end{mathpar}
+
+% To define a concrete extensional error ordering on interaction trees,
+% we define a type extensional execution traces. These traces are
+% finitary observations of an interaction tree, but ignoring the $\tau$
+% nodes.
+
+% We define two mutually inductive
+% types, $\textrm{PTrace}, \textrm{OTrace}$ which represent traces
+% starting with ``Player's'' turn or ``Opponent's'' turn, with
+% terminology inspired by game semantics. Here Player represents the
+% interaction tree, and the opponent represents the external system
+% interacting with the tree. Fix a type $V$ of final values.
+% \begin{mathpar}
+%   \textrm{PTrace} = V \uplus \{ \mho \} \uplus (\sigma : \Sigma) \times \textrm{OTrace}(\ar(\sigma))\\
+%   \textrm{OTrace}(R) = \{ \textrm{end} \} \uplus R \times \textrm{PTrace}
+% \end{mathpar}
+% A player trace is either terminated with a value, terminated with an
+% error or a pair of an operation $\sigma$ and an opponent trace, where
+% the opponent is expected to respond with the type of the arity of
+% $\sigma$. An opponent trace with response type $R$ is either empty,
+% marked by $\textrm{end}$ or it is a pair of a response $R$ and a
+% player trace. The role of the opponent trace is to allow for
+% observation of finite prefixes of infinitely long productive
+% sequences. Without it, the only observations would be of termination
+% behavior.
+
+% We write $t \downarrow \eta V$, $t \downarrow \mho$ and $t \downarrow
+% \textrm{end}$ to indicate that a player trace terminates in a
+% particular way.
+
+% We define by induction on the traces satisfaction
+% relations $M \vDash t$ between an ITree $M$ and a $\textrm{PTrace}$
+% $t$ and $f \vDash t$ between an $R$-indexed family of ITrees and an
+% $\textrm{OTrace}R$:
+% \begin{align*}
+%   {M \vDash \eta(V)} &= M \leadstomany \leaf(\eta(V))\\
+%   {M \vDash \mho} &= M \leadstomany \leaf(\mho)\\
+%   {M \vDash \sigma; o} &= M \leadstomany \sigma(f) \wedge f \vDash o\\
+% \end{align*}
+% \begin{align*}
+%   f \vDash \textrm{end} &= \top \\
+%   f \vDash r; p &= f(r) \vDash p
+% \end{align*}
+
+% Additionally, we inductively define an error ordering $\sqsubseteq$ on
+% player and opponent traces which intuitively means if $p \sqsubseteq q$ then $p$ is either
+% equal to $q$ or it is a prefix of $q$ that ends in $\mho$:
+% \begin{mathpar}
+%   \mho \sqsubseteq p
+
+%   \eta V \sqsubseteq \eta V
+
+%   \inferrule{o \sqsubseteq o'}{\sigma; o \sqsubseteq \sigma; o'}
+
+%   {\textrm{end} \sqsubseteq \textrm{end}}
+
+%   \inferrule{p \sqsubseteq q}{r; p \sqsubseteq r; q}
+% \end{mathpar}
+
+% Then the extensional error ordering can be defined as saying that $M
+% \ltbisim N$ when the results of observing $M$ are either the same as
+% $N$ or result in an error earlier on. 
+
+% \begin{align*}
+%    M \ltbisim N &= \forall (t : \textrm{PTrace}). \\
+%    &((N \vDash t) \Rightarrow \exists s \sqsubseteq t.~ M \vDash s)\\
+%    &\wedge ((M \vDash t) \wedge (t \downarrow \eta V \vee t \downarrow \textrm{end}) \Rightarrow N \vDash t)
+% \end{align*}
+
+% In plain English: if $N$ exhibits a finite trace $t$, then $M$ must
+% exhibit $t$ or an $\mho$-ending prefix of $t$, and if $M$ exhibits a
+% trace ending in a value or opponent's move, then $N$ must exhibit the
+% same trace.
+
+% \begin{lemma}[Properties of $\sqsubseteq$]
+%   \label{lem:itree-strong-err}
+%   Assume $M \sqsubseteq N$.
+%   \begin{enumerate}
+%   \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+%   \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \sqsubseteq g(r)$.
+%   \item If $N \leadsto \err$ then $M \leadsto \err$
+%   \item If $N \leadsto \eta x$ then $M \leadsto \err$ or $M \leadsto \eta x$
+%   \item If $N \leadsto \sigma(f)$ then $M \leadsto \err$ or $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)$
+%   \end{enumerate}
+% \end{lemma}
+
+% \begin{lemma}[Properties of $\bisim$]
+%   \label{lem:itree-bisim}
+%   Assume $M \sqsubseteq N$.
+%   \begin{enumerate}
+%   \item If $M \leadsto \err$ then $N \leadsto \err$
+%   \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+%   \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \bisim g(r)$.
+%   \item If $N \leadsto \err$ then $M \leadsto \err$
+%   \item If $N \leadsto \eta x$ then $M \leadsto \eta x$
+%   \item If $N \leadsto \sigma(f)$ then $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \bisim g(r)$
+%   \end{enumerate}
+% \end{lemma}
+
+% \begin{theorem}[Properties of $\ltbisim$]
+%   $\ltbisim$ is transitive.
+%   If $M \sqsubseteq N$ then $M \ltbisim N$.
+%   If $M \bisim N$ then $M \ltbisim N$.
+% \end{theorem}
+% \begin{proof}
+%   Transitivity is clear. The other two implicications follow by induction on the structure of the input trace and the lemmas \ref{lem:itree-strong-err,lem:itree-bisim}
+%   By induction on the structure of the input trace.
+% \end{proof}
 
 \bibliographystyle{ACM-Reference-Format}
 \begin{DIFnomarkup}
