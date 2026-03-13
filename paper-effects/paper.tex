@@ -352,12 +352,6 @@ monad for the theory from sets to act on the error ordering and
 bismilarity relations we use in the proof.
 
 The final proof of graduality results from the composition of several constructions.
-% We leverage the existing denotational model of gradual typing of Giovannini et
-% al. \cite{gtt-sgdt}.
-%
-%\begin{enumerate}
-% First, we develop a guarded denotational model of gradual typing with
-% effects, taking as inspiration the existing model of Giovannini et al.
 First, we develop a guarded denotational model of gradual typing with effects
 based on the existing model of Giovannini et al. The result is a \textbf{guarded
 denotational graduality} theorem:
@@ -382,8 +376,6 @@ monads, where the monad used in $\run{M}$ supports the
 only contains the ``true'' steps. This is to account for the fact that
 bureaucratic steps correspond to operational rules such as beta
 reductions that are equalities in the denotational semantics.
-% The reason for this discrepancy will be explained in the section on
-% operational semantics, but for now it is sufficient to note that
 The relation $x \equiv_b y$ means that $x$ and $y$ are the same up-to
 a \emph{finite} number of bureaucratic steps in $x$. The adequacy
 theorem then states that the denotational semantics is in lock-step
@@ -1221,7 +1213,7 @@ imply that when running any term, there can be at most finitely many consecutive
 bureaucratic steps between any two operations.
 
 To account for errors and computational steps, the construction of the
-operational semantics is parameterized by three guarded algebraic theories that
+operational semantics is parameterized by two guarded algebraic theories that
 extend $\calA$. We write $\calA[\oper_1, \oper_2, \dots, \oper_n]$ to denote the
 collection of guarded theories that have the operations and equations of $\calA$
 plus the operations $\oper_1, \dots, \oper_n$, and possibly contain equations
@@ -1229,36 +1221,31 @@ relating $\oper_i$ to the operations of $\calA$. The guarded extensions taken as
 input are as follows:
 %
 \begin{enumerate}
-  \item $\calAerr \in \calA[\mho]$, i.e., $\calA$ extended with errors.
+  %\item $\calAerr \in \calA[\mho]$, i.e., $\calA$ extended with errors.
 
   \item $\calAs \in \calAerr[\theta^s]$, i.e., $\calA$ extended with errors and
   (true) steps.
 
   \item $\calAsb \in \calAs[\theta^b]$, i.e., $\calA$ with errors, true steps,
   and bureaucratic steps.
-  % \max{define macros for this and make sb not be in textrm}
-  % % 
-  % $\calA_{\mho sb} := 
-  %   (\calA \otimes (\th{\mho} + \th{\step} + \th{\step}))$. 
-%
   % We denote the first step operation by $\theta^{s}$ and the second step
   % operation by $\theta^{b}$.
 \end{enumerate}
 
-We write $T_\mho$, $\Ts$ and $\Tsb$ to denote the free-model
-monads for the theories $\calAerr$, $\calAs$, and $\calAsb$, respectively.
-(Recall that the free-model monad for a theory is unique up to isomorphism of
-monads.)
+We write $\Ts$ and $\Tsb$ to denote the free-model monads for the theories
+$\calAs$ and $\calAsb$, respectively. (Recall that the free-model monad for a
+theory is unique up to isomorphism of monads.)
 %
-The monad $T_{\mho}$ supports each of the operations of the input theory
-$\calA$, in addition to a nullary error operation $\mho$. This means that for
-each operation $\oper$, of arity $\tau_\oper$, there is a function
-$\sem{\oper}^{T X} : (\tau_\oper \to T X) \to T X$.
+The monad $\Ts$ supports each of the operations of the input theory $\calA$, in
+addition to a nullary error operation $\mho$ and a guarded step operation
+$\theta^s : (\later \Ts(X)) \to \Ts(X)$. This means that for each operation
+$\oper$, of arity $\tau_\oper$, there is a function $\sem{\oper} : (\tau_\oper
+\to \Ts X) \to \Ts X$.
 %
-The monad $\Ts$ supports each of the above, in addition to a guarded step
-operation $\theta^s : \later \Ts(X) \to \Ts(X)$.
+% The monad $\Ts$ supports each of the above, in addition to a guarded step
+% operation $\theta^s : \later \Ts(X) \to \Ts(X)$.
 %
-The same is true of $T_{\mho sb}$, but it has two guarded step operations
+The same is true of $\Tsb$, but it has two guarded step operations
 $\theta^s, \theta^b : \later \Tsb(X) \to \Tsb(X)$.
 
 % Since $\calA_{\mho}$ is a subtheory of $\calA_{\mho + s}$, there is a morphism
@@ -1277,11 +1264,11 @@ of closed values of type $A$ in the cast calculus.
 
 Our goal is to define a guarded big-step operational semantics, i.e., a function
 %
-\[ \run : \term{A} \to T_{\mho sb} (\val{A}). \]
+\[ \run : \term{A} \to \Tsb (\val{A}). \]
 %
 Observe that the output of running a term is a monadic value. The monad accounts
-for all possible effects that may occur as the term is being run, including both
-true and bureaucratic steps.
+for all possible effects that may occur as the term is being run: operations in
+$\calA$, runtime errors, as well as true and bureaucratic steps.
 %
 We write $M \Dwn \hat{V}$ to mean that $\run(M) = \hat{V}$ and we write $M
 \Uparrow$ to mean that $\run(M) = \fix \thetatrue$.
@@ -1292,10 +1279,10 @@ To define the $\run$ function, we first model small-step reduction as a function
 \[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) 
     + (\term{A} + \Sigma_\mho(\term{A}) \times \steptype). \]
 %
-Here, $\Sigma_\mho$ is the signature of the algebraic theory $\calA_\mho$, and
-$\steptype$ is simply a type with two inhabitants: $\steptype := \tstep \alt
-\bstep$, where $\tstep$ represents a true step and $\bstep$ represents a
-bureaucratic step.
+Here, $\Sigma_\mho$ is the polynomial endofunctor corresponding to the signature
+of the algebraic theory $\calA + \{ \mho \}$, and $\steptype$ is simply a type
+with two inhabitants: $\steptype := \tstep \alt \bstep$, where $\tstep$
+represents a true step and $\bstep$ represents a bureaucratic step.
 %
 Then the $\step$ function states that for every closed term $M$ of type $A$,
 either $M$ is a value or it takes a step. When a term steps, it can be a
@@ -1402,6 +1389,13 @@ In particular, our notational conventions are as follows:
   $\Sigma_\mho(\term{A})$.
 \end{itemize}
 
+To define the $\step$ function, we stage the definition in two parts. We first
+define an auxiliary function $M \stepsinprim{k} \hat{N}$ for stepping a term
+outside an evaluation context, and then we use this to define $\step$, which is
+concerned with stepping an arbitrary term (i.e., potentially within an
+evaluation context). The notational conventions for $\stepsinprim{}$ are the
+same as those for $\stepsin{}$.
+
 % TODO cite wrapping semantics for casts
 % TODO define/explain tags
 % TODO make sure to distinguish between meta-level lambda and object-level lambda
@@ -1416,11 +1410,11 @@ In particular, our notational conventions are as follows:
     % Usual beta rules:
     \inferrule*[right=Beta]
       { }
-      {(\lambda x : A.M)(V) \stepsin{0} M[V/x]}
+      {(\lambda x : A.M)(V) \stepsinprim{0} M[V/x]}
 
     \inferrule*[right=Split]
       { }
-      {\synsplit{(V_1, V_2)}{x_1}{x_2}{M} \stepsin{0} M[V_1, V_2 / x_1, x_2]}
+      {\synsplit{(V_1, V_2)}{x_1}{x_2}{M} \stepsinprim{0} M[V_1, V_2 / x_1, x_2]}
 
     % \inferrule*[right=Bind]
     %   { }
@@ -1435,14 +1429,14 @@ In particular, our notational conventions are as follows:
       { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o' 
         \and \Gamma \vdash V_f : A_i \ra A_o 
         \and \Gamma \vdash V : A_i'}
-      { (\upc (c_i \ra c_o) V_f) \stepsin{0} (\lambda x. (\upc {c_o} (V_f\, (\dnc {c_i} x)))) }
+      { (\upc (c_i \ra c_o) V_f) \stepsinprim{0} (\lambda x. (\upc {c_o} (V_f\, (\dnc {c_i} x)))) }
 
     % Downcast of a function steps when applied to a value:
     \inferrule*[right=Dn-Arr]
       { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o' 
         \and \Gamma \vdash V_f : A_i \ra A_o 
         \and \Gamma \vdash V : A_i'}
-      { (\dnc {(c_i \ra c_o)} V_f) \stepsin{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
+      { (\dnc {(c_i \ra c_o)} V_f) \stepsinprim{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
 
 
     % Up/down cast of a paired value steps to the pair of the up/down casted
@@ -1450,22 +1444,22 @@ In particular, our notational conventions are as follows:
     \inferrule*[right=Up-$\times$, leftskip=1em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
         \\\\ \Gamma \vdash V_1 : A_1 \and \Gamma \vdash V_2 : A_2}
-      { \upc {(c_1 \times c_2)} (V_1, V_2) \stepsin{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
+      { \upc {(c_1 \times c_2)} (V_1, V_2) \stepsinprim{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
 
     \inferrule*[right=Dn-$\times$, leftskip=2em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
         \\\\ \Gamma \vdash V_1 : A_1' \and \Gamma \vdash V_2 : A_2'}
-      { \dnc {(c_1 \times c_2)} (V_1, V_2) \stepsin{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
+      { \dnc {(c_1 \times c_2)} (V_1, V_2) \stepsinprim{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
   
 
     % "Composition" of casts with inj-arr and inj-times:
     \inferrule*[right=CmpUp]
       { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_1 }
-      { \upc {(cc')} V \stepsin{0} (\upc c' (\upc c V)) }
+      { \upc {(cc')} V \stepsinprim{0} (\upc c' (\upc c V)) }
 
     \inferrule*[right=CmpDn]
       { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_3 }
-      { \dnc {(cc')} V \stepsin{0} (\dnc c (\dnc c' V)) }
+      { \dnc {(cc')} V \stepsinprim{0} (\dnc c (\dnc c' V)) }
 
     % \inferrule*[right=$\iarr$Up, leftskip=1em]
     %   { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : A }
@@ -1490,19 +1484,19 @@ In particular, our notational conventions are as follows:
     % Downcasts of upcasted-to-dyn values:
     \inferrule*[right=DnUpInjNat]
       { \Gamma \vdash V : \nat }
-      { \dnc \inat (\upc \inat V) \stepsin{0} V}
+      { \dnc \inat (\upc \inat V) \stepsinprim{0} V}
 
     \inferrule*[right=DnUpInj$\times$]
       { \Gamma \vdash V : \dyn \times \dyn }
-      { \dnc {\itimes} (\upc {\itimes} V) \stepsin{0} V}
+      { \dnc {\itimes} (\upc {\itimes} V) \stepsinprim{0} V}
 
     \inferrule*[right=DnUpInj$\arr$, leftskip=1em]
       { \Gamma \vdash V : \dyntodyn }
-      { \dnc {\iarr} (\upc {\iarr} V) \stepsin{1} V}
+      { \dnc {\iarr} (\upc {\iarr} V) \stepsinprim{1} V}
 
     \inferrule*[right=TagMismatch, leftskip=1em]
      { \text{tag}_1, \text{tag}_2 \in \{ \mathbb{N}, \times, \ra \} \and \text{tag}_1 \neq \text{tag}_2 }
-     { \dnc {\text{Inj}_{\text{tag}_1}} (\upc {\text{Inj}_{\text{tag}_2}} V) \stepsin{0} \ceff{(\mho, *)} }
+     { \dnc {\text{Inj}_{\text{tag}_1}} (\upc {\text{Inj}_{\text{tag}_2}} V) \stepsinprim{0} \ceff{(\mho, *)} }
 
 
   \end{mathpar}
@@ -1517,12 +1511,12 @@ In particular, our notational conventions are as follows:
 
     \inferrule*[right=Eff, leftskip=2em]
       { \oper : [n] }
-      { \synoper{M}{n} \stepsin{0} \ceff{(\oper, (\lambda\, (i : [n]).\, M_i))} }  
+      { \synoper{M}{n} \stepsinprim{0} \ceff{(\oper, (\lambda\, (i : [n]).\, M_i))} }  
 
     % Congruence
     % Accounts for the fact that reduction may be impure
     \inferrule*[right=Cong]
-      { i \in \{0,1\} \and M \stepsin{i} \hat{N}}
+      { i \in \{0,1\} \and M \stepsinprim{i} \hat{N}}
       { E[M] \stepsin{i} \Sigmahat(E[\cdot])(\hat{N}) }
 
     % \inferrule*[right=EffCong]
@@ -1606,7 +1600,7 @@ the function taking a term $M$ to $E[M]$.
 \subsection{Defining a Runnable Semantics}\label{sec:big-step-semantics}
 
 Now that we have defined a small-step semantics, we discuss how to extract a
-runnable ``big-step'' semantics. More concretely, recall that our goal is a function
+runnable ``multi-step'' semantics. More concretely, recall that our goal is a function
 %
 \[ \run : \term{A} \to T_{\mho sb} (\val{A}). \]
 %
@@ -2333,8 +2327,6 @@ replace arbitrary terms in an evaluation context with values.
 
 \subsection{Fundamental Lemma}
 
-% TODO define \grel{\Gamma}
-
 % $\gambar$ maps $x : A \in \Gamma$ to $\sem{A}$ and $\gamma'$ maps $x : A \in \Gamma$ to $\val{A}$
 
 We begin by defining the extension of the value relation to contexts.
@@ -2381,11 +2373,6 @@ operational semantics:
 % Adequacy of the term model
 % Adequacy of the relational model
 
-
-% To this end, we will define a logical relation between (closed) syntactic terms
-% of type $A$ and their denotations as elements of $F\sem{A}$, where $F$ is the
-% functor constructing the free error-effect algebra as discussed in Section
-% \ref{sec:denotational-semantics}.
 
 
 \section{Globalization and Extensional Collapse}\label{sec:globalization}
@@ -2485,6 +2472,7 @@ specific definitions we will be globalizing do satisfy the required technical
 condition.
 % TODO: mention the notion of a functor commuting with clock quantification.
 
+\eric{$E$ does not have to be a type of extensional computations; it isn't in the case of the ITrees.}
 At a high level, the goal of this last step of the graduality proof is to define
 a function transforming elements of the (guarded) free-model monad at base type
 $T(\mathbb{N})$ into elements of a type of extensional effectful computations
@@ -2504,7 +2492,7 @@ the result of which describes the \emph{extensional} behavior of a term. More
 concretelty, the extensional collapse is a function $\col : T^{gl}(\mathbb{N})
 \to E$, where $T^{gl}$ is the globalization of the free-model monad $T$. We then
 require that the global versions of strong error ordering and weak bisimilarity
-imply the relation $\ltbisim_E$.
+imply that the relation $\ltbisim_E$ holds on collapsed elements.
 %
 More details on this stage of the proof and how it fits into the overall
 structure of the graduality proof are given in Section
@@ -2529,8 +2517,9 @@ We discuss these constructions in greater detail in Sections
 While we do not support the usual theories of non-determinism or probabilistic
 computation since they involve equations and do not arise from one of our theory
 transformers, we \emph{do} support their free variants. This is a reasonable
-alternative, as the graduality result for the free theories --- a result about
-the behavior of programs --- is not invalidated by considering equations.
+alternative: for a theory $\calA$ with free-model monad $T$, the free-model
+monad for the corresponding theory without equations maps uniquely into $T$, and
+the graduality result also translates without issue.
 
 % \max{This was pretty weaselish before I tried to make it punchier. Please review Eric.}
 
@@ -2585,7 +2574,7 @@ instantiate it with some examples corresponding to familiar algebraic theories.
 \subsection{Graduality Schemata}\label{sec:graduality-shemata}
 
 We bundle the required data for all the steps of our construction into a
-definition we call a graduality schema, defined below:
+definition we call a \textbf{graduality schema}, defined below:
 %
 \begin{definition}[$\calA$-Graduality Schema]
 Let $\calA$ be an ordinary, finitary algebraic theory. An
@@ -2606,7 +2595,7 @@ strong adjunction between the double categories of predomains and
 $\calAs$-domains (see Section \ref{sec:extending-to-predomains} for details).
 Let $\That := UF$ be the associated monad on predomains. Being a lifting means
 in particular that for any predomain $A$, we have $|\That(A)| = T(|A|)$ with $T$
-as above.
+as in \ref{itm:gs-free-models}.
 
 %and let $\That^{gl}(A) := \forall k.\That^k(A)$.
 
@@ -2615,9 +2604,12 @@ quantification, i.e., the canonical map $T(\forall k.X[k]) \to \forall k.
 T(X[k])$ is an isomorphism.
 
 \item \label{itm:gs-collapse} For the extensional collapse: A family of types
-$E(A)$ along with functions $\col : T^{gl}(A) \to E(A)$.
+$E(A)$, and functions $\col_A : T^{gl}(A) \to E(A)$.
+% \item \label{itm:gs-collapse} For the extensional collapse: A type
+% $E$ along with a function $\col : T^{gl}(\mathbb{N}) \to E$.
 
 \item \label{itm:gs-ext-ord} A partial order $\ltbisim$ on each $E(A)$, such
+%\item \label{itm:gs-ext-ord} A partial order $\ltbisim$ on $E$, such
 that $x \ltdyn^{gl} y$ and $x \bisim^{gl} y$ imply $\col{x} \ltbisim \col{y}$.
 \end{enumerate}
 \end{definition}
@@ -2650,14 +2642,18 @@ prove operational graduality. We proceed as follows:
   assuming $M \ltdyn N : \nat$. Then by adequacy and guarded denotational
   graduality, we have
   %
-  \[ \exists f,g.\, \run M \equiv_b \sem{M} \bisim f \ltdyn g \bisim \sem{N} \equiv_b \run N. \] 
+  \[ \exists f,g.\, \run M \equiv_b \sem{M} \bisim f \ltdyn g \bisim \sem{N} \equiv_b \run N. \]
   %
-  \item We map the bureaucratic delays in $\run M$ and $\run N$ to true delays. 
-  Then $\equiv_b$ turns into $\bisim$:
+  \item Next, we eliminate the distinction between the two types of delays and
+  convert the syntactic natural number to a semantic one. This is done via a
+  function $d : \Tsb(\val{\nat}) \to \Ts(\mathbb{N})$ mapping the bureaucratic
+  delays in $\run M$ and $\run N$ to true delays. Then $\equiv_b$ turns into
+  $\bisim$ on $\Ts(\mathbb{N})$, and we obtain
   %
-  \[ d(\run M) \bisim \sem{M} \bisim f \ltdyn g \bisim \sem{N} \bisim d(\run N). \]   
+  \[ d(\run M) \bisim \sem{M} \bisim f \ltdyn g \bisim \sem{N} \bisim d(\run N). \]
   %
-  \item We perform globalization and extensional collapse. First, we globalize:
+  \item We perform globalization and extensional collapse. First, we globalize
+  the terms and relations:
   \[ \gl(d(\run M)) 
     \bisim^{gl} \gl(\sem{M}) 
     \bisim^{gl} \gl(f) 
@@ -2670,7 +2666,10 @@ prove operational graduality. We proceed as follows:
   \[ \col(\gl(d(\run M))) \ltbisim \col(\gl(d(\run N))), \]
   %
   where $\col$ is as described in item \ref{itm:gs-collapse} and $\ltbisim$ is
-  as described in item \ref{itm:gs-ext-ord}.
+  as described in item \ref{itm:gs-ext-ord}. We write $\run'$ for the
+  composition $(\col \circ \gl \circ d \circ \run) : \term{\nat} \to E(\mathbb{N})$. We have
+  shown that $M \ltdyn N : \nat$ implies that $\run'(M) \ltbisim \run'(N)$,
+  completing the proof.
 \end{enumerate}
 
 In the remainder of this section, we discuss two instantiations of the
@@ -2683,33 +2682,50 @@ constructions in the form of certain theory/monad transformers.
 
 Consider the case that our algebraic theory $\calA$ is a finitary free theory
 generated by some signature, i.e., a set $\Sigma$ of operation names with
-(non-guarded) arities $\tau_\oper : \mathbb N$ for each $\oper \in \Sigma$. Then
+(non-guarded) arities $\ar(\oper) \in \mathbb N$ for each $\oper \in \Sigma$. Then
 we can form the type of finite trees with node types given by the signature:
 %
-\[ \textrm{FinTree}_\Sigma X = \mu T. X + ((\oper : \Sigma) \times T^{\tau_\oper}) \]
+\[ \textrm{FinTree}_\Sigma X = \mu T. X + ((\oper : \Sigma) \times T^{\ar(\oper)}) \]
 %
+We write $\textrm{leaf}(x)$ for the left injection, and $\oper(f)$ for the right
+injection with operation $\oper$, where $f : \ar(\oper) \to
+\textrm{FinTree}_\Sigma$.
+
 Now let $\calAs$ be a guarded extension of $\calA$ with an error operation
-$\mho$ and step operation $\theta$, such that $\calAs$ is itself a free theory.
-Then the globalization of a free algebra for $\calAs$ is a certain kind of
-coinductive ``interaction tree'':
+$\mho$ and step operation $\theta$, such that $\calAs$ is itself a free theory;
+this amounts to saying that $\calAs = \calA + \error + \steptheory$.
+%
+Then the free-model monad for $\calAs$ is given by the type of mixed
+inductive/guarded-recursive trees as discussed in Section
+\ref{sec:guarded-algebraic-theories}.
+%
+Furthermore, the globalization of the free-model monad for $\calAs$ is a certain
+kind of coinductive ``interaction tree'':
 % Then the globalization of a free algebra for this theory extended with an error
 % operation $\mho$ and a step operation $\theta$ is a certain kind of coinductive
 % ``interaction tree'':
 %
 \[ \textrm{ITree}_\Sigma X = \nu D. \textrm{FinTree}_\Sigma(X + \{ \mho \} + D) \]
 %
-For clarity, the $X$ case of a $\textrm{FinTree}X$ will be called
-$\textrm{leaf}(x)$ and the $X$ case of $X + \{ \mho \} + D$ in
-$\textrm{ITree}_\Sigma X$ will be called $\eta(x)$.
+% For clarity, the $X$ case of a $\textrm{FinTree}X$ will be called
+% $\textrm{leaf}(x)$ and the $X$ case of $X + \{ \mho \} + D$ in
+% $\textrm{ITree}_\Sigma X$ will be called $\eta(x)$.
+%The case for $D$ will be called $\tau(M)$.
+%
+We write $\eta(x)$, $\mho$, and $\tau(M)$ for the $\textrm{leaf}$ constructor of
+$\textrm{FinTree}_\Sigma$ applied to the left, middle, and right injections into
+$X + \{ \mho \} + \textrm{ITree}_\Sigma X$, respectively.
 
 The reason for the interleaving of $\textrm{FinTree}_\Sigma$ is that because
-only the $\theta$ operation is guarded, there can be only finitely depth of
-operations from the signature unless they are interrupted by a $\theta$. We
-define $M \leadsto N$ to mean that $M = \textrm{leaf}(\delta(N))$, representing
-that $M$ ``steps'' to $N$ in one internal ($\tau$) step.
+only the $\tau$ operation is coinductive, there can be only a finite depth of
+operations from the signature unless they are interrupted by a $\tau$. We define
+$M \leadsto N$ to mean that $M = \textrm{leaf}(\tau(N))$, representing that $M$
+``steps'' to $N$ in one internal ($\tau$) step. Similarly, we define $M
+\leadstomany N$ to mean that $M = \textrm{leaf}(\tau^n(N))$ for some natural
+number $n$.
 
 Then the globalization of the strict error ordering $\sqsubseteq$ and weak
-bisimilarity $\bisim$ for ITrees imply the following coinductively generated
+bisimilarity $\bisim$ for the guarded trees imply the following coinductively generated
 relations on $\textrm{ITree}_\Sigma X$:
 %
 \begin{mathpar}
@@ -2717,7 +2733,7 @@ relations on $\textrm{ITree}_\Sigma X$:
 
   \inferrule{}{\err \sqsubseteq N}
 
-  \inferrule{M \sqsubseteq N}{\delta(M) \sqsubseteq \delta(N)}
+  \inferrule{M \sqsubseteq N}{\tau(M) \sqsubseteq \tau(N)}
 
   \inferrule{\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)}{\sigma(f) \sqsubseteq \sigma(g)}
 \end{mathpar}
@@ -2729,7 +2745,7 @@ relations on $\textrm{ITree}_\Sigma X$:
   \inferrule{M \leadstomany \err}{M \bisim \err}\and
   \inferrule{N \leadstomany \sigma(g)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{\sigma(f) \bisim N}\and
   \inferrule{M \leadstomany \sigma(f)\and\forall r \in \ar(\sigma). f(r) \bisim g(r)}{M \bisim \sigma(g)}\and
-  \inferrule{M \bisim N}{\delta(M) \bisim \delta(N)}
+  \inferrule{M \bisim N}{\tau(M) \bisim \tau(N)}
 \end{mathpar}
 %
 To define a concrete extensional error ordering on interaction trees, we define
@@ -2788,11 +2804,14 @@ Then the extensional error ordering can be defined as saying that $M \ltbisim N$
 when the results of observing $M$ are either the same as $N$ or result in an
 error earlier on. 
 
+\begin{definition}[Extensional Error Ordering on ITrees]\label{def:itree-ext-ordering}
+Let $M, N : \textrm{ITree}_\Sigma X$. Then the extensional error ordering $M \ltbisim N$ is defined as
 \begin{align*}
    M \ltbisim N &= \forall (t : \textrm{PTrace}). \\
    &((N \vDash t) \Rightarrow \exists s \sqsubseteq t.~ M \vDash s)\\
    &\wedge ((M \vDash t) \wedge (t \downarrow \eta V \vee t \downarrow \textrm{end}) \Rightarrow N \vDash t)
 \end{align*}
+\end{definition}
 
 In plain English: if $N$ exhibits a finite trace $t$, then $M$ must exhibit $t$
 or an $\mho$-ending prefix of $t$, and if $M$ exhibits a trace ending in a value
@@ -2838,12 +2857,11 @@ or opponent's move, then $N$ must exhibit the same trace.
 The upshot of the above is the following theorem:
 %
 \begin{theorem}[Graduality Schema for a Free Theory]\label{thm:gs-free-theory}
-  Let $\calA$ be a free ordinary algebraic theory. Then there is a graduality
-  schema for $\calA$.
+  Let $\calA$ be a finitary, free ordinary algebraic theory. Then there is a
+  graduality schema for $\calA$.
   % for which the guarded extension is given by $\calAs := \calA + \{ \mho \} + \{ \theta \}$,
   % and for which the free-model monad is given by guarded interaction trees.
 \end{theorem}
-See the Appendix for the proof.
 
 
 \subsection{Monad Transformers}\label{sec:monad-transformers}
@@ -2921,29 +2939,145 @@ in the Appendix.
 
 \subsection{End-to-End Examples}\label{sec:framework-examples}
 
-We consider three examples utilizing our framework, in increasing order of complexity.
+We next consider three examples utilizing our framework. 
 %
-\begin{example}[Empty Theory]
-  First, consider the empty theory $\calA = (\emptyset, \emptyset)$. Since
-  $\calA$ is in particular a free theory, we obtain by Theorem
-  \ref{thm:gs-free-theory} a graduality schema for $\calA$. Moreover, we can
-  characterize the data of this schema concretely. We have $\calAs = \error +
-  \steptheory$, the coproduct of the theory of errors with the theory of steps.
-  The free-model monad is given by $T(X) = X + \{ \mho \} + \later (T(X))$, with
-  the ordering and bisimilarity relations being lock-step error ordering and
-  weak bisimilarity respectively as defined in the model of Giovannini et al
-  \cite{gtt-sgdt}. Then we obtain the expected graduality theorem for the syntax:
+\begin{example}[Free Theories]\label{ex:free-theories}
+
+  First, consider a free theory $\calA = (\Sigma, \emptyset)$. Then we obtain by
+  Theorem \ref{thm:gs-free-theory} a graduality schema for $\calA$. In this
+  schema, we have $\calAs = \calA + \error + \steptheory$, the coproduct of
+  $\calA$ with the theory of errors and the theory of computational steps. The
+  free-model monad $T(A)$ for $\calAs$ is given by mixed
+  inductive/guarded-recursive trees over the signature $\Sigma + \{\mho,
+  \theta\}$ with leaves in $A$.
+  %
+  Globalization turns trees in $T(A)$ into mixed inductive/coinductive
+  interaction trees $\textrm{ITree}_\Sigma X$ with a coinductive step operation
+  $\tau : \textrm{ITree}_\Sigma A \to \textrm{ITree}_\Sigma A$. The type $E(A)$ of
+  extensional computations is simply the type $\textrm{ITree}_\Sigma A$, and the
+  extensional collapse function $\col{}$ is simply the identity function.
+  %The extensional ordering is as defined
+  
+  The graduality result for the $\calA$-effectful cast calculus is as expected.  
+  % The result uses the relation $M \Downarrow \bar{N}$, where $M$ is a term in
+  % the cast calculus, and $\bar{N}$ is an ITree over natural numbers. We say $M
+  % \Downarrow \bar{N}$ if $\run'(M) \leadstomany \bar{N}$, where we recall from Section
+  % \ref{sec:graduality-shemata} that $\run' : \term{\nat} \to E$ is given by
+  % running the input term, then mapping bureaucratic delays to true delays, and
+  % then globalizing and collapsing the result. Specializing to the graduality schema for the
+  % free theory $\calA$ given by Theorem \ref{thm:gs-free-theory}, $\run'$ maps
+  % $\term{\nat}$ to $\textrm{ITree}_\Sigma \mathbb{N}$. The predicate $M
+  % \Uparrow$ means that $M$ does not terminate, i.e., $M$ contains an infinite
+  % sequence of $\tau$ operations.
+  %
+  In particular, graduality states that if $M \ltdyn N : \nat$, then in the
+  extensional ordering on ITrees given in Definition
+  \ref{def:itree-ext-ordering}, we have $\run'(M) \ltbisim \run'(N)$, where
+  $\run' : \term{\nat} \to \textrm{ITree}_\Sigma(\mathbb{N})$. Recall that this means
+  when observing $M$ and $N$ via a trace, either the result of observing $M$ is
+  the same as $N$, or observing $M$ results in an error earlier on.
+  %
+  % (1) $M \Downarrow \mho$, 
+  % (2) $M \Downarrow n$ and $N \Downarrow n$,
+  % (3) $M \Downarrow \oper(f)$ and $N \Downarrow \oper(g)$
+  % (3) $M \Uparrow$ and $N \Uparrow$.
+  %
+
+  % The free-model monad is given by $T(X) = X + \{ \mho \} + \later (T(X))$.
+  % The ordering and bisimilarity relations are the lock-step error ordering and
+  % weak bisimilarity, respectively, as defined in the model of Giovannini et al.
+  % \cite{gtt-sgdt}.
+
+  In the special case that $\calA$ is the empty theory (i.e., no operations and
+  no equations), then we define a relation $M \Downarrow n$ to mean that
+  $\run'(M) \leadstomany \eta(n)$. 
+  % (where $\run' : \term{\nat} \to \textrm{ITree}_\emptyset(\mathbb{N})$).
+  We similarly define $M \Downarrow \mho$ to mean that $\run'(M) \leadstomany
+  \mho$. We say $M \Uparrow$ if $\run'(M)$ fails to terminate, i.e., $\run'(M) =
+  \fix(\tau)$.
+  %
+  % Then the graduality theorem says that if $M \ltdyn N : \nat$, then either 
+  Then we recover the graduality result of Giovannini et al. \cite{gtt-sgdt},
+  which states that if $M \ltdyn N : \nat$, then either
+  (1) $M \Downarrow \mho$, 
+  (2) $M \Downarrow n$ and $N \Downarrow n$, or 
+  (3) $M \Uparrow$ and $N \Uparrow$.
 \end{example}
 
-\begin{example}[Global State]
-  Now suppose $\calA := \state{\bool}$.
+\begin{example}[Global State]\label{ex:global-state}
+
+  Now suppose $\calA := \state{\bool}$. Observe that we can view $\calA$ as the
+  global state theory transformer applied to the empty theory $\calA_\emptyset
+  := (\emptyset, \emptyset)$. Thus by Theorem \ref{thm:gs-global-state}, we
+  obtain an $\calA$-graduality schema, which we now describe concretely.
+  %
+  First, as mentioned in Section \ref{sec:operational-semantics}, the (guarded)
+  operational semantics we obtain from our framework mirrors the usual
+  operational semantics for a language with global state:
+  %
+  \[ \run : \term{A} \to (\term{A} \times \bool) \to L(\bool \times \val{A}). \]
+  %
+  Globalizing and applying the extensional collapse, we obtain a semantics given by
+  $\run' : \term{\nat} \to (\bool \to \textrm{ITree}_\emptyset(\bool \times \mathbb{N}))$.
+  % valued in $\textrm{ITree}_\emptyset(\bool \times \mathbb{N})$,
+  The graduality theorem is as we would expect. First define the relation $(M,
+  b) \Downarrow (b', n)$ to mean $\run'(M)(b) \leadstomany \eta(b', n)$, and define $(M,
+  b) \Downarrow \mho$ to mean $\run'(M)(b) \leadstomany \mho$. Then graduality
+  states that if $M \ltdyn N : \nat$, then for all initial states $b_0 \in
+  \bool$, either 
+  (1) $(M, b_0) \Downarrow \mho$, 
+  (2) $(M, b_0) \Downarrow (b', n)$ and $(N, b_0) \Downarrow (b', n)$, for some $b' \in \bool$, or
+  (3) $(M, b_0) \Uparrow$ and $(N, b_0) \Uparrow$.
+
 \end{example}
 
-\begin{example}[Several Effects]
+\begin{example}[Several Effects]\label{ex:multi-effects} Let $\calA_{nd}$ be the
+free theory corresponding to the theory of nondeterminism. That is, $\calA_{nd}$
+consists of a single binary choice operation $\choose$, with no equations. Let
+$E$ be a type.
+%
+Now define $\calA := \reader{\bool}(\exn{E}(\writer{\str}(\calA_{nd})))$.
+% Then by the definitions of the theory transformers, we have
+As $\calA_{nd}$ has a graduality schema, and each of the transformers acts on
+graduality schemata, there is a graduality schema for the overall theory
+$\calA$. Unfolding the definitions, we see that the guarded extension of $\calA$
+is given by
+%
+%$\calAs := (((\calA_{nd} + \error + \steptheory) \otimes \writer{\str}) + \exn{E}) \otimes \reader{\bool}$
+$\calAs := \reader{bool} \otimes (\exn{E} + (\writer{\str} \otimes (\calA_{nd} + \error + \steptheory)))$.
+%
+The free-model monad for $\calAs$ is given by
+$T(A) := \bool \to T_{nd}((\str \times A) + E)$,
+where $T_{nd}(X)$ denotes mixed inductive/guarded-recursive trees over the
+signature $\{ \choose, \mho, \theta \}$ with leaves in $X$.
+%
+Globalizing and applying the extensional collapse, we obtain a semantics given by
+$\run' : \term{\nat} \to (\bool \to \textrm{ITree}_{\{\choose\}}((\str \times \mathbb{N}) + E))$.
+% valued in $\textrm{ITree}_\emptyset(\bool \times \mathbb{N})$,
+%
+The graduality theorem is as follows. If $M \ltdyn N : \nat$, then for all
+initial states $b_0 \in \bool$, we have $\run'(M)(b_0) \ltbisim \run'(N)(b_0)$,
+where $\ltbisim$ is the extensional ordering on ITrees given in Definition
+\ref{def:itree-ext-ordering}. Namely, the ordering compares the results of
+observing $\run'(M)(b_0)$ and $\run'(N)(b_0)$ via a trace. Since we are treating
+$\str$, $\mathbb{N}$ and $E$ as discrete predomains, in the case where both
+trees step to values in $(\str \times \mathbb{N}) + E$, those values must be
+equal.
+
+% Since we are treating $\str$, $\mathbb{N}$ and $E$ as discrete predomains, when
+% comparing the results of observing $\run'(M)(b_0)$ and $\run'(N)(b_0)$ via a
+% trace, in the case where both return values in $(\str \times \mathbb{N}) + E$,
+% those values must be equal.
+
+
+% The graduality theorem is as we would expect; it is straightforward but
+% instructive to work out the precise statement of the theorem.
 
 \end{example}
 
 \section{Discussion}\label{sec:discussion}
+
+\subsection{Related Work}
 
 % Comparison with guarded interaction trees
 % Extension to arbitrary monads (i.e., not just those arising from an algebraic theory)
@@ -2966,46 +3100,70 @@ and the logical relation ensures that each such step corresponds to a $\theta$
 operation in the denotational semantics. Our operational semantics is similar in
 that we distinguish between non-well-founded steps and bureaucratic reductions.
 
-\subsection{Guarded Type Theory and Algebraic Effects}
+\subsubsection{Guarded Type Theory and Algebraic Effects}
 
 
-\subsection{Interaction Trees}
+\subsubsection{Interaction Trees}
 
-Interaction trees \cite{TODO} are a popular framework for representing effectful
-programs in dependent type theory. While the original formulation of interaction
-trees was as a coinductive type, this has been extended to \emph{guarded}
-interaction trees which are capable of modelling higher-order effects
-\cite{guarded-interaction-trees}.
+Interaction trees \cite{itrees} are a popular framework for representing
+potentially non-terminating, effectful programs in dependent type theory. They
+are defined as a coinductive type with cases for returning a value, raising an
+effect operation, and performing an internal computation step.
+%
+While the original formulation of interaction trees was as a coinductive type,
+this has been extended to \emph{guarded} interaction trees which are capable of
+modelling higher-order effects \cite{guarded-interaction-trees}.
 % TODO more to say?
-
-The explicit construction we give of the free model for a guarded algebraic
-theory is closely related to guarded interaction trees, but is in one way more
-general and in another way less so. Our approach is more general in the sense
-that we allow a mix of inductive and guarded operations, whereas with guarded
-interaction trees, all operations are guarded. On the other hand, guarded
-interaction trees allow for negative occurrences guarded by a later; our
+%
+Recall that for a guarded algebraic theory with no equations, we construct the
+free models using as a type of mixed insuctive/guarded-recursive trees. Our
+construction is closely related to guarded interaction trees, but is in one way
+more general and in another way less so. Our approach is more general in the
+sense that we allow a mix of inductive and guarded operations, whereas with
+guarded interaction trees, all operations are guarded. On the other hand,
+guarded interaction trees allow for negative occurrences guarded by a later. Our
 construction does not require this generality since in our notion of guarded
 algebraic theories, all occurrences of the type are positive.
 
-\subsection{Adequacy and Algebraic Effects}
+% Prior work has defined relations on interaction trees, much as we equip our
+% inductive/guarded-recursive trees with a strong error ordering and weak
+% bisimilarity relations.
+
+Ioannidis et al. introduce a structural temporal logic called \texttt{ticl}
+\cite{ticl} and give a semantics using (non-guarded) interaction trees that
+feature a binary choice operation to model non-deterministic computation. The
+authors define an ordering relation on trees for which the binary choice
+operator is a join. In our framework for effect-generic graduality, we work with
+algebraic theories with an error operation, and we define an error ordering on
+our inductive/guarded-recursive trees where the tree representing error is the
+least element.
+%
+Because we work in guarded type theory, our framework can model languages with
+non-well-founded recursive features such as the dynamic type in gradual typing,
+as we do in this work. An interesting avenue for future work would be to
+generalize the \texttt{ticl} semantics to handle languages with recursive types.
+
+
+\subsubsection{Adequacy and Algebraic Effects}
 
 Kavvos \cite{kavvos-2025} defines an operational and denotational semantics for
-a language parameterized by a signature of effects, and then proves adequacy of
-the denotational semantics for operational reasoning. The high-level methodology
-is similar to our approach, with a few key differences. Similar to our approach,
-Kavvos defines a small-step operational semantics and then extracts a big-step
+a language parameterized by a signature of effects, and then uses a logical
+relation to prove adequacy of the denotational semantics for operational
+reasoning. Our high-level methodology for defining operational semantics and
+proving adequacy is similar to that of Kavvos. Similar to our approach, Kavvos
+defines a small-step operational semantics and then extracts a big-step
 semantics valued in interaction trees. However, the interaction trees are
-defined coinductively, whereas the analogous construction in our approach is
-defined using induction and guarded recursion.
+defined coinductively and carry the structure of a DCPO, whereas the analogous
+construction in our approach is defined using induction and guarded recursion.
 
-Additionally, Kavvos's small-step semantics is inherently nondeterministic, in
-that an effect operation can step to its continuation instantiated with all
-possible response values. As a result, it is difficult to account for concrete
-effectful small-step semantics, such as for state, where a pair of term and
-state steps to a new term and a new state. In contrast, in our small-step
-semantics, we allow for effectful steps using the endofunctor induced by the
-algebraic signature $\Sigma$. As a result, a term is allowed to take an
-effectful step
+% Additionally, Kavvos's small-step semantics is inherently nondeterministic, in
+% that an effect operation steps nondeterministically to its continuation
+% instantiated with all possible response values. As a result, it is difficult to
+% account for concrete effectful small-step semantics, such as for global state,
+% where a pair of term and state steps to a new term and an updated state. In
+% contrast, in our small-step semantics, we allow for effectful steps using the
+% endofunctor induced by the algebraic signature $\Sigma$. As a result, a term is
+% allowed to take an effectful step.
 
 % big-step operational semantics using interaction trees and proves adequacy for
 % an operational semantics constructed from
@@ -3029,7 +3187,7 @@ denotational setting this would take the form of a presheaf over a category of
 worlds, where the world specifies the currently-allocated names. Second, the
 ability to store functions makes the model viciously self-referential. Prior
 work has investigated the use of guarded type theory to solve the resulting
-domain equation \cite{TODO}. The challenge is to incorporate these approaches
+domain equation \cite{DBLP:journals/corr/abs-2210-02169}. The challenge is to incorporate these approaches
 into our denotational model, in particular, the relational aspects (e.g.,
 squares) and the perturbations.
 
@@ -3209,6 +3367,6 @@ for the dynamic value type.
 % EXTENDED VERSION
 \newpage
 \appendix
-% \input{appendix}
+\input{appendix}
 
 \end{document}
