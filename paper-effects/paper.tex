@@ -991,9 +991,11 @@ order), whereas downcasts are effectful.
 % type $\tau$.
 
 Lastly, we have terms $\synoper{M}{n}$ corresponding to each operation in the
-algebraic theory $\calA$. More concretely, if $\oper$ is an operation in $\calA$
-of finite arity $n$, then given $n$ terms of type $A$ (representing the $n$
-possible continuations), the operation $\synoper{M}{n}$ has type $A$.
+algebraic theory $\calA + \error$. More concretely, if $\oper$ is an operation
+in $\calA + \error$ of finite arity $n$, then given $n$ terms of type $A$
+(representing the $n$ possible continuations), the operation $\synoper{M}{n}$
+has type $A$. We write $\mho$ to denote the term corresponding to the operation
+$\err$ in $\error$.
 
 % We mention two notes about the relationship between the given algebraic theory
 % and the syntax. First, 
@@ -1034,14 +1036,15 @@ possible continuations), the operation $\synoper{M}{n}$ has type $A$.
       \alt \suc\, V \alt \lda{x}{M} 
       \alt (V,V') \\ 
     \text{Terms } M,N &::=
-      & \err 
-      \alt \upc c M  \alt \dnc c M 
+      % & \err \alt 
+      & \upc c M  \alt \dnc c M 
       \alt \zro      \alt \suc\, M 
       \alt \lda{x}{M} \\ 
       &&\alt M\, N   \alt (M,N) 
       \alt \textrm{split } (x,y) = M \textrm{ in } N 
       %\alt \textrm{let } x = M \textrm{ in } N 
-      \alt \synop{op}{V}{x}{M} \\
+      %\alt \synop{op}{V}{x}{M} \\
+      \alt \synoper{M}{n} \\
     \text{Contexts } \Gamma &::= &\cdot \alt \Gamma, x : A \\
     \text{Ctx Precision } \Delta &::=& \cdot \alt \Delta,x:c \\
     \text{Evaluation Contexts } E &::= & \bullet
