@@ -1,5 +1,29 @@
 \section{Omitted Proofs Section \ref{sec:modeling-effects}}
 
+
+\subsection{Construction of $F_\Sigma$}\label{sec:app:free-signature-monad}
+
+We seek to solve the equation
+%
+\[ F_\Sigma(A) \cong A + \Sigma(F_\Sigma(A)), \]
+%
+i.e.,
+%
+\[ F_\Sigma(A) \cong A + \Sigma_{\oper: \Op}, 
+    (\tau_\oper \to F_\Sigma(A)) \times G_\oper(\later F_\Sigma(A)). \]
+%
+First, consider the parameterized inductive type 
+%
+\[ P(X) := \mu Y. (A + \Sigma_{\oper : \Op}, (\tau_\oper \to Y) \times G_\oper(X)). \]
+%
+Now, using guarded recursion, define $F_\Sigma(A)$ to be the unique solution to
+the guarded-recursive equation
+%
+\[ F_\Sigma(A) \cong P(\later F_\Sigma(A)). \]
+%
+Then by the definitions of least fixpoint and guarded fixpoint, we have that
+$F_\Sigma(A)$ is a solution to the original equation.
+
 \section{Omitted Proofs Section \ref{sec:operational-semantics}}
 
 \begin{comment}
@@ -57,7 +81,7 @@ Proof of Lemma \ref{lem:run-fill}:
         %
         \item We let $(-)^\dag$ denote Kleisli extension for $\Tsb$.
         %
-        \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to \Tsb(X)$ is defined by
+        \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to \Tsb(\term{A})$ is defined by
         cases, mapping $\cpure{M}$ to $\eta^{\Tsb}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
         to $\Tsb(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
         (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
@@ -148,12 +172,195 @@ Proof of Lemma \ref{lem:run-fill}:
 
 \section{Details and Omitted Proofs for Section \ref{sec:denotational-semantics}}
 
+In this section, we discuss the guarded denotational model for gradual typing.
+
+We begin by reviewing the key ingredients in the denotational semantics of
+Giovannini et al. \cite{gtt-sgdt}. For further discussion, see their paper. For
+the sake of brevity, we will refer to their model as the \emph{prior guarded
+model} of gradual typing.
+
+The prior model is based on call-by-push-value \cite{levy99}, a categorical
+model that refines Moggi's monadic semantics \cite{MOGGI199155}. In
+call-by-push-value, there is a category of value types $\calV$ and pure
+morphisms $f : A \to A'$, and a category $\calE$ of computation types $\phi : B
+\multimap B'$. A pair of adjoint functors $F \vdash U$ mediates between the two
+categories, where $F : \calV \to \calE$ takes $A$ to the type $F A$ of
+computations that return values in $A$, and $U : \calE \to \calV$ takes $B$ to
+the type $U B$ of suspended computations of type $B$.
+
+In the prior model, the value types are modeled by sets equipped with a partial
+ordering relation that models type precision on closed values. However, since
+step-insensitive reasoning does not play well with transitivity, each type also
+has an additional relation called \textbf{weak bisimilarity}. They call such a
+set a \textbf{predomain}. Morphisms of predomains are functions on the
+underlying sets that respect both of the relations.
+%
+\begin{ifextended}
+The precise definitions are given below:
+%
+\begin{definition}
+A \textbf{predomain} $A$ consists of a set $A$ along with two relations:
+\begin{itemize}
+    \item A partial order $\ltdyn_A$.
+    \item A reflexive, symmetric ``bisimilarity'' relation $\bisim_A$.
+\end{itemize}
+
+A \textbf{morphism of predomains} $f : A \to A'$ is a function between the
+underlying sets that is both \emph{monotone} (if $x \ltdyn_A x'$, then $f(x)
+\ltdyn_{A'} f(x')$), and \emph{bisimilarity-preserving} (if $x \bisim_A x'$,
+then $f(x) \bisim_{A'} f(x')$).
+\end{definition}
+\end{ifextended}
+%
+Computation types are equipped with the same two relations, in addition to a
+special distinguished error element that is the least element in the ordering,
+as well as a distinguished morphism of predomains $\theta_B : \later B \to B$.
+%
+\begin{ifextended}
+The precise definitions are given below:
+%
+\begin{definition}
+An \textbf{error domain} $B$ consists of a predomain $B$ along with the
+following data:
+\begin{itemize}
+    \item A distinguished ``error'' element $\mho_B \in B$ such that $\mho
+    \ltdyn_B x$ for all $x$
+    \item A morphism of predomains $\theta_B \colon \later B \to B$
+    \item For all $x, y : B$ with $x \bisim_B y$, we have $\theta_B(\nxt\, x)
+    \bisim_B y$
+\end{itemize}
+\end{definition}
+\end{ifextended}
+
+A \textbf{morphism of error domains} is a morphism of the underlying predomains
+that preserves the error element and the $\theta$ map.
+%
+For an error domain $B$, we define the predomain morphism $\delta_B := \theta_B
+\circ \nxt$.
+
+In the prior model, type precision is modeled as a kind of heterogeneous
+relation on the denoted predomains. More concretely, A \textbf{predomain
+relation} $c : A \rel A'$ is a relation between $A$ and $A'$ that is upward
+closed in the ordering on $A'$ and downward closed in the ordering on $A$
+(no condition is required involving the bisimilarity relations).
+%
+\begin{ifextended}
+\begin{definition}
+  A \textbf{predomain relation} $c : A \rel A'$ is a relation $c$ between the
+  underlying sets of $A$ and $A'$ satisfying:
+  \begin{enumerate}
+    \item (upward closure): For all $x \in A$ and $y, y' \in A'$, if $x
+    \binrel{c} y$ and $y \ltdyn_{A'} y'$, then $x \binrel{c} y'$.
+    \item (downward closure): For all $x, x' \in A$ and $y \in A'$, if $x'
+    \ltdyn_{A} x$ and $x \binrel{c} y$, then $x' \binrel{c} y$.
+  \end{enumerate}
+\end{definition}
+\end{ifextended}
+%
+The ``reflexive'' predomain relation is written $r(A)$ and is given by the
+ordering $\ltdyn_A$. The relational composition of two predomain relations is
+also a predomain relation, and $r(A)$ is the identity for this composition.
+
+Error domain relations are predomain relations that are additionally a
+congruence with respect to the operations $\theta$ and $\mho$.
+%
+\begin{ifextended}
+\begin{definition}
+  An \textbf{error domain relation} $d : B \rel B'$ is a relation $d$ on the
+  underlying predomains satisfying
+  \begin{enumerate}
+     \item ($\mho$ congruence): $\mho_B \binrel{d} \mho_{B'}$.
+     \item ($\theta$ congruence): For all $\tilde{x}$ in $\laterhs B$ and
+     $\tilde{y} \in \laterhs B'$, if $\laterhs_t (\tilde{x}_t \binrel{d}
+     \tilde{y}_t)$, then $(\theta_B (\tilde{x}) \binrel{d} \theta_{B'}
+     (\tilde{y}))$. 
+  \end{enumerate}
+\end{definition}
+\end{ifextended}
+Note that because $\mho_B$ is a least element this implies the
+stronger property $\mho_B \binrel{d} y$ for any term $y: B'$.
+%
+There is again a reflexive error domain relation $r(B)$ given by the ordering.
+The relational composition of two error domain relations in general is not an
+error domain relation ($\theta$ congruence in particular is not preserved), but
+we instead use an alternative ``free composition'' $dd' : B \rel B''$ that is
+inductively generated from the relational composition.
+
+Lastly, term precision is modeled via the notion of \emph{square}, which
+captures the logical-relations style relationship between the functions denoted
+by two terms.
+%
+\begin{ifextended}
+More concretely:
+%
+\begin{definition}
+Let $f : A_i \to A_o$ and $g : A_i' \to A_o'$ be predomain morphisms, and let
+$c_i : A_i \rel A_i'$ and $c_o : A_o \rel A_o'$ be predomain relations. There is
+a \textbf{predomain square} $f \ltsq{c_i}{c_o} g$ if for all $x \binrel{c_i} y$,
+we have $f(x) \binrel{c_o} g(y)$. 
+
+Likewise, an \textbf{error domain square} $\phi \ltsq{d_i}{d_o} \psi$ is defined
+similarly, with no extra interaction with the algebraic structure.
+\end{definition}
+\end{ifextended}
+%
+
+
+
+
+\begin{definition}[Value and Computation Objects and Morphisms]
+    A \textbf{value object} consists of a predomain $A$, a monoid $M_A$ and a
+    homomorphism of monoids $i_A \colon M_A \to \morbisimid{A} := \{ f : A \to A
+    \mid f \bisim \id_A \}$.
+
+    A \textbf{computation object} consists of an error domain $B$, a monoid
+    $M_B$ and a homomorphism of monoids $i_B \colon M_B \to \morbisimid{B}$.
+
+    We define a \textbf{value morphism} to be a morphism of the underlying
+    predomains, and a \textbf{computation morphism} to be a morphism of the
+    underlying error domains.
+\end{definition}
+
+\begin{definition}[Push-Pull Structure]
+    Let $(A, M_A, i_A)$ and $(A', M_{A'}, i_{A'})$ be value objects, and let $c
+    : A \rel A'$ be a predomain relation. A \textbf{push-pull structure} for $c$
+    (with respect to $M_A$ and $M_{A'}$) consists of monoid homomorphisms $\push
+    : M_A \to M_A'$ and $\pull : M_A' \to M_A$ such that for all $m_A \in M_A$
+    there is a square $i_A(m_A) \ltsq{c}{c} i_{A'}(\push\, m_A)$ and for all
+    $m_{A'} \in M_{A'}$ there is a square $i_A(\pull\, m_{A'}) \ltsq{c}{c}
+    i_{A'}(m_{A'})$. A push-pull structure for error domain relations is defined
+    similarly.
+\end{definition}
+
+\begin{definition}[Value and Computation Relations]
+    A \textbf{value relation} between value objects $(A, M_A, i_A)$ and $(A',
+    M_{A'}, i_{A'})$ consists of a predomain relation $c : A \rel A'$ that has a
+    push-pull structure, is quasi-left-representable by a morphism $e_c : A \to
+    A'$, and is such that $\li c$ is quasi-right-representable by an error
+    domain morphism $p_c : \li A' \to \li A$.
+
+    A \textbf{computation relation} between computation objects $(B, M_B, i_B)$
+    and $(B', M_{B'}, i_{B'})$ consists of an error domain relation $d$ that has
+    a push-pull structure, is quasi-right-representable by a morphism $p_d : B'
+    \to B$, and is such that $Ud$ is quasi-left-representable by a morphism $e_d
+    : UB \to UB'$
+\end{definition}
+
+
+
+
 \section{Omitted Proofs Section \ref{sec:relating-the-semantics}}
 
 \subsection{Properties of the Logical Relation}
 
 
-Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
+%Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
+\begin{lemma}[Anti-Reduction]\label{lem:anti-reduction}
+
+  Let $\cdot \vdash M : A$, and suppose $M \stepsin{0} \cpure{M'}$. If
+  $\erel{A}{\xbar}{M'}$, then $\erel{A}{\xbar}{M}$.
+
+\end{lemma}
 \begin{proof}
     Let $\cdot \vdash M : A$, where $M \stepsin{0} \cpure{M'}$, and suppose
     $\erel{A}{\xbar}{M'}$. We will show that $\erel{A}{\xbar}{M}$.
@@ -163,8 +370,8 @@ Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
 
     By the definition of $\run$, we have that
     \begin{align*}
-        \run{M} &= \delta_{\bstep} (\run^{\ddag} {(\iota(f(\cpure{M'})))}) \\
-                &= \delta_{\bstep} (\run^{\ddag} {\eta^{T_{\mho sb}}(M)}) \\
+        \run{M} &= \delta_{\bstep} (\run^{\dag} {(f(\cpure{M'}))}) \\
+                &= \delta_{\bstep} (\run^{\dag} {\eta(M')}) \\
                 &= \delta_{\bstep} (\run{M'}).
     \end{align*}
 
@@ -175,7 +382,45 @@ Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
 
 \end{proof}
 
-Proof of the Semantic Bind Lemma:
+\begin{lemma}[Anti-Reduction for True Steps]\label{lem:anti-reduction-true}
+    Let $\cdot \vdash M : A$, and suppose $M \stepsin{1} \cpure{M'}$. Then for
+    all $\tilde{x} : \later \Ts(\sem{A})$, if $\later_t
+    (\erel{A}{\tilde{x}_t}{M'})$, then $\erel{A}{\theta(\tilde{x})}{M}$.
+\end{lemma}
+\begin{proof}
+    Suppose $\later_t (\erel{A}{\tilde{x}_t}{M'})$. We will show that
+    $\erel{A}{\theta(\tilde{x})}{M}$. By the definition of $\run$, we have that
+    \begin{align*}
+        \run{M} &= \delta_{\tstep} (\run^{\dag} {(f(\cpure{M'}))}) \\
+                &= \delta_{\tstep} (\run^{\dag} {\eta(M')})
+                &= \delta_{\tstep} (\run{M'}).
+    \end{align*}
+
+    It suffices to show $\liftvrel{A}{\theta(\tilde{x})}{\run{M}}$,
+    i.e., $\liftvrel{A}{\theta(\tilde{x})}{\delta_{\tstep}(\run{M'})}$.
+    Now using the definition of the relational lifting, it suffices to show that
+    \[ \later_t(\liftvrel{A}{\tilde{x}_t}{(\nxt (\run{M'}))_t}), \]
+    i.e.,
+    \[ \later_t(\liftvrel{A}{\tilde{x}_t}{(\run{M'})}). \]
+    But this is by definition the same as
+    \[ \later_t(\erel{A}{\tilde{x}_t}{M'}), \]
+    which is our assumption.
+\end{proof}
+
+%Proof of the Semantic Bind Lemma:
+\begin{lemma}[Monadic Bind]\label{lem:monadic-bind}
+  Let $\phi : T_{\mho s}(\sem{A}) \to T_{\mho s}(\sem{B})$, and let $\bullet : A \vdash E : B$.
+  %
+  Suppose for all values $x, V$ that $\vrel{A}{x}{V}$ implies $\erel{B}{\phi(T_{\mho s}.\eta(x))}{(E[V])}$.
+  %
+  Then for all $\bar{x} \in T_{\mho s}(\sem{A})$ and terms $N$ of type $A$ such that
+  $\erel{A}{\bar{x}}{N}$, we have $\erel{B}{(\phi(\bar{x}))}{(E[N])}$
+\end{lemma}
+\begin{proof}
+
+\end{proof}
+
+\begin{comment}
 \begin{proof}
     Suppose for all values $x, V$ that $\vrel{A}{x}{V}$ implies
     $\erel{B}{\phi(T_{\mho s}.\eta(x))}{(E[V])}$. Further, suppose that
@@ -245,25 +490,50 @@ Proof of the Semantic Bind Lemma:
         \[ \liftrel{B}{\phi(\bar{x})}{(\run E)(\bar{V})} \]
     \end{itemize}
 \end{proof}
-
+\end{comment}
 
 \subsection{Proof of the Fundamental Lemma for the Logical Relation}
 
 Towards proving the fundamental lemma, we prove a series of compatibility
 lemmas, one for each term constructor in the cast calculus.
 
-\begin{lemma}[Compatibility for Natural Numbers]
-    Let $n$ be a natural number, and let $V_n$ be the corresponding natural
-    number value in the cast calculus. Then we have $\simrel{\Gamma}{\nat}{\sem{V_n}}{V_n}$.
+\begin{lemma}[Logical Relation for Natural Number Values]\label{lem:lr-nat}
+    Let $n \in \mathbb{N}$, and let $V \in \val{\nat}$.
+    Then if $\vrel{\nat}{n}{V}$, then $\vrel{\nat}{(\suc\, n)}{(\suc\, V)}$
+\end{lemma}
+\begin{proof}
+    If $\vrel{\nat}{n}{V}$, then by definition we have $V = \suc^n(\zro)$. This
+    means that $\suc\,V = \suc^{n+1}(\zro)$, i.e., $\vrel{\nat}{(\suc\,
+    n)}{(\suc\, V)}$.
+\end{proof}
+
+\begin{lemma}[Compatibility for Zero]
+    We have $\simrel{\Gamma}{\nat}{\sem{\zro}}{\zro}$.
+\end{lemma}
+\begin{proof}
+    Follows by definition of $\vrel{\nat}{}{}$.
+\end{proof}
+
+
+\begin{lemma}[Compatibility for Successor]
+    If $\simrel{\Gamma}{\nat}{\sem{M}}{M}$, then
+    $\simrel{\Gamma}{\nat}{\sem{\suc\, M}}{\suc\, M}$.
 \end{lemma}
 \begin{proof}
     Let $(\grel{\Gamma} {\gambar} {\gamma'})$. We need to show 
     %
-    \[ \erel{\nat} {(\sem{V_n}\, \gambar)} {V_n[\gamma']}. \]
+    \[ \erel{\nat} {(\sem{\suc\, M}\, \gambar)} {\suc\, M[\gamma']}. \]
     %
-    We have $\sem{V_n}\, \gambar = \eta n$ and $V_n[\gamma'] = V_n$. Since both
-    are values, it suffices to show that $\vrel{\nat}{n}{V_n}$ which holds since
-    $n = V_n$.
+    We have $\sem{\suc\, M}\, \gambar = (\lambda x.\eta(\suc\, x))^\dag(\sem{M}\, \gambar)$
+    
+    By the bind lemma, it suffices to show that (1) $\erel{\nat}{\sem{M}\,
+    \gambar}{M[\gamma']}$ and (2) for all $x, V$ such that $\vrel{\nat}{x}{V}$,
+    we have $\erel{\nat}{\eta(\suc\,x)}{\suc\,V}$.
+    Note that (1) follows from our assumption.
+
+    To show (2), we note that both are values, so it suffices to show that
+    $\vrel{\nat}{\suc\, x}{\suc\, V}$. Then by Lemma \ref{lem:lr-nat}, it
+    suffices to show $\vrel{\nat}{x}{V}$, which is what we have assumed.    
 \end{proof}
 
 \begin{lemma}[Compatibility for Variables]
@@ -365,29 +635,17 @@ lemmas, one for each term constructor in the cast calculus.
 
 \end{lemma}
 \begin{proof}
-
+    Follows by the semantic bind lemma and the given hypotheses.
 \end{proof}
 
 \begin{lemma}[Compatibility for Pairing]
-
+Suppose $\simrel{\Gamma}{A_1}{\sem{M_1}}{M_1}$ and $\simrel{\Gamma}{A_2}{\sem{M_2}}{M_2}$.
+Then we have $\simrel{\Gamma}{A_1 \times A_2}{\sem{(M_1, M_2)}}{(M_1, M_2)}$.
 \end{lemma}
 \begin{proof}
-
+    Follows by the semantic bind lemma.
 \end{proof}
 
-\begin{lemma}[Compatibility for If]
-
-\end{lemma}
-\begin{proof}
-
-\end{proof}
-
-\begin{lemma}[Compatibility for Let]
-
-\end{lemma}
-\begin{proof}
-
-\end{proof}
 
 \begin{lemma}[Compatibility for Effects]
     Let $\oper$ be an effect with arity $n$. Suppose for each $i \in \{1, \dots,
@@ -403,12 +661,17 @@ lemmas, one for each term constructor in the cast calculus.
     \[ \sem{\synoper{M}{n}}\, \gambar = T_{\mho s}.\oper(\lambda i.\, (\sem{M_i}\, \gambar)). \]
     %
     Furthermore, note that $\synopernoidx{M_i[\gamma']}{n}$ steps to
-    $\ceff{(\oper, (\lambda\, (i : [n]).\, M_i[\gamma']))}$, so by definition of
+    $\hat{N} := \ceff{(\oper, (\lambda\, (i : [n]).\, M_i[\gamma']))}$, so by definition of
     $\run$, we have
     %
-    \[ \run{\synopernoidx{M_i[\gamma']}{n}} 
-        = \delta_b(T_{\mho sb}.op(\lambda i.\, \run(M_i[\gamma']))). 
-    \]
+    \begin{align*}
+        \run{\synopernoidx{M_i[\gamma']}{n}}
+        &= \delta_b (\run^{\dag} {(f(\hat{N}))}) \\
+        &= \delta_b (\run^{\dag} \Tsb(\term{A}).\oper(\eta \circ (\lambda\, i.\, M_i[\gamma']))) \\
+        &= \delta_b (\Tsb(\term{A}).\oper(\run^{\dag} \circ \eta \circ (\lambda\, i.\, M_i[\gamma']))) \\
+        &= \delta_b (\Tsb(\term{A}).\oper(\run \circ (\lambda\, i.\, M_i[\gamma']))) \\
+        &= \delta_b (\Tsb.\oper(\lambda i.\, \run(M_i[\gamma']))). 
+    \end{align*}
 
     Now, using rules \textsc{IdStep} and \textsc{OpOp} of the relational
     lifting, it suffices to show that for each $i \in [n]$, we have
@@ -439,140 +702,196 @@ lemmas, one for each term constructor in the cast calculus.
     \[ \erel {A'} {T\sem{\upc c} (\fbar\, \gambar)} {(\upc c M)[\gamma']}. \]
     %
     Since casts are evaluation contexts, it suffices by the semantic bind lemma
-    to assume that the inputs to the casts are values. Specifically, let $x : \sem{A}$ and $V : \val{A}$, and suppose that $\vrel{A}{x}{V}$. We will show that
+    to assume that the inputs to the casts are values.
+    Specifically, let $x : \sem{A}$ and $V : \val{A}$, and suppose that $\vrel{A}{x}{V}$.
+    We will show that
 
     \[ \erel{A'}{(\eta\, e_c(x))} {\upc c V}.  \]
 
     \begin{itemize}
-        \item Case $c = \tagnat$. Then our assumption says that $\vrel{\nat}{x}{V_n}$, and we need to show that
-        \[ \erel {\dyn} {(\eta\, e_\tagnat(n))} {(\upc {\tagnat}(V_n))}. \]
+        \item Case $c = \inat$. Then our assumption says that $\vrel{\nat}{x}{V_n}$, and we need to show that
+        \[ \erel {\dyn} {(\eta\, e_{\inat} (n))} {(\upc {\inat}(V_n))}. \]
         Since both are values, it suffices to show that 
-        \[ \vrel{\dyn}{e_\tagnat(n)}{\upc {\tagnat}(V_n)}, \]
+        \[ \vrel{\dyn}{e_{\inat}(n)}{\upc {\inat}(V_n)}, \]
         which follows from the definition of $\vrel{\dyn}{}{}$ and our assumption.
 
-        \item Case $c = \tagtimes$. Then our assumption says that $\vrel{\dyn \times \dyn}{(x, y)}{V_\times}$, and we need to show that
-        \[ \erel {\dyn} {(\eta\, e_\tagtimes(x, y))} {(\upc {\tagtimes}(V_\times))}.  \]
+        \item Case $c = \itimes$. Then our assumption says that $\vrel{\dyn \times \dyn}{(x, y)}{V_\times}$,
+        and we need to show that
+        \[ \erel {\dyn} {(\eta\, e_{\itimes}(x, y))} {(\upc {\itimes}(V_\times))}.  \]
         Since both are values, it suffices to show that
-        \[ \vrel{\dyn}{e_\tagtimes(x, y)}{\upc {\tagtimes}(V_\times)}, \] 
+        \[ \vrel{\dyn}{e_{\itimes}(x, y)}{\upc {\itimes}(V_\times)}, \] 
         which follows from the definition of $\vrel{\dyn}{}{}$ and our assumption.
         
-        \item Case $c = \itimes(c_\times)$ where $c_\times : A_1 \times A_2 \ltdyn \dyn \times \dyn$.
-        Then our assumption says that $\vrel{A_1 \times A_2}{(x, y)}{V_\times}$, and we need to show that
-        \[ \erel {\dyn} {(\eta, (e_{\itimes(c_\times)}(x, y)))} {(\upc {\itimes(c_\times)} V_\times)}. \]
-        Since $(\upc {\itimes(c_\times)} (V_\times)) \stepsin{0} (\tagtimes (\upc c_\times (V_\times)))$,
-        then by anti-reduction it suffices to show that
-        \[ \erel {\dyn} {(\eta, (e_{\itimes(c_\times)}(x, y)))} {(\tagtimes (\upc c_\times (V_\times)))}. \]
+        % \item Case $c = \itimes(c_\times)$ where $c_\times : A_1 \times A_2 \ltdyn \dyn \times \dyn$.
+        % Then our assumption says that $\vrel{A_1 \times A_2}{(x, y)}{V_\times}$, and we need to show that
+        % \[ \erel {\dyn} {(\eta, (e_{\itimes(c_\times)}(x, y)))} {(\upc {\itimes(c_\times)} V_\times)}. \]
+        % Since $(\upc {\itimes(c_\times)} (V_\times)) \stepsin{0} (\tagtimes (\upc c_\times (V_\times)))$,
+        % then by anti-reduction it suffices to show that
+        % \[ \erel {\dyn} {(\eta, (e_{\itimes(c_\times)}(x, y)))} {(\tagtimes (\upc c_\times (V_\times)))}. \]
         
-        Note that $e_{\itimes(c_\times)} = e_\tagtimes \circ e_{c_\times}$,
-        so by the induction hypothesis for $c_\times$, we have
-        \[ \erel {\dyn \times \dyn} {e_{c_\times}(x, y)} {\upc c_\times (V_\times)}. \]
-        Then the result follows using the same reasoning as in case $\tagtimes$.
+        % Note that $e_{\itimes(c_\times)} = e_{\itimes} \circ e_{c_\times}$,
+        % so by the induction hypothesis for $c_\times$, we have
+        % \[ \erel {\dyn \times \dyn} {e_{c_\times}(x, y)} {\upc c_\times (V_\times)}. \]
+        % Then the result follows using the same reasoning as in case $\itimes$.
         % Note: the terms are closed, so when we apply the IH we don't need to worry about the substitutions.
         
-        \item Case $c = \tagarr$.
+        \item Case $c = \iarr$.
         Then our assumption says that $\vrel{\dyn \ra \dyn}{f}{V_f}$, and we need to show that
-        \[ \vrel{\dyn}{e_\tagarr(f)}{\tagarr(V_f)}. \]
+        \[ \vrel{\dyn}{e_{\iarr}(f)}{\upc \iarr (V_f)}. \]
         By the definition of $\vrel{\dyn}{}{}$, it suffices to show that for all $x, V$ we have
         \[ (\later(\vrel{\dyn}{x}{V}) \to \erel{\dyn}{(f\, x)}{(V_f\, V)}) \]
         But we know that this holds now by our assumption, so it also holds later.
 
-        \item Case $c = \iarr(c_\arr)$ where $c_\arr : A_i \ra A_o \ltdyn \dyn \ra \dyn$.
-        Then our assumption says that $\vrel{A_i \ra A_o}{f}{V_f}$, and we need to show that
-        \[ \erel {\dyn} {(\eta\, (e_{\iarr(c_\arr)}(f)))} {(\upc {\iarr(c_\arr)} V_f)}. \]
-        Since $(\upc {\iarr(c_\arr)} V_f) \stepsin{0} (\tagarr (\upc c_\arr (V_f)))$, by anti-reduction it suffices to show that
-        \[ \erel {\dyn} {(\eta\, (e_{\iarr(c_\arr)}(f)))} {(\tagarr (\upc c_\arr (V_f)))}. \]
+        % \item Case $c = \iarr(c_\arr)$ where $c_\arr : A_i \ra A_o \ltdyn \dyn \ra \dyn$.
+        % Then our assumption says that $\vrel{A_i \ra A_o}{f}{V_f}$, and we need to show that
+        % \[ \erel {\dyn} {(\eta\, (e_{\iarr(c_\arr)}(f)))} {(\upc {\iarr(c_\arr)} V_f)}. \]
+        % Since $(\upc {\iarr(c_\arr)} V_f) \stepsin{0} (\tagarr (\upc c_\arr (V_f)))$, by anti-reduction it suffices to show that
+        % \[ \erel {\dyn} {(\eta\, (e_{\iarr(c_\arr)}(f)))} {(\tagarr (\upc c_\arr (V_f)))}. \]
         
-        Note that $e_{\iarr(c_\arr)} = e_\tagarr \circ e_{c_\arr}$,
-        so by the induction hypothesis for $c_\arr$, we have
-        \[ \erel {\dyn \ra \dyn} {(e_{\iarr(c_\arr)}(f))} {(\upc c_\arr (V_f))}. \]
-        Then the result follows using the same reasoning as in case $\tagarr$.
+        % Note that $e_{\iarr(c_\arr)} = e_\tagarr \circ e_{c_\arr}$,
+        % so by the induction hypothesis for $c_\arr$, we have
+        % \[ \erel {\dyn \ra \dyn} {(e_{\iarr(c_\arr)}(f))} {(\upc c_\arr (V_f))}. \]
+        % Then the result follows using the same reasoning as in case $\tagarr$.
 
 
+        \item Case $c = c_1 c_2$ where $c_1 : A_1 \ltdyn A_2$ and $c_2 : A_2 \ltdyn A_3$.
+        Then our assumption says that $\vrel{A_1}{x}{V}$, and we need to show that
+        \[ \erel{A_3} {(\eta(e_{c_1 c_2}(x)))} {(\upc {c_1 c_2} V)}. \]
+        Note that $e_{c_1 c_2} = e_{c_2} \circ e_{c_1}$ and that 
+        $\upc {(c_1 c_2)} V \stepsin{0} (\upc c_2 (\upc c_1 V))$.
+        Thus, it suffices to show that
+        \[ \erel{A_3} {(\eta(e_{c_2}(e_{c_1}(x))))} {(\upc c_2 (\upc c_1 V))}. \]
+        
+        Observe that $(\eta(e_{c_2}(e_{c_1}(x)))) = T(e_{c_2})(\eta(e_{c_1}(x)))$.
+        Thus, by the semantic bind lemma, with $\phi(\xbar) = T(e_{c_2})(\xbar)$
+        and $E = \upc c_2 \bullet$ it suffices to show that
+        \[ \erel{A_2}{\eta(e_{c_1}(x))}{\upc c_1 V}, \]
+        and that for any $\vrel{A_2}{x'}{V'}$ we have % $\erel{A_3}{\phi(\eta(x'))}{E[V']}$
+        \[ \erel{A_3}{\eta(e_{c_2}(x'))}{\upc c_2 V'}. \]
+        These hold by the induction hypotheses for $c_1$ and $c_2$ respectively.
+
+
+        % TODO: need to justify why the value is a pair of values?
+        \item Case $c = c_1 \times c_2$ where $c_1 : A_1 \ltdyn A_1'$ and $c_2 : A_2 \ltdyn A_2'$.
+        Then our assumption says that $\vrel{A_1 \times A_2}{(x_1, x_2)}{V_\times}$.
+        Note that since $V_\times$ is a closed value of type $A_1 \times A_2$,
+        then we have $V_\times = (V_1, V_2)$, where $V_1$ and $V_2$ are closed
+        values of type $A_1$ and $A_2$ respectively. We need to show that
+        \[ \erel {A_1' \times A_2'} {(\eta(e_{c_1 \times c_2}(x_1, x_2)))} {(\upc {c_1 \times c_2} (V_1, V_2))}. \]
+        Now note that $e_{c_1 \times c_2}(x_1, x_2) = (e_{c_1}(x_1), e_{c_2}(x_2))$.
+        Furthermore, we have
+        $\upc {(c_1 \times c_2)} (V_1, V_2) \stepsin{0} (\upc {c_1} V_1, \upc {c_2} V_2)$,
+        so by anti-reduction, it suffices to show
+        \[ \erel {A_1' \times A_2'} {(\eta(e_{c_1}(x_1), e_{c_2}(x_2)))} {(\upc {c_1} V_1, \upc {c_2} V_2)}. \]
+        Now using the semantic bind lemma, with $\phi(\xbar) = T(\lambda x. (x, e_{c_2}(x_2)))(\xbar)$ and 
+        $E = (\bullet, \upc c_2 V_2)$, it suffices to show that (1)
+        $\erel{A_1'}{\eta(e_{c_1}(x_1))}{(\upc {c_1} V_1)}$,
+        and that (2) for all $\vrel{A_1'}{x_1'}{V_1'}$, we have 
+        \[ \erel{A_1' \times A_2'}{\eta(x_1', e_{c_2}(x_2))}{(V_1', \upc c_2 V_2)}. \]
+        Note that (1) follows from the inductive hypothesis for $c_1$, and to show (2), we apply the
+        semantic bind lemma again, with $\phi'(\xbar) = T(\lambda y. (x_1', y))$ and $E' = (V_1', \bullet)$.
+        This time, it suffices to show that $\erel{A_2'}{\eta(e_{c_2}(x_2))}{(\upc c_2 V_2)}$,
+        and that for all $\vrel{A_2'}{x_2'}{V_2'}$, we have
+        \[ \erel{A_1' \times A_2'}{\eta(x_1', x_2')}{(V_1', V_2')}. \]
+        The former follows from the inductive hypothesis for $c_2$, and the latter follows
+        from the assumptions that $\vrel{A_1'}{x_1'}{V_1'}$ and $\vrel{A_2'}{x_2'}{V_2'}$. 
 
         \item Case $c = c_i \ra c_o$, where $c_i : A_i \ltdyn A_i'$ and $c_o :
-        A_o \ltdyn A_o'$. We need to show
-        %
-        \[ \erel {A_i' \ra A_o'} 
-            {\sem{\upc {(c_i \ra c_o)} (f\, \gambar)}} 
-            {\upc {(c_i \ra c_o)} V_f[\gamma']}.
-        \]
-        %
-        We have 
-        %
-        \begin{align*}
-            \sem{\upc {(c_i \ra c_o)} (f\, \gambar)} 
-                &= ((\sem{\dnc {c_i}} \tok T\sem{A_o'}) \circ (\sem{A_i} \tok UT(\sem{\upc {c_o}}))) (f\, \gambar) \\
-                &= \lambda x'. T\sem{\upc {c_o}}[(f\, \gambar)^\dag (\sem{\dnc {c_o} (x')})],
-        \end{align*}
-        %
-        where $\tok$ is the Kleisli action of $\to$.
-
-        Let 
-        %
-        $\bar{M} := \lambda x'. T\sem{\upc {c_o}}[(f\, \gambar)^\dag (\sem{\dnc {c_o} (x')})]$,
-        %
-        and let
-        %
-        $N := (\lambda x. (\upc {c_o} (V_f[\gamma']\, (\dnc {c_i} x))))$.
-        %
-        Note that
-        %
-        \[ \upc {(c_i \ra c_o)} V_f[\gamma'] \stepsin{0} N. \] 
-        %
-        Thus, by the anti-reduction lemma, it suffices to show that
-        %
-        \[ \erel {A_i' \ra A_o'} {\bar{M}} {N}. \]
-        %
+        A_o \ltdyn A_o'$. Follows by anti-reduction, the semantic bind lemma,
+        and the induction hypotheses for $c_i$ and $c_o$.
         
-        \item Case $c = c_1 \times c_2$
-        % TODO: need to justify why the value is a pair of values?
-
-        % \item Case $c = \itimes(c_\times)$ where $c_\times : A_1 \times A_2 \ltdyn \dyn \times \dyn$.
+        % We need to show
         % %
-        % Assume that $\vrel{A_1 \times A_2}{(x\, \gambar, y\,\gambar)}{(V_\times[\gamma'])}$. We need to show
-        % %
-        % \[ \erel {\dyn} 
-        %   {(\sem{\upc {\itimes(c_\times)} (x\, \gambar, y\, \gambar)})} 
-        %   {(\upc {\itimes(c_\times)} (V_\times[\gamma']))},
+        % \[ \erel {A_i' \ra A_o'} 
+        %     {\sem{\upc {(c_i \ra c_o)} (f\, \gambar)}} 
+        %     {\upc {(c_i \ra c_o)} V_f[\gamma']}.
         % \]
         % %
-        % Now let $\bar{M} := \itimes (\sem{\upc {c_\times}} (x\, \gambar, y\, \gambar))$, and let 
-        % $N := (\tagtimes (\upc c_\times (V_\times[\gamma'])))$.
+        % We have 
         % %
-        % Note that $(\sem{\upc {\itimes(c_\times)} (x\, \gambar, y\, \gambar)}) = \eta\, \bar{M}$.
+        % \begin{align*}
+        %     \sem{\upc {(c_i \ra c_o)} (f\, \gambar)} 
+        %         &= ((\sem{\dnc {c_i}} \tok T\sem{A_o'}) \circ (\sem{A_i} \tok UT(\sem{\upc {c_o}}))) (f\, \gambar) \\
+        %         &= \lambda x'. T\sem{\upc {c_o}}[(f\, \gambar)^\dag (\sem{\dnc {c_o} (x')})],
+        % \end{align*}
         % %
-        % Since $(\upc {\itimes(c_\times)} (V_\times[\gamma'])) \stepsin{0}
-        % N$, then by the anti-reduction lemma, it suffices to show that
-        % %
-        % \[ \erel{\dyn}{\eta\, \bar{M}}{N}. \] 
-        % %
-        % We proceed as in the case $c = \tagtimes$. First note that both sides
-        % are values, so it suffices to show
-        % %
-        % \[ \vrel{\dyn}{\bar{M}}{N}. \]
-        % %
-        % Then by definition of $\vrel{\dyn}{}{}$, it suffices to show that
-        % %
-        % \[ \vrel {\dyn \times \dyn} 
-        %     {(\sem{\upc {c_\times}} (x\, \gambar, y\, \gambar))} 
-        %     {(\upc c_\times (V_\times[\gamma']))}.
-        % \]
+        % where $\tok$ is the Kleisli action of $\to$.
 
-        % Then it suffices to show that $\vrel{A_1 \times A_2}{(x\, \gambar, y\, \gambar)}{(V_\times[\gamma'])}$. This 
+        % Let 
+        % %
+        % $\bar{M} := \lambda x'. T\sem{\upc {c_o}}[(f\, \gambar)^\dag (\sem{\dnc {c_o} (x')})]$,
+        % %
+        % and let
+        % %
+        % $N := (\lambda x. (\upc {c_o} (V_f[\gamma']\, (\dnc {c_i} x))))$.
+        % %
+        % Note that
+        % %
+        % \[ \upc {(c_i \ra c_o)} V_f[\gamma'] \stepsin{0} N. \] 
+        % %
+        % Thus, by the anti-reduction lemma, it suffices to show that
+        % %
+        % \[ \erel {A_i' \ra A_o'} {\bar{M}} {N}. \]
+        % %
         
-        % \item Case $c = \iarr(c_\arr)$.
-
     \end{itemize}
 
-    Now we consider the downcasts:
+    Now we consider the downcasts. We again apply the semantic bind lemma. Let
+    $x' : \sem{A'}$ and $V' : \val{A'}$, and suppose that $\vrel{A'}{x'}{V'}$.
+    We will show that
+    %
+    \[ \erel{A}{p_c(\eta\, x')} {\dnc c V'}.  \]
+
     \begin{itemize}
-        \item Case $c = \inat$
-        \item Case $c = \tagtimes$
-        \item Case $c = \itimes(c_\times)$
-        \item Case $c = \tagarr$
-        \item Case $c = \iarr(c_\arr)$
+        \item Case $c = \inat$. Then $x' \in D$, and $V' \in \val{\dyn}$, and our
+        assumption says that $\vrel{\dyn}{x'}{V'}$. We need to show that
+        \[ \erel {\nat} {p_{\inat}(\eta\, x')} {\dnc {\inat} V'}.  \]
+        We proceed by cases on the value $x'$ of type $D$. If it's $\inat(n)$
+        for some $n$, then we know that $V' = \upc {\inat} V_n$ for some value
+        $V_n$, where $V_n = \suc^n(\zro)$.
+        %
+        We have that $p_{\inat}(\eta\, \inat(n)) = \eta\, n$, and that $\dnc
+        \inat (\upc \inat V_n) \stepsin{0} V_n$. Thus, by anti-reduction, it
+        suffices to show that
+        %
+        \[ \erel {\nat} {\eta\, n} {V_n}. \]
+        %
+        It then suffices to show $\vrel{\nat}{n}{V_n}$, which holds by the fact
+        that $V_n = \suc^n(\zro)$.
+
+        If $x'$ is a product or a function, then $V'$ will be as well. Then
+        $p_{\inat}(\eta\, x') = \mho$, and $\dnc \inat V' \stepsin{0} \mho$.
+        Then since $\erel{\nat}{\mho}{\mho}$ by definition of the relation, this
+        completes the proof in this case.
+
+        \item Case $c = \itimes$: this is similar to the $\inat$ case.
+        
+        \item Case $c = \iarr$. Then $x' \in D$ and $V' \in \val{\dyn}$, and our
+        assumption says that $\vrel{\dyn}{x'}{V'}$. We need to show that
+        %
+        \[ \erel {\dyntodyn} {p_{\iarr}(\eta\, x')} {\dnc {\iarr} V'}. \]
+        %
+        We proceed by cases on the value $x'$ of type $D$. If it's a natural
+        number or product, then $V'$ will be as well. Then both sides will
+        error, and the proof is complete.
+        %
+        Otherwise, if $x' = \iarr(h)$ for some $h$, then we know that $V' = \upc
+        {\iarr} V_f$ for some $V_f \in \val{\dyntodyn}$, and that $\later (\vrel{\dyntodyn}{h}{V_f})$.
+
+        We have that $p_{\iarr}(\eta\, \iarr(h)) = \theta(\nxt(\eta\, h))$, i.e., a
+        step is inserted. We also know that $\dnc {\iarr} (\upc {\iarr} V_f)
+        \stepsin{1} V_f$. Thus, by anti-reduction for true steps (Lemma
+        \ref{lem:anti-reduction-true}), it suffices to show that
+        %
+        \[ \later_t(\erel{\dyntodyn}{(\nxt(\eta\, h))_t}{V_f}), \]
+        i.e.,
+        \[ \later (\erel{\dyntodyn}{(\eta\, h)}{V_f}). \]
+        %
+        This follows from the fact that $\later (\vrel{\dyntodyn}{h}{V_f})$.
+
+        \item Case $c = c_1 c_2$: this is similar to the corresponding upcast case.
         \item Case $c = c_i \ra c_o$: this is similar to the corresponding upcast case.
-        \item Case $c = c_1 \times c_2$: this is simialr to the corresponding upcast case.
+        \item Case $c = c_1 \times c_2$: this is similar to the corresponding upcast case.
     \end{itemize}
 
 
@@ -588,66 +907,68 @@ Now we can prove the fundamental lemma:
 
 \section{Omitted Proofs Section \ref{sec:globalization}}
 
-\subsection{Proof of Lemma \ref{lem:error-monad-transformer}}
+\section{Omitted Proofs Section \ref{sec:framework}}
 
-We first show that if $T$ gives the free models of $\cal$, then the error monad
+\subsection{Exception Transformer for Graduality Schemata}
+
+We first show that if $T$ gives the free models of $\calA$, then the error monad
 transformer applied to $T$ gives the free models of the theory of $\calA +
-\th{\mho}$:
+\exn{E}$:
 \begin{lemma}\label{lem:error-monad-transformer-free-models}
     Let $\calA$ be a guarded algebraic theory whose free models are given by
-    $T$. Then the free models of the theory $\calA + \th{\mho}$ are given by
-    $T'(A) = T(A + 1)$.
+    $T$. Then the free models of the theory $\calA + \exn{E}$ are given by
+    $T'(A) = T(A + E)$.
 \end{lemma}
 \begin{proof}
-    Let $\calA = (\Sigma_\calA, E_\calA)$ be a guarded algebraic theory with
-    free-model monad given by $T_\calA$. Let $T'(A) = T(A + 1)$.
+    Let $\calA = (\Sigma_\calA, \text{Eqn}_\calA)$ be a guarded algebraic theory with
+    free-model monad given by $T_\calA$. Let $T'(A) = T(A + E)$.
 
     We first show that $T'(A)$ implements each operation in $\calA +
-    \th{\mho}$. We define 
+    \exn{E}$. For each $e : E$, we define 
     %
-    \[ \sem{\mho} = T.\eta(\inr\, *). \]
+    \[ \sem{\ex{e}} = T.\eta(\inr\, e). \]
     %
     For each operation $\oper : (\tau, \gamma)$ in $A$, we define $\sem{\oper} :
     ((\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later (T'(A)))) \to T'(A)$
-    using the fact that $T(A+1)$ implements the operations, i.e, we define
+    using the fact that $T(A+E)$ implements the operations, i.e, we define
     %
-    \[ \sem{\oper}(u, g) = T(A+1).\sem{\oper}(u, g) \]
+    \[ \sem{\oper}(u, g) = T(A+E).\sem{\oper}(u, g) \]
     
     We define the inclusion of generators $\eta' : A \to T'(A)$ by
     %
-    \[ \eta'(x) = T(A+1).\eta(\inl\, x). \]
+    \[ \eta'(x) = T(A+E).\eta(\inl\, x). \]
 
     Next, we show that the equations are satisfied. Since there are no equations
-    in $\th{\mho}$, we need only show that the equations of $\calA$ hold.
-    Specifically, let $e = (\Gamma, l, r)$ be an equation in $E_\calA$, where
+    in $\exn{E}$, we need only show that the equations of $\calA$ hold.
+    Specifically, let $e = (\Gamma, l, r)$ be an equation in $\text{Eqn}_\calA$, where
     $l, r$ are terms in the signature $\Sigma_\calA$ with variables in $\Gamma$.
     Consider an arbitrary $f : \Gamma \to T'(A)$. We need to show that
-    $\sem{l}_f = \sem{r}_f$. Since we know that $l$ and $r$ do not mention
-    $\mho$, we know that this equality holds by the fact that $T(A + 1)$ is a
+    $\sem{l}_f = \sem{r}_f$. Since we know that $l$ and $r$ do not mention the operations
+    $\ex{e}$, we know that this equality holds by the fact that $T(A + E)$ is a
     model for $\calA$.
 
     Finally, we show the universal property. Let $B$ be a model for $\calA +
-    \th{\mho}$ and let $f : A \to |B|$. We define $\fbar : T'(A) \to |B|$ using
-    the universal property of $T(A + 1)$. Namely, since $B$ is also a model for
-    $\calA$, it suffices to define a function $g : A + 1 \to |B|$. We define
+    \exn{E}$ and let $f : A \to |B|$. We define $\fbar : T'(A) \to |B|$ using
+    the universal property of $T(A + E)$. Namely, since $B$ is also a model for
+    $\calA$, it suffices to define a function $g : A + E \to |B|$. We define
     %
     \[ g(\inl\, x) = f(x), \] 
     and
-    \[ g(\inr\, *) = B.\mho. \]
+    \[ g(\inr\, e) = B.\ex{e}. \]
     %
     Then by the universal property this extends uniquely to a function $\ghat :
-    T(A + 1) \to |B|$ that preserves the operations in $\calA$.
+    T(A + E) \to |B|$ that preserves the operations in $\calA$.
     %
     It is clear that this is a homomorphism of models of $\calA +
-    \th{\mho}$ since $g(\sem{\mho}) = \ghat(T.\eta(\inr\, *)) = g(\inr\, *) =
-    B.\mho$.
+    \exn{E}$ since for each $e : E$, we have $g(\sem{\ex{e}}) = \ghat(T.\eta(\inr\, e)) = g(\inr\, e) =
+    B.\ex{e}$.
 
-    For uniqueness, suppose $h, h' : T(A + 1) \to B$ are homomorphisms of
-    $(\calA + \th{\mho})$-models such that $h \circ \eta' = h' \circ \eta'$. We
+    For uniqueness, suppose $h, h' : T(A + E) \to B$ are homomorphisms of
+    $(\calA + \exn{E})$-models such that $h \circ \eta' = h' \circ \eta'$. We
     show that $h = h'$. Since $h$ and $h'$ are in particular homomorphisms of
-    $\calA$-models, by the universal property for $T(A + 1)$, it suffices to
-    show that they agree when composed with $T(A+1).\eta$. Thus, let $x \in A +
-    1$. We proceed by cases on $x$. If $x = \inl\, a$, then we have
+    $\calA$-models, by the universal property for $T(A + E)$, it suffices to
+    show that they agree when composed with $T(A+E).\eta$. Thus, let $x \in A +
+    E$. We proceed by cases on $x$. If $x = \inl\, a$, then we have
     %
     \[ 
       h (\eta (\inl\, a)) 
@@ -656,43 +977,85 @@ transformer applied to $T$ gives the free models of the theory of $\calA +
       = h' (\eta (\inl\, a)). 
     \]
     %
-    Now suppose $x = \inr\, *$. Then we have
+    Now suppose $x = \inr\, e$. Then we have
     \[ 
-      h (\eta (\inr\, *)) 
-      = h(\sem{\mho}) 
-      = B.\mho 
-      = h'(\sem{\mho}) 
-      = h' (\eta (\inr\, *)).  
+      h (\eta (\inr\, e)) 
+      = h(\sem{\ex{e}}) 
+      = B.\ex{e} 
+      = h'(\sem{\ex{e}}) 
+      = h' (\eta (\inr\, e)).  
     \]
 
 \end{proof}
 
 Now we show that the monad transformer lifts to relations:
-\begin{lemma}
-    Let $\calA^G \in \calA[\mho, \theta]$, i.e., $\calA^G$ is a guarded
-    extension of $\calA$ with an error and a $\theta$ operation. Suppose that
-    the adjunction between sets and models of $\calA^G$ lifts to a strong
-    adjunction between predomains and $\calA^G$-domains.
+\begin{lemma}\label{lem:error-monad-transformer-free-domains}
+    Let $\calA$ be an ordinary algebraic theory. Let $\calA^G \in \calA[\mho,
+    \theta]$, i.e., $\calA^G$ is a guarded extension of $\calA$ with an error
+    and a $\theta$ operation. Suppose that the adjunction between sets and
+    models of $\calA^G$ lifts to a strong adjunction between predomains and
+    $\calA^G$-domains.
     
-    Then there exists a guarded extension $\calA^{G+}$ of $\calA + \mho$ such
-    that the adjunction between sets and models of $\calA^{G+}$ lifts to a
-    strong adjunction between predomains and $\calA^{G+}$-domains.
+    Then for the theory $\calA^{G+} := (\calA^{G} + \exn{E})$, the adjunction
+    between sets and models of $\calA^{G+}$ lifts to a strong adjunction between
+    predomains and $\calA^{G+}$-domains.
 \end{lemma}
 \begin{proof}
-    We define $\calA^{G+}$ to be $\calA^{G} + \mho$. % i.e., exceptions
-    Let the free domains of $\calA^G$ be given by $T$.
-    %
-    Then we show that $T'(A) = T(A + 1)$ gives the free domains of $\calA^{G+}$.
+    % We define $\calA^{G+}$ to be $\calA^{G} + \mho$. % i.e., exceptions
+    Let the free models of $\calA^G$ be given by $T$, and let the free domains
+    of $\calA^G$ be given by $\That$. By assumption, for any predomain $A$, we
+    have $|\That(A)| = T(|A|)$.
+    
+    We know by Lemma \ref{lem:error-monad-transformer-free-models} that at the
+    level of sets, the free models of $\calA^{G+}$ are given by $T'(A) = T(A +
+    E)$.
+    
+    We show that $\That'(A) := \That(A + E)$ gives the free domains of
+    $\calA^{G+}$. Here, $+$ denotes the coproduct of predomains, where in the
+    ordering and bisimilarity, $\inl$ is related to $\inl$ and $\inr$ to $\inr$,
+    and since $E$ is merely a type, the ordering and bisimilarity are equality.
 
-    The strong error ordering is given by
+    The proof proceeds in several steps:
+    \begin{itemize}
+        \item We define the strong error ordering and weak bisimilarity on
+        $\That'(A)$ to be those of $\That(A + E)$.
+        \item For a predomain relation $c : A \rel A'$, we define the lifting
+        $\That'(c) = \That(c + =_E)$.
+        \item We check the universal property of the lifting, as follows.
+        Consider a square $f \ltsq{c}{Ud} g$ where $d$ is a relation of
+        $\calA^{G+}$-domains.
+        \item It is easily checked that the operations are monotone.
+        \item Next, we show that the strength $t : A \times \That'(A') \to \That'(A \times A')$ is a morphism of predomains.
+        \item Lastly, for any predomain $A$, we have   
+        \begin{align*}
+            |\That'(A)| 
+            &= |\That(A + E)| \\
+            &= T(|A + E|)\\ 
+            &= T(|A| + E)\\ 
+            &= T'(|A|).
+        \end{align*}
+    \end{itemize}
 \end{proof}
 
 
-\subsection{Proof of Lemma \ref{lem:state-monad-transformer}}
+\subsection{State Transformer for Graduality Schemata}
+
+In this section, we show that the state monad transformer acts on
+$\calA$-graduality schemata.
+% In particular:
+% \begin{itemize}
+%     \item For any guarded algebraic theory $\calA$, if the free models of
+%     $\calA$ are given by $T$, then the free models of $\calA \otimes \state{S}$
+%     are given by $S \to T(S \times A)$.
+% \end{itemize}
+
+First, we show that for any guarded algebraic theory $\calA$, if the free models
+of $\calA$ are given by $T$, then the free models of $\calA \otimes \state{S}$
+are given by $S \to T(S \times A)$.
 
 Recall that we are given a guarded algebraic theory $\calA = (\Sigma, E)$ with
 free-model monad $T_\calA$. We will show that the free-model monad for the
-theory $\calA \otimes \th{\text{State}_S}$ is given by
+theory $\calA \otimes \state{S}$ is given by
 %
 \[ T'(A) := S \to T_\calA(S \times A). \]
 %
@@ -876,11 +1239,11 @@ Finally, we show the universal property.
 
 
     Then it is easily checked that $\fbar$ is a homomorphism of models of $\calA
-    \otimes {\state_S}$, and that $\fbar \circ \eta' = f$.
+    \otimes {\state{S}}$, and that $\fbar \circ \eta' = f$.
 \end{proof}
 
 Now we show uniqueness. Let $\phi, \phi' : T'(A) \to B$ be homomorphisms of
-$(\calA \otimes {\state_S})$-models, and suppose $\phi(\eta'\, x) =
+$(\calA \otimes {\state{S}})$-models, and suppose $\phi(\eta'\, x) =
 \phi'(\eta'\, x)$ for all $x$. That is, $\phi(\lambda s. \eta(s,x)) =
 \phi'(\eta(s,x))$. Then we claim that $\phi = \phi'$.
 
@@ -920,5 +1283,47 @@ Now let $x : T'(A)$. We have
     &= \phi'(x).
 \end{align*}
 
+Now we show that the monad transformer lifts to relations:
+\begin{lemma}\label{lem:state-monad-transformer-free-domains} Let $\calA$ be an
+    ordinary algebraic theory. Let $\calA^G \in \calA[\mho, \theta]$, be a
+    guarded extension of $\calA$. Suppose that the adjunction between sets and
+    models of $\calA^G$ lifts to a strong adjunction between predomains and
+    $\calA^G$-domains.
+    
+    Then for the theory $\calA^{G+} := (\calA^{G} \otimes \state{S})$, the
+    adjunction between sets and models of $\calA^{G+}$ lifts to a strong
+    adjunction between predomains and $\calA^{G+}$-domains.
+\end{lemma}
+\begin{proof}
+    % We define $\calA^{G+}$ to be $\calA^{G} + \mho$. % i.e., exceptions
+    Let the free models of $\calA^G$ be given by $T$, and let the free domains
+    of $\calA^G$ be given by $\That$. By assumption, for any predomain $A$, we
+    have $|\That(A)| = T(|A|)$.
+    
+    We know by the above that at the level of sets, the free models of
+    $\calA^{G+}$ are given by $T'(A) = S \to T(S \times A)$.
+    
+    We show that $\That'(A) := S \to \That(S \times A)$ gives the free domains
+    of $\calA^{G+}$. Here, $S$ is a discrete predomain, so the relations are
+    given by equality. In addition, $\to$ denotes the predomain of morphisms of
+    predomains between $S$ and $\That(S \times A)$ and $\times$ denotes the
+    product of predomains.
+
+    \begin{itemize}
+        \item The strong error ordering and weak bisimilarity on $\That'(A)$ are
+        those of the predomain $S \to \That(S \times A)$.
+        \item For a predomain relation $c : A \rel A'$, the lifting is given by $\That'(c) = S \to \That(S \times c)$
+        \item To verify the universal property of the lifting of a relation, we
+        use the definition of the unique extension of a function $A \to UB$ to a
+        homomorphism out of $T'(A)$. The universal property for the lifted
+        relation then follows using the actions of $\to$ and $\times$ on squares
+        as well as the universal property of $\That$ on relations.
+        \item Next, we note that the strength $t : A \times \That'(A') \to \That'(A \times A')$ is a morphism of predomains.
+        \item Lastly, for any predomain $A$, we have   
+        \[ |\That'(A)| = |S \to \That(S \times A)| = S \to |\That(S \times A)| = S \to T(|S \times A|) = T'(|A|).\]
+    \end{itemize}
+\end{proof}
+
+\subsection{The Writer Monad Transformer}
 
 
