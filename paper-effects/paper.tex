@@ -357,7 +357,7 @@ specifies what effectful operations are available (e.g., reading from a
 state, writing to a state, printing, raising an error) and what
 equations are expected to hold (e.g., that the state does not change
 between consecutive reads). More details on algebraic theories are
-given in Section \ref{sec:modeling-effects}. The parameterized cast
+given in Section \ref{sec:guarded-algebraic-theories}. The parameterized cast
 calculus extends a standard gradual cast calculus with terms
 corresponding to each of the effect operations present in the provided
 algebraic theory $\calA$, giving the programmer access to these
@@ -473,7 +473,7 @@ with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
 \begin{enumerate}
-    \item In Section \ref{sec:modeling-effects}, we provide background
+    \item In Section \ref{sec:background}, we provide background
       on guarded type theory and algebraic theories that will be used
       in the remainder of the paper.
     \item In Section \ref{sec:syntax}, we specify the syntax for the cast
@@ -500,7 +500,7 @@ The organization of the remainder of the paper is as follows:
     compare to prior work, and conclude with directions for future work.
 \end{enumerate}
 
-\section{Background: Guarded Type Theory and Algebraic Effects}
+\section{Background: Guarded Type Theory and Algebraic Effects}\label{sec:background}
 
 \subsection{Metatheoretic Preliminaries}
 
@@ -570,13 +570,13 @@ For the sake of brevity, we will also write tick application as $M_t$.
 % The constructions we carry out in this paper will take place in a guarded type
 % theory with ticks.
 
-\section{Modeling Effects with Algebraic Theories}\label{sec:modeling-effects}
+%\section{Modeling Effects with Algebraic Theories}\label{sec:modeling-effects}
+
+\subsection{Guarded Algebraic Theories}\label{sec:guarded-algebraic-theories}
 
 In this section, we discuss our approach to modeling algebraic effects in the
 context of gradual typing. These concepts will be employed in both our
 denotational and operational semantics.
-
-\subsection{Guarded Algebraic Theories}\label{sec:guarded-algebraic-theories}
 
 We introduce the notion of a \emph{guarded algebraic theory}, a suitable
 generalization of the notion of algebraic theory where we allow for the
@@ -709,7 +709,7 @@ category of sets, which is known as the \textbf{free model monad}.
 % when inspecting a value of the dynamic type.
 % % TODO cite GTT-SGDT paper?
 
-\subsection{Examples of Algebraic Theories}
+\subsection{Examples of Algebraic Theories}\label{sec:alg-theory-examples}
 
 We introduce some specific guarded algebraic theories that will be used
 throughout the paper.
@@ -1732,7 +1732,7 @@ The proof uses \lob-induction; see the Appendix for details.
 
 We conclude this section with an example of how our semantics works for a
 specific algebraic theory. Consider the theory of global state as discussed in
-Section \ref{sec:modeling-effects}, and suppose the type $S$ is taken to be
+Section \ref{sec:alg-theory-examples}, and suppose the type $S$ is taken to be
 $\bool$. The free models for this theory augmented with errors, true delays, and
 bureaucratic delays are given by $T(X) := \bool \to L(\bool \times X)$ where $LX
 \cong X + \{\mho\} + \later (LX) + \later (LX)$. Then the type of $\run$ becomes
