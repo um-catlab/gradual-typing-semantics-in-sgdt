@@ -1683,6 +1683,7 @@ We define $\run$ by guarded recursion to be the unique function satisfying the
 properties
 %
 \begin{mathpar}
+  \footnotesize
   \inferrule*
     { \step{M} = \inl (V, eq) }
     { \run{M} = \Tsb.\eta(V) }
@@ -2228,6 +2229,7 @@ The formal definition can be found in the Appendix.
 
 \begin{ifextended}
 \begin{figure}
+  \footnotesize
   \begin{mathpar}
     \inferrule*[right=RetRet]
     { x \binrel{R} y }
@@ -2744,6 +2746,7 @@ bisimilarity $\bisim$ for the guarded trees imply the following coinductively ge
 relations on $\textrm{ITree}_\Sigma X$:
 %
 \begin{mathpar}
+  \footnotesize
   \inferrule{}{\eta x \sqsubseteq \eta x}
 
   \inferrule{}{\err \sqsubseteq N}
@@ -2754,6 +2757,7 @@ relations on $\textrm{ITree}_\Sigma X$:
 \end{mathpar}
 
 \begin{mathpar}
+  \footnotesize
   \inferrule{N \leadstomany \eta x}{\eta x \bisim N}\and
   \inferrule{M \leadstomany \eta x}{M \bisim \eta x}\and
   \inferrule{N \leadstomany \err}{\err \bisim N}\and
@@ -2807,6 +2811,7 @@ player and opponent traces which intuitively means if $p \sqsubseteq q$ then $p$
 equal to $q$ or it is a prefix of $q$ that ends in $\mho$. See \citeappendix~ for the formal definitions.
 \begin{ifextended}
 \begin{mathpar}
+  \footnotesize
   \mho \sqsubseteq p
 
   \eta V \sqsubseteq \eta V
