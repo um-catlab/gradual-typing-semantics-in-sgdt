@@ -1122,6 +1122,33 @@ $\err$ in $\error$.
      (c_i \ra c_o)(c_i' \ra c_o')\equiv (c_ic_i' \ra c_oc_o') \and
      (c_1\times c_2)(c_1'\times c_2')\equiv (c_1c_1' \times c_2c_2')
   \end{mathpar}
+  \hrule
+  \begin{mathpar}
+
+  \inferrule*[right=EquivTyPrec]
+  {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
+  {\Delta\vdash M \ltdyn M' : c'}
+
+  \inferrule*[right=ErrBot]
+  {}
+  {\Delta \vdash \mho \ltdyn M : c}
+
+  \inferrule*[right=UpL]
+  {M \ltdyn M' : cc_r}
+  {\upc {c} M \ltdyn M' : c_r}
+
+  \inferrule*[right=UpR]
+  {M \ltdyn M' : c_l}
+  {M \ltdyn \upc {c} M' : c_lc}
+
+  \inferrule*[right=DnL]
+  {M \ltdyn M' : c_r}
+  {\dnc {c} M \ltdyn M' : cc_r}
+
+  \inferrule*[right=DnR]
+  {M \ltdyn M' : c_lc}
+  {M \ltdyn \dnc {c} M' : c_l}
+  \end{mathpar}
   \caption{Syntax for Gradual Typing with Effects}
   \label{fig:gtlc-syntax}
 \end{figure}
@@ -1132,8 +1159,9 @@ Next, we have the axioms for reasoning about terms. First is the equational
 theory, including the usual CBV $\beta\eta$ rules for function and product
 types.
 %
-We also have term precision, the extension of type precision to terms. Figure
-\ref{fig:term-prec} presents selected rules for the term precision relation.
+We also have term precision, the extension of type precision to terms.
+%Figure \ref{fig:term-prec} presents selected rules for the term precision relation.
+Selected term precision rules are shown at the bottom of Figure \ref{fig:gtlc-syntax}.
 %
 As in prior work, term precision rules have the form $\Delta \vdash M \ltdyn M'
 : c$ where $\Delta$ is a context mapping variables to type precision
@@ -1168,37 +1196,37 @@ behaving like least upper bounds and greatest lower bounds, respectively.
 % the downcast is a \emph{greatest lower bound}.
 
 
-\begin{figure}
-  \footnotesize
-  \begin{mathpar}
+% \begin{figure}
+%   \footnotesize
+%   \begin{mathpar}
 
-  \inferrule*[right=EquivTyPrec]
-  {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
-  {\Delta\vdash M \ltdyn M' : c'}
+%   \inferrule*[right=EquivTyPrec]
+%   {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
+%   {\Delta\vdash M \ltdyn M' : c'}
 
-  \inferrule*[right=ErrBot]
-  {}
-  {\Delta \vdash \mho \ltdyn M : c}
+%   \inferrule*[right=ErrBot]
+%   {}
+%   {\Delta \vdash \mho \ltdyn M : c}
 
-  \inferrule*[right=UpL]
-  {M \ltdyn M' : cc_r}
-  {\upc {c} M \ltdyn M' : c_r}
+%   \inferrule*[right=UpL]
+%   {M \ltdyn M' : cc_r}
+%   {\upc {c} M \ltdyn M' : c_r}
 
-  \inferrule*[right=UpR]
-  {M \ltdyn M' : c_l}
-  {M \ltdyn \upc {c} M' : c_lc}
+%   \inferrule*[right=UpR]
+%   {M \ltdyn M' : c_l}
+%   {M \ltdyn \upc {c} M' : c_lc}
 
-  \inferrule*[right=DnL]
-  {M \ltdyn M' : c_r}
-  {\dnc {c} M \ltdyn M' : cc_r}
+%   \inferrule*[right=DnL]
+%   {M \ltdyn M' : c_r}
+%   {\dnc {c} M \ltdyn M' : cc_r}
 
-  \inferrule*[right=DnR]
-  {M \ltdyn M' : c_lc}
-  {M \ltdyn \dnc {c} M' : c_l}
-  \end{mathpar}
-  \caption{Term Precision Rules (Selected)}
-  \label{fig:term-prec}
-\end{figure}
+%   \inferrule*[right=DnR]
+%   {M \ltdyn M' : c_lc}
+%   {M \ltdyn \dnc {c} M' : c_l}
+%   \end{mathpar}
+%   \caption{Term Precision Rules (Selected)}
+%   \label{fig:term-prec}
+% \end{figure}
 
 Our goal in the remainder of this work is to define an operational semantics for
 this cast calculus and prove that it satisfies graduality. For an outline of our
