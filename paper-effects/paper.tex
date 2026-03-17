@@ -786,12 +786,12 @@ throughout the paper.
     \begin{itemize}
         \item An operation $\get$ of arity $\tau_\get = S$ and guarded arity
         $\gamma_{\get} = 0$.
-        \item A family of operations $\put_s$ for each $s \in S$, each of arity
-        $\tau_{\put_s} = 1$ and guarded arity $\gamma_{\put_s} = 0$.
+        \item A family of operations $\putop_s$ for each $s \in S$, each of arity
+        $\tau_{\putop_s} = 1$ and guarded arity $\gamma_{\putop_s} = 0$.
     \end{itemize}
     
     In any algebra $B$ of this signature, the operation $\get$ has type $(S \to
-    B) \to B$ and $\put_s$ has type $B \to B$. The argument to $\put_s$
+    B) \to B$ and $\putop_s$ has type $B \to B$. The argument to $\putop_s$
     represents the continuation, i.e., what we do after writing $s$ to the
     state.
     %
@@ -802,11 +802,11 @@ throughout the paper.
         \item \textbf{get-get}: $\forall f : (S \to (S \to B)).$
             $\get(\lambda s. \get (f\, s)) = \get(\lambda s. f\, s\, s)$
         \item \textbf{get-put}:
-            $\get(\lambda s.\put_s(x)) = x$
+            $\get(\lambda s.\putop_s(x)) = x$
         \item \textbf{put-get}: $\forall g : (S \to B).\forall s : S.$
-            $\put_s(\get(g)) = \put_s(g\, s)$.    
+            $\putop_s(\get(g)) = \putop_s(g\, s)$.    
         \item \textbf{put-put}: $\forall x : B. \forall s, t : S.$
-            $\put_t(\put_s(x)) = \put_s(x)$.
+            $\putop_t(\putop_s(x)) = \putop_s(x)$.
     \end{itemize}
     %
     Models of this theory are computations that can read from and write to a
@@ -880,7 +880,7 @@ $\calA_2$.
   The theory $\state{S} \otimes \steptheory$ models computations that can
   take observable computational steps, as well as read and write to a single
   global cell of type $S$. In addition to the equations from each theory (in
-  this case, the state equations), the $\get$ and $\put_s$ operations must
+  this case, the state equations), the $\get$ and $\putop_s$ operations must
   commute with the $\theta$ operation. This theory is described concretely by
   Møgelberg and Zwart \cite{lmcs:14660}, who showed that the free-model monad is
   given by $F(X) = S \to (L(S \times X))$, where $L$ is the guarded lift monad
@@ -1746,17 +1746,17 @@ state and a returned value. Here, $L$ accounts for errors and our two
 notions of computational steps.
 
 % Consider the program $M:= \get(M_{t}, M_{f})$ where $M_t :=
-% \put_f(\zro)$ and $M_f := \put_t(\suc\, \zro)$. The program reads a boolean from
+% \putop_f(\zro)$ and $M_f := \putop_t(\suc\, \zro)$. The program reads a boolean from
 % the state; if it reads $t$, it writes $f$ and returns $\zro$. Otherwise, it
 % writes $t$ and returns $\suc\, \zro$. 
 % %
 % \[ 
 %   \run M = \delta_b(\sem{\get}(
-%     \delta_b(\sem{\put_f}(\eta\,\zro)), 
-%     \delta_b(\sem{\put_t}(\eta\, (\suc\, \zro))))). 
+%     \delta_b(\sem{\putop_f}(\eta\,\zro)), 
+%     \delta_b(\sem{\putop_t}(\eta\, (\suc\, \zro))))). 
 % \]
 % For the state monad above, we have $\sem{\get}\,f\, s = f\, s\, s$, and
-% $\sem{\put_s}\,x \,s' = x\, s$, while $\sem{\delta_b}\,x\, s = L.\delta_b(x\,
+% $\sem{\putop_s}\,x \,s' = x\, s$, while $\sem{\delta_b}\,x\, s = L.\delta_b(x\,
 % s)$. Then simplifying in the above expression, we obtain that $\run M = \lambda
 % s.\, L.\delta_b()$
 
@@ -2765,7 +2765,7 @@ relations on $\textrm{ITree}_\Sigma X$:
 To define a concrete extensional error ordering on interaction trees, we define
 a type of extensional execution traces. These traces are finitary observations of
 an interaction tree, but ignoring the $\tau$ nodes.
-%
+
 We define two mutually inductive types, $\textrm{PTrace}, \textrm{OTrace}$ which
 represent traces starting with ``Player's'' turn or ``Opponent's'' turn, with
 terminology inspired by game semantics. Here Player represents the interaction

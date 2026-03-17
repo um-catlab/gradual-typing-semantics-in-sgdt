@@ -1063,7 +1063,7 @@ We begin by defining the operations. We let
 
 \[ \sem{\get} f\, s = f\, s\, s, \]
 %
-\[ \sem{\put_s} m\, s' = m\, s, \]  
+\[ \sem{\putop_s} m\, s' = m\, s, \]  
 %
 and $\sem{\oper} : [(\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later(T'(A)))] \to T'(A)$ defined by
 %
@@ -1078,7 +1078,7 @@ Now, we show that the required equations hold when interpreted in $T'(A)$.
 The proofs of the get-put laws are analogous to those for the ordinary state
 monad and hence omitted.
 %
-We prove the tensor equations stating that $\get$ and $\put$ commute with each
+We prove the tensor equations stating that $\get$ and $\putop$ commute with each
 operation in $\calA$:
 \begin{enumerate}
     \item \emph{Get commutes with each operation in $\calA$}: Let $\oper :
@@ -1228,7 +1228,7 @@ Finally, we show the universal property.
     %
     First, define $g : A \times S \to B$ as the following composition:
     %
-    \[ g = A \times S \xrightarrow{f \times \id} UB \times S \xrightarrow{B.\sem{\put} B} \]
+    \[ g = A \times S \xrightarrow{f \times \id} UB \times S \xrightarrow{B.\sem{\putop} B} \]
     %
     We then define $\fbar : T'(A) \to B$ as the following composition:
     %
@@ -1262,10 +1262,10 @@ First, we need a small lemma:
     \begin{align*}
         \psi(\eta(s,a)) 
         &= \phi(\lambda s'.\eta(s, a)) \\
-        &= \phi(\put_s (\lambda s''.\eta(s'', a))) \\
-        &= B.\put_s(\phi(\lambda s''.\eta(s'', a))) \\
-        &= B.\put_s(\phi'(\lambda s''.\eta(s'', a))) \\
-        &= \phi'(\put_s(\lambda s''.\eta(s'', a))) \\
+        &= \phi(\putop_s (\lambda s''.\eta(s'', a))) \\
+        &= B.\putop_s(\phi(\lambda s''.\eta(s'', a))) \\
+        &= B.\putop_s(\phi'(\lambda s''.\eta(s'', a))) \\
+        &= \phi'(\putop_s(\lambda s''.\eta(s'', a))) \\
         &= \phi'(\lambda s'.\eta(s, a)) \\
         &= \psi'(\eta(s,a)).
     \end{align*}
@@ -1274,12 +1274,12 @@ First, we need a small lemma:
 Now let $x : T'(A)$. We have
 \begin{align*}
     \phi(x)
-    &= \phi(\get(\lambda s. \put_s(x))) \\
-    &= B.\get(\lambda s. \phi(\put_s(x))) \\
+    &= \phi(\get(\lambda s. \putop_s(x))) \\
+    &= B.\get(\lambda s. \phi(\putop_s(x))) \\
     &= B.\get(\lambda s. \phi(\lambda s'. x\, s)) \\
     &= B.\get(\lambda s. \phi'(\lambda s'. x\, s)) \\
-    &= B.\get(\lambda s. \phi'(\put_s(x))) \\
-    &= \phi'(\get(\lambda s.\put_s(x))) \\
+    &= B.\get(\lambda s. \phi'(\putop_s(x))) \\
+    &= \phi'(\get(\lambda s.\putop_s(x))) \\
     &= \phi'(x).
 \end{align*}
 
