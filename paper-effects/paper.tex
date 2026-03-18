@@ -922,8 +922,8 @@ is given by
 %
 \end{theorem}
 %
-Below we list the theory transformers we support, and their corresponding monad
-transformers:
+Table \ref{tab:theory-and-monad-transformers} lists the theory transformers we
+support, and their corresponding monad transformers:
 %
 \begin{table}[h!]
   \centering
@@ -937,6 +937,7 @@ transformers:
     Global State & $- \otimes \state{S}$  & $T'(A) = S \to T(S \times A)$ \\
     \hline
   \end{tabular}
+  \caption{Theory Transformers and Their Corresponding Monad Transformers}
   \label{tab:theory-and-monad-transformers}
 \end{table}
 
@@ -1157,7 +1158,7 @@ $\err$ in $\error$.
 % rules for term precision
 Next, we have the axioms for reasoning about terms. First is the equational
 theory, including the usual CBV $\beta\eta$ rules for function and product
-types.
+types; these are elided from the figure. 
 %
 We also have term precision, the extension of type precision to terms.
 %Figure \ref{fig:term-prec} presents selected rules for the term precision relation.
@@ -1175,9 +1176,12 @@ The term precision rules are as follows. First, the rule \textsc{ErrBot} says
 that the error term $\mho$ is the most precise term.
 %
 Next, we have a congruence rule for each term constructor, e.g., the rule for
-application says that if $M \ltdyn M'$ and $N \ltdyn N'$ then $M\,N \ltdyn
-M'\,N'$. For the sake of brevity, the congruence rules are elided from the
-figure.\max{TODO: add congruence for operations}
+effect operations says that if $M_i \ltdyn M_i'$ for all $i \in [n]$, then
+$\synoper{M}{n} \ltdyn \synopernoidx{M_i'}{n}$.
+
+%e.g., the rule for application says that if $M \ltdyn M'$ and $N \ltdyn N'$ then $M\,N \ltdyn M'\,N'$. 
+For the sake of brevity, the congruence rules are elided from the
+figure. %\max{TODO: add congruence for operations}
 %
 Using these congruence rules, reflexivity $M \ltdyn M$ is admissible. As in the
 syntax of Giovannini et al. \cite{gtt-sgdt}, and in accordance with the original
@@ -1755,8 +1759,8 @@ an evaluation context:
 The proof uses \lob-induction; see the Appendix for details.
 \end{ifextended}
 
-\max{I think we need examples here of how this is really the normal operational semantics when we take specific examples like state, reader, probability etc.}
-\eric{I added an example with state.}
+% \max{I think we need examples here of how this is really the normal operational semantics when we take specific examples like state, reader, probability etc.}
+% \eric{I added an example with state.}
 
 We conclude this section with an example of how our semantics works for a
 specific algebraic theory. Consider the theory of global state as discussed in
@@ -1796,7 +1800,7 @@ In this section, we discuss how to adapt the denotational model of Giovannini et
 al. \cite{gtt-sgdt} to accommodate algebraic effects. Much of the foundation for
 our denotational semantics is present in their model, which for brevity we refer
 to as the prior guarded model. Here, we highlight the key differences. First, we
-generalize their notion of \emph{error domain}, which model errors and
+generalize their notion of \emph{error domain}, which models errors and
 computational steps, to model arbitrary algebraic effects. Second, we address a
 mismatch with step counting between the denotational semantics and the
 operational semantics as it pertains to the denotation of certain casts. While
@@ -1834,7 +1838,7 @@ As in the section on operational semantics, let $\calAs = (\Sigma, E) \in
 This means in particular that $\calAs$ has a distinguished error operation $\err
 : (0, 0)$ and a distinguished guarded step operation $\theta : (0, 1)$.
 
-Recall that Giovannini et al. model gradual typing by considering sets $A$
+Giovannini et al. model gradual typing by considering sets $A$
 equipped with two relations: a partial ordering $\ltdyn_A$ intended to represent
 error ordering but be sensitive to steps taken, and a reflexive, symmetric
 relation $\bisim_A$ intended to represent when two elements are the same up to
@@ -1845,7 +1849,8 @@ theory from sets to predomains.
 % \cite{gtt-sgdt}. A predomain $A$ is a set with a partial order $\ltdyn_A$ and a
 % reflexive, symmetric bisimilarity relation $\bisim_A$.
 
-In the following, we will need the fact that the induced polynomial endofunctor
+
+First, we observe that the induced polynomial endofunctor
 $\Sigma : \type \to \type$ extends to an endofunctor on the category of
 predomains and their morphisms. In particular, for a predomain $X$, we define
 %
@@ -1859,6 +1864,7 @@ In addition, the type of functions $\tau_\oper \to X$ inherits a predomain
 structure from that of $X$: the ordering and bisimilarity relations are defined
 pointwise using the corresponding relations for $X$.
 
+\begin{comment}
 We now define the action of $\Sigma$ on morphisms of predomains, as follows.
 Given a function $f : X \to Y$, we define $\Sigma(f) : \Sigma(X) \to \Sigma(Y)$
 by
@@ -1868,6 +1874,7 @@ by
 where $u' : \tau_\oper \to Y$ is defined by $u' = f \circ u$ and $g' :
 \gamma_\oper \to \later Y$ is defined using the functorial action of $\later$ by
 $g' = (\later f) \circ g$.
+\end{comment}
 
 Giovannini et al. work with an adjunction between predomains and what they call
 \textbf{error domains}, which are predomains $B$ equipped with an element $\mho
@@ -1881,23 +1888,23 @@ The analogue of error domains in our semantics will be an algebra $B$ of the
 endofunctor $\Sigma$. Using the action of $\Sigma$ on predomains defined above,
 an algebra of $\Sigma$ is a predomain $B$ equipped with a morphism of predomains
 $\Sigma(B) \to B$. 
-
-
+%
+%
 % a distinguished error element $\mho$ and a distinguished $\theta_B \colon \later
 % B \to B$. 
-
+%
 % As in the definition of an error domain from the denotational model of
 % Giovannini et al., we require that $\mho$ is the smallest element in the
 % ordering, that $\theta$ respects the relations (i.e., it is a morphism of
 % predomains), and that $\delta_B := \theta_B \circ \nxt$ is bisimilar to the
 % identity.
-
+%
 % As in the definition of an error domain, we also require that the algebra comes
 % with ordering and a bisimilarity relations, that $\mho$ is the smallest element
 % in the ordering, that $\theta$ respects the relations (i.e., it is a morphism of
 % predomains), and that $\delta_B := \theta_B \circ \nxt$ is bisimilar to the
 % identity.
-
+%
 \eric{Some of these definitions may be able to be moved to the appendix.}
 More formally, we make the following definition:
 %
@@ -1908,7 +1915,7 @@ More formally, we make the following definition:
   $\alpha : \Sigma(B) \to B$. In particular, for each $\text{op} \in
   \Sigma$, we have a morphism of predomains
   %
-  \[ \sem{\oper} : (\tau_\oper \to B) \times (\gamma_\oper \to \later B) \to B. \]
+  $\sem{\oper} : (\tau_\oper \to B) \times (\gamma_\oper \to \later B) \to B.$
   %
   %
   Furthermore, each equation $e = (\Gamma_e, l_e, r_e)$ in $E$ holds when
@@ -1919,11 +1926,42 @@ More formally, we make the following definition:
   $\theta_B : \later B \to B$, is such that $\theta_B \circ \nxt \bisim \id$.
   %if $x \bisim_{B} y$, then $\delta_B \bisim_{B} y$ where $\delta_B := \theta_B \circ \nxt$.
 \end{definition}
+
+Giovannini et al. worked with heterogeneous version of relation that they called
+a \textbf{predomain relation}. This is defined as a relation between predomains
+$A$ and $A'$ that is upward closed in the ordering on $A'$ and downward closed
+in the ordering on $A$, with no interaction with the bisimilarity relations.
+Then a \textbf{predomain square} provides a means of relating two morphisms
+whose domain and codomain are related by predomain relations. More concretely,
+let $f : A_i \to A_o$ and $g : A_i' \to A_o'$ be predomain morphisms, and let
+$c_i : A_i \rel A_i'$ and $c_o : A_o \rel A_o'$ be predomain relations. There is
+a predomain square $f \ltsq{c_i}{c_o} g$ if for all $x \binrel{c_i} y$, we have
+$f(x) \binrel{c_o} g(y)$.
 %
-As with ordinary error domains, there are corresponding notions of morphisms,
-relations, and squares of $\calAs$-domains. Before introducing these, we first
-discuss the action of the endofunctor $\Sigma$ on predomain morphisms and
-predomain relations.
+The authors define analogous concepts of heterogeneous relation and square
+for error domains, where error domain relations are required to be a congruence
+with respect to $\mho$ and $\theta$.
+%
+As with error domains, there are corresponding notions of morphisms, relations,
+and squares of $\calAs$-domains. A \textbf{morphism of $\calAs$-domains} from
+$B$ to $B$' is a morphism $\phi$ of the underlying predomains that preserves the
+algebraic structure.
+A \textbf{relation of $\calAs$-domains} $d : B \rel B'$ is a relation $|d|$ of
+the underlying predomains that is a congruence with respect to the algebraic
+structure. In particular, we require that
+%
+if $(\oper, (u, g)) \binrel{(\Sigma(|d|))} (\oper, (u', g'))$, then
+$\sem{\oper}_B(u, g) \binrel{|d|} \sem{\oper}_{B'}(u', g')$, where the relation
+$\binrel{\Sigma(|d|)} : \Sigma(B) \rel \Sigma(B')$ is the action of the
+signature $\Sigma$ on the relation $|d|$ (see the \citeappendix~ for the formal
+definition).
+%
+Lastly, a \textbf{square of $\calAs$-domains} $\phi \ltsq{d}{d'} \phi'$ is defined as a
+square of the underlying predomains.
+
+\begin{comment}
+Before introducing these, we first discuss the action of the endofunctor
+$\Sigma$ on predomain morphisms and predomain relations.
 
 Let $c : A \rel A'$ be a predomain relation. The action of the endofunctor
 $\Sigma$ on $c$, written $\Sigma(c)$, is a predomain relation between
@@ -1987,6 +2025,7 @@ B''$ that is inductively generated from the relational composition. See the
 paper of Giovannini et al. for details \cite{gtt-sgdt}.
 % See the Appendix for the precise definition.
 % TODO cite appendix.
+\end{comment}
 
 \subsubsection{Lifting the Free Models to Predomains}\label{sec:extending-to-predomains}
 
@@ -2026,7 +2065,7 @@ morphisms that can do nothing except take (a finite number of) steps.
 %
 The idea is that the perturbations mimic the steps taken by casts in the
 semantics, allowing the perturbed term to be in lock-step with a cast.
-
+%
 As the details of perturbations are largely irrelevant to our development, we
 refer the reader to their paper \cite{gtt-sgdt}. However, there are two novel
 aspects of perturbations as they relate to our dentational semantics.
@@ -2798,7 +2837,7 @@ relations on $\textrm{ITree}_\Sigma X$:
 To define a concrete extensional error ordering on interaction trees, we define
 a type of extensional execution traces. These traces are finitary observations of
 an interaction tree, but ignoring the $\tau$ nodes.
-
+%
 We define two mutually inductive types, $\textrm{PTrace}, \textrm{OTrace}$ which
 represent traces starting with ``Player's'' turn or ``Opponent's'' turn, with
 terminology inspired by game semantics. Here Player represents the interaction
@@ -2815,7 +2854,7 @@ with response type $R$ is either empty, marked by $\textrm{end}$ or it is a pair
 of a response $R$ and a player trace. The role of the opponent trace is to allow
 for observation of finite prefixes of infinitely long productive sequences.
 Without it, the only observations would be of termination behavior.
-
+%
 We write $t \downarrow \eta V$, $t \downarrow \mho$ and $t \downarrow
 \textrm{end}$ to indicate that a player trace terminates in a particular way.
 
