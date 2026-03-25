@@ -1,8 +1,11 @@
-\section{Omitted Proofs Section \ref{sec:modeling-effects}}
+\section{Omitted Details and Proofs for Section \ref{sec:background}}
 
 
-\subsection{Construction of $F_\Sigma$}\label{sec:app:free-signature-monad}
+\subsection{Construction of the Free Algebra for a Signature}\label{sec:app:free-signature-monad}
 
+In this section, we give an explicit construction for the functor that takes a
+set $A$ to the free $\Sigma$-algebra $F_\Sigma(A)$ on $A$.
+%
 We seek to solve the equation
 %
 \[ F_\Sigma(A) \cong A + \Sigma(F_\Sigma(A)), \]
@@ -24,7 +27,7 @@ the guarded-recursive equation
 Then by the definitions of least fixpoint and guarded fixpoint, we have that
 $F_\Sigma(A)$ is a solution to the original equation.
 
-\section{Omitted Proofs Section \ref{sec:operational-semantics}}
+\section{Omitted Details and Proofs for Section \ref{sec:operational-semantics}}
 
 \begin{comment}
 \begin{lemma}
@@ -71,25 +74,37 @@ $F_\Sigma(A)$ is a solution to the original equation.
 \end{comment}
 
 
-Proof of Lemma \ref{lem:run-fill}:
-\begin{proof}
-  
-    In the below:
+Notation in this section:
+%
+\begin{itemize}
+    \item We let $\eta$ denote $\Tsb.\eta$.
     %
-    \begin{itemize}
-        \item We let $\eta$ denote $\Tsb.\eta$.
-        %
-        \item We let $(-)^\dag$ denote Kleisli extension for $\Tsb$.
-        %
-        \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to \Tsb(\term{A})$ is defined by
-        cases, mapping $\cpure{M}$ to $\eta^{\Tsb}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
-        to $\Tsb(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
-        (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
-        %
-        % \item $\iota : T_{\mho}(X) \to T_{\mho sb}(X)$ is the inclusion of the
-        % free model monad $T_{\mho}$ into $T_{\mho sb}$. 
-    \end{itemize}
+    \item We let $(-)^\dag$ denote Kleisli extension for $\Tsb$.
+    %
+    \item $f : (\term{A} + \Sigma_\mho(\term{A})) \to \Tsb(\term{A})$ is defined by
+    cases, mapping $\cpure{M}$ to $\eta^{\Tsb}(M)$, and mapping $\ceff{(\oper, u, g)}$ 
+    to $\Tsb(\term{A}).\oper(\eta \circ u, (\later \eta) \circ g)$.
+    (Note that $u : \tau_\oper \to \term{A}$ and $g : \gamma_\oper \to \later (\term A)$.)
+    %
+    % \item $\iota : T_{\mho}(X) \to T_{\mho sb}(X)$ is the inclusion of the
+    % free model monad $T_{\mho}$ into $T_{\mho sb}$. 
+\end{itemize}
 
+To begin, we define a function that ``runs'' an evaluation context $E$.
+Specifically, if $E : A \multimap B$, then we define $\run{E} : \Tsb(\term A)
+\to \Tsb(\val B)$ as
+%
+\[ \run{E} := (\lambda M. \run{(E[M])})^\dag, \]
+%
+where $\dag$ is the Kleisli extension operator for the monad $\Tsb$.
+
+Then we have the following lemma, which says that running commutes with filling
+an evaluation context:
+%
+\begin{lemma}[Run is a Homomorphism]\label{lem:run-fill}
+  $\run{(E[M])} = (\run{E})(\run{M})$.
+\end{lemma}
+\begin{proof}
     We want to show that $\run{(E[M])} = (\run{E})(\run{M})$. We proceed by
     guarded recursion and cases on whether $M$ is a value, or $M$ steps.
 
@@ -97,49 +112,49 @@ Proof of Lemma \ref{lem:run-fill}:
     % by definition of $\run$ on terms, we have $\run{V} = \eta\, V$.
 
     Now suppose $M \stepsin{k} \hat{N}$, where $\hat{N} : \Sigmahat(\term A)$.
-    Then we have, by definition of $\run{}$:
+    Then we have, by definition of $\run$:
 
     \begin{equation} 
-        \run{M} = \delta_{\sty} (\run^{\ddag} {(f(\hat{N}))}).
+        \run{M} = \delta_{\sty} (\run^{\dag} {(f(\hat{N}))}).
     \end{equation}
 
     We also have $E[M] \stepsin{k} \Sigmahat(E[\cdot])(\hat{N})$. Thus, by the
-    definition of $\run{}$, we have:
+    definition of $\run$, we have:
     \begin{equation} 
-        \run{(E[M])} = \delta_{\sty} (\run^{\ddag} {(f (\Sigmahat(E[\cdot])(\hat{N})) )}).
+        \run{(E[M])} = \delta_{\sty} (\run^{\dag} {(f (\Sigmahat(E[\cdot])(\hat{N})) )}).
     \end{equation}
 
     We continue by cases on $\hat{N}$. If $\hat{N} = \cpure{M}$, then we have
     \begin{align*}
         \run{E[M]}
-        &= \delta_{\sty} [\run^{\ddag} {(f (\Sigmahat(E[\cdot])(\cpure{M})) )}] \\
-        &= \delta_{\sty} [\run^{\ddag} {(f (\cpure(E[M])))}] \\
-        &= \delta_{\sty} [\run^{\ddag} {\eta (E[M])}] \\
+        &= \delta_{\sty} [\run^{\dag} {(f (\Sigmahat(E[\cdot])(\cpure{M})) )}] \\
+        &= \delta_{\sty} [\run^{\dag} {(f (\cpure(E[M])))}] \\
+        &= \delta_{\sty} [\run^{\dag} {\eta (E[M])}] \\
         &= \delta_{\sty} [\run E[M]]
     \end{align*}
 
     On the other hand, we have
     \begin{align*}
         (\run E)(\run M) 
-        &= (\lambda V. \run{(E[V])})^{\ddag} (\delta_{\sty} (\run^{\ddag} {(f(\cpure{M}))}) ) \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run^{\ddag} {(f(\cpure{M}))})] \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run^{\ddag} {\eta M})] \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run M)] \\
+        &= (\lambda V. \run{(E[V])})^{\dag} (\delta_{\sty} (\run^{\dag} {(f(\cpure{M}))}) ) \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\run^{\dag} {(f(\cpure{M}))})] \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\run^{\dag} {\eta M})] \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\run M)] \\
         &= \delta_{\sty} [(\run E) (\run M)]
     \end{align*}
     %
     Since both sides are guarded by a $\delta_{\sty}$, it suffices to show that
-    the insides are equal later. This follows from our \lob induction
+    the insides are equal later. This follows from our \lob~induction
     hypothesis.
 
     Now suppose $\hat{N} = \ceff{(\oper, u)}$. Then for the LHS, we have
     %
     \begin{align*}
         \run{(E[M])} 
-        &= \delta_{\sty} [\run^{\ddag} {(f (\Sigmahat(E[\cdot])(\ceff{(\oper, u)})) )}] \\
-        &= \delta_{\sty} [\run^{\ddag} {(f (\ceff{(\oper, E[\cdot] \circ u)}) )}] \\
-        &= \delta_{\sty} [\run^{\ddag} {(\Tsb(\term{A}).\oper(\eta \circ E[\cdot] \circ u) )}] \\
-        &= \delta_{\sty} [\Tsb(\term{A}).\oper(\run^{\ddag} \circ \eta \circ E[\cdot] \circ u)] \\
+        &= \delta_{\sty} [\run^{\dag} {(f (\Sigmahat(E[\cdot])(\ceff{(\oper, u)})) )}] \\
+        &= \delta_{\sty} [\run^{\dag} {(f (\ceff{(\oper, E[\cdot] \circ u)}) )}] \\
+        &= \delta_{\sty} [\run^{\dag} {(\Tsb(\term{A}).\oper(\eta \circ E[\cdot] \circ u) )}] \\
+        &= \delta_{\sty} [\Tsb(\term{A}).\oper(\run^{\dag} \circ \eta \circ E[\cdot] \circ u)] \\
         &= \delta_{\sty} [\Tsb(\term{A}).\oper(\run \circ E[\cdot] \circ u)] \\
         &= \delta_{\sty} [\Tsb(\term{A}).\oper(\lambda w. \run (E[u(w)]))] \\
     \end{align*}
@@ -148,29 +163,54 @@ Proof of Lemma \ref{lem:run-fill}:
     %
     \begin{align*}
         (\run E)(\run M) 
-        &= (\lambda V. \run{(E[V])})^{\ddag} (\delta_{\sty} (\run^{\ddag} {(f(\ceff{(\oper, u)}))}) ) \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run^{\ddag} {(f(\ceff{(\oper, u)}))})] \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\run^{\ddag} { \Tsb(\term{A}).\oper(\eta \circ u) })] \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\Tsb(\term{A}).\oper(\run^{\ddag} \circ \eta \circ u))] \\
-        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\ddag} (\Tsb(\term{A}).\oper(\run \circ u))] \\
-        &= \delta_{\sty} [\Tsb(\term{A}).\oper((\lambda V. \run{(E[V])})^{\ddag} \circ \run \circ u)] \\
+        &= (\lambda V. \run{(E[V])})^{\dag} (\delta_{\sty} (\run^{\dag} {(f(\ceff{(\oper, u)}))}) ) \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\run^{\dag} {(f(\ceff{(\oper, u)}))})] \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\run^{\dag} { \Tsb(\term{A}).\oper(\eta \circ u) })] \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\Tsb(\term{A}).\oper(\run^{\dag} \circ \eta \circ u))] \\
+        &= \delta_{\sty} [(\lambda V. \run{(E[V])})^{\dag} (\Tsb(\term{A}).\oper(\run \circ u))] \\
+        &= \delta_{\sty} [\Tsb(\term{A}).\oper((\lambda V. \run{(E[V])})^{\dag} \circ \run \circ u)] \\
         &= \delta_{\sty} [\Tsb(\term{A}).\oper(\lambda w. (\run E) (\run (u(w))))] \\
     \end{align*}
     %
     As before, since both sides are guarded by a $\delta_{\sty}$, it suffices to
-    show that the insides are equal later, which follows from our \lob induction
+    show that the insides are equal later, which follows from our \lob~induction
     hypothesis.
 
     % Thus, it will suffice to show that
     % \[ 
-    %   \later[ (\run \circ E[\cdot])^{\ddag} (\iota(f(\hat{N}))) 
-    %     = ((\lambda V. \run{(E[V])})^{\ddag} \circ \run)^{\ddag} {(\iota(f(\hat{N})))} ]. 
+    %   \later[ (\run \circ E[\cdot])^{\dag} (\iota(f(\hat{N}))) 
+    %     = ((\lambda V. \run{(E[V])})^{\dag} \circ \run)^{\dag} {(\iota(f(\hat{N})))} ]. 
     % \]
 
 
 \end{proof}
 
-\section{Details and Omitted Proofs for Section \ref{sec:denotational-semantics}}
+\section{Omitted Details and Proofs for Section \ref{sec:denotational-semantics}}
+
+\subsection{Action of the Signature Endofunctor on Relations}
+
+We describe the action of the endofunctor for the algerbaic signature $\Sigma$
+on predomain relations.
+
+Let $c : A \rel A'$ be a predomain relation. The action of the endofunctor
+$\Sigma$ on $c$, written $\Sigma(c)$, is a predomain relation between
+$\Sigma(A)$ and $\Sigma(A')$, defined as follows:
+%
+First, note that any predomain relation $c : A \rel A'$ extends to a predomain
+relation $\tau \to c$ between $\tau \to A$ and $\tau \to A'$ defined pointwise,
+i.e., $f \binrel{(\tau \to c)} f'$ iff for all $s : \tau$ we have $(f s)
+\binrel{c} (f' s)$.
+%
+Similarly, given $c : A \rel A'$ we define $\later c$ such that $\tilde{x}
+\binrel{(\later c)} \tilde{y}$ iff after one step passes, the left and right
+sides (now in $A$ and $A'$ respectively) are related in $c$.
+%
+We now define $(\oper, (u, g)) \binrel{(\Sigma(c))} (\oper', (u', g'))$ iff
+$\oper = \oper'$ and $u \binrel{(\tau_\oper \to c)} u'$ and 
+$g \binrel{(\gamma_\oper \to \later c)} g'$.
+
+\begin{comment}
+\subsection{Generalizing Error Domains}
 
 In this section, we discuss the guarded denotational model for gradual typing.
 
@@ -216,7 +256,6 @@ Computation types are equipped with the same two relations, in addition to a
 special distinguished error element that is the least element in the ordering,
 as well as a distinguished morphism of predomains $\theta_B : \later B \to B$.
 %
-\begin{ifextended}
 The precise definitions are given below:
 %
 \begin{definition}
@@ -230,7 +269,6 @@ following data:
     \bisim_B y$
 \end{itemize}
 \end{definition}
-\end{ifextended}
 
 A \textbf{morphism of error domains} is a morphism of the underlying predomains
 that preserves the error element and the $\theta$ map.
@@ -244,7 +282,6 @@ relation} $c : A \rel A'$ is a relation between $A$ and $A'$ that is upward
 closed in the ordering on $A'$ and downward closed in the ordering on $A$
 (no condition is required involving the bisimilarity relations).
 %
-\begin{ifextended}
 \begin{definition}
   A \textbf{predomain relation} $c : A \rel A'$ is a relation $c$ between the
   underlying sets of $A$ and $A'$ satisfying:
@@ -255,7 +292,6 @@ closed in the ordering on $A'$ and downward closed in the ordering on $A$
     \ltdyn_{A} x$ and $x \binrel{c} y$, then $x' \binrel{c} y$.
   \end{enumerate}
 \end{definition}
-\end{ifextended}
 %
 The ``reflexive'' predomain relation is written $r(A)$ and is given by the
 ordering $\ltdyn_A$. The relational composition of two predomain relations is
@@ -264,7 +300,6 @@ also a predomain relation, and $r(A)$ is the identity for this composition.
 Error domain relations are predomain relations that are additionally a
 congruence with respect to the operations $\theta$ and $\mho$.
 %
-\begin{ifextended}
 \begin{definition}
   An \textbf{error domain relation} $d : B \rel B'$ is a relation $d$ on the
   underlying predomains satisfying
@@ -276,7 +311,6 @@ congruence with respect to the operations $\theta$ and $\mho$.
      (\tilde{y}))$. 
   \end{enumerate}
 \end{definition}
-\end{ifextended}
 Note that because $\mho_B$ is a least element this implies the
 stronger property $\mho_B \binrel{d} y$ for any term $y: B'$.
 %
@@ -290,7 +324,6 @@ Lastly, term precision is modeled via the notion of \emph{square}, which
 captures the logical-relations style relationship between the functions denoted
 by two terms.
 %
-\begin{ifextended}
 More concretely:
 %
 \begin{definition}
@@ -302,11 +335,11 @@ we have $f(x) \binrel{c_o} g(y)$.
 Likewise, an \textbf{error domain square} $\phi \ltsq{d_i}{d_o} \psi$ is defined
 similarly, with no extra interaction with the algebraic structure.
 \end{definition}
-\end{ifextended}
 %
+\end{comment}
 
-
-
+\begin{comment}
+\subsection{Perturbations}
 
 \begin{definition}[Value and Computation Objects and Morphisms]
     A \textbf{value object} consists of a predomain $A$, a monoid $M_A$ and a
@@ -345,14 +378,82 @@ similarly, with no extra interaction with the algebraic structure.
     \to B$, and is such that $Ud$ is quasi-left-representable by a morphism $e_d
     : UB \to UB'$
 \end{definition}
+\end{comment}
+
+\subsection{Adjusting the Term Semantics for Casts}
+We provide more details on the change we make to the denotational semantics so
+that the denotational and operational semantics are in lock-step up to the
+presence of bureaucratic delays in the operational semantics. For an overview,
+see Section \ref{sec:perturbations} in the paper.
+
+We begin by recalling that term precision $M \ltdyn N : A$ is modeled in the
+semantics of Giovannini et al. by $\sem{M} \ltbisim \sem{N}$ where
+%
+\[ f \ltbisim g := \exists f', g'. f \bisim f' \ltdyn g' \bisim g. \]
+%
+That is, we do not require that $f$ and $g$ are in lock-step; we are allowed to
+use any $f'$ bisimilar to $f$ and $g'$ bisimilar to $g$ such that $f'$ is
+lock-step related to $g'$ in the error ordering.
+%
+This is useful because the downcast associated to the composition of type
+precision $c : A \ltdyn A'$ and $c' : A' \ltdyn A''$ is a morphism from
+$F(\sem{A''})$ to $F(\sem{A})$, but in the prior model it is not simply the
+composition of the downcast morphisms for $c$ and $c'$. Instead, an additional
+perturbation is inserted in order to make the relational squares line up in the
+proof of quasi-representability. More details can be found in the Appendix of
+their paper \cite{gtt-sgdt-extended-version}.
+
+On the other hand, observe that we could instead define the downcast morphism
+for the composition $cc'$ to be the composition of the corresponding downcasts,
+without the additional perturbation, and then note that the resulting morphism
+is \emph{weakly bisimilar} to the version with the additional perturbation. This
+is sufficient for graduality, since the additional perturbation will be absorbed
+by the weak bisimilarity in the definition of $f \ltbisim g$.
+
+% Using the above definition for term precision, we see that the additional
+% perturbations in the cast corresponding to a composition will be absorbed by the
+% weak bisimilarity.
+
+With this observation in mind, we augment the denotation of type precision in
+the prior denotational model by associating to each value relation $c$ in the
+semantics two morphisms: a ``relational'' embedding morphism $e$ such that $c$
+is quasi-left-representable by $e$, and a ``term'' embedding morphism $e' \bisim
+e$. We similarly associate two projection morphisms to each computation relation
+$d$. We use the term versions of the embedding and projection morphisms as our
+denotations of upcasts and downcasts, and we use the relational versions
+internally in the proof of graduality.
+%
+The result is that our term semantics for casts no longer involves unnecessary
+perturbations that were inserted to make the graduality proof work.
 
 
 
+\section{Omitted Details and Proofs for Section \ref{sec:relating-the-semantics}}
 
-\section{Omitted Proofs Section \ref{sec:relating-the-semantics}}
+\subsection{Relational Lifting that Ignores Bureaucratic Steps}
+
+  \begin{mathpar}
+    \inferrule*[right=RetRet]
+    { x \binrel{R} y }
+    { \eta^{T_{\mho s}}(x) \binrel{(\bbt(R))} \eta^{T_{\mho sb}}(y) }
+
+    \inferrule*[right=OpOp]
+    { \oper \in \calA_{\mho s}.\Op 
+      \and \forall s.\, (u\, s) \binrel{(\bbt{R})} (u'\, s) \\
+      \and \forall s.\, (g\, s) \binrel{(\later(\bbt{R}))} (g'\, s)  
+    }
+    { (T_{\mho s}(X).\oper(u, g)) \binrel{(\bbt{R})} (T_{\mho sb}(Y).\oper(u', g')) }
+
+    \inferrule*[right=IdStep]
+    { \bar{x} \binrel{(\bbt(R))} \bar{y} }
+    { \bar{x} \binrel{(\bbt(R))} \delta_b(\bar{y}) }
+
+  \end{mathpar}
 
 \subsection{Properties of the Logical Relation}
 
+First, we prove two anti-reduction lemmas, one involving bureaucratic steps and
+the other involving true steps.
 
 %Proof of the anti-reduction lemma (Lemma \ref{lem:anti-reduction}):
 \begin{lemma}[Anti-Reduction]\label{lem:anti-reduction}
@@ -392,7 +493,7 @@ similarly, with no extra interaction with the algebraic structure.
     $\erel{A}{\theta(\tilde{x})}{M}$. By the definition of $\run$, we have that
     \begin{align*}
         \run{M} &= \delta_{\tstep} (\run^{\dag} {(f(\cpure{M'}))}) \\
-                &= \delta_{\tstep} (\run^{\dag} {\eta(M')})
+                &= \delta_{\tstep} (\run^{\dag} {\eta(M')}) \\
                 &= \delta_{\tstep} (\run{M'}).
     \end{align*}
 
@@ -407,8 +508,15 @@ similarly, with no extra interaction with the algebraic structure.
     which is our assumption.
 \end{proof}
 
+
+Next, we have a semantic bind lemma for the logical relation, which allows us to
+replace arbitrary terms in an evaluation context with values.
+
 %Proof of the Semantic Bind Lemma:
 \begin{lemma}[Monadic Bind]\label{lem:monadic-bind}
+    % Suppose for all values $V, W$ that $\vrel{A}{V}{W}$ implies
+  % $\erel{B}{\phi(V)}{(E[W])}$. Then, for all $\erel{A}{\bar{x}}{N}$, we have
+  % $\erel{B}{(\phi(\bar{x}))}{(E[N])}$.
   Let $\phi : T_{\mho s}(\sem{A}) \to T_{\mho s}(\sem{B})$, and let $\bullet : A \vdash E : B$.
   %
   Suppose for all values $x, V$ that $\vrel{A}{x}{V}$ implies $\erel{B}{\phi(T_{\mho s}.\eta(x))}{(E[V])}$.
@@ -417,7 +525,8 @@ similarly, with no extra interaction with the algebraic structure.
   $\erel{A}{\bar{x}}{N}$, we have $\erel{B}{(\phi(\bar{x}))}{(E[N])}$
 \end{lemma}
 \begin{proof}
-
+    Follows from Lemma \ref{lem:run-fill} and the universal property of the
+    relational lifting $\bbt(R)$.
 \end{proof}
 
 \begin{comment}
@@ -632,7 +741,10 @@ lemmas, one for each term constructor in the cast calculus.
 \end{proof}
 
 \begin{lemma}[Compatibility for Product Split]
-
+Suppose $\simrel{\Gamma}{A_1 \times A_2}{\sem{M}}{M}$ and 
+$\simrel{(\Gamma, x : A_1, y : A_2)}{A}{\sem{N}}{N}$. Then we have
+$\simrel {\Gamma} {A} {\sem {M_{\text{split}}}} {{M_{\text{split}}}}$,
+where ${M_{\text{split}}} = \textrm{split } (x,y) = M \textrm{ in } N$.
 \end{lemma}
 \begin{proof}
     Follows by the semantic bind lemma and the given hypotheses.
@@ -643,7 +755,7 @@ Suppose $\simrel{\Gamma}{A_1}{\sem{M_1}}{M_1}$ and $\simrel{\Gamma}{A_2}{\sem{M_
 Then we have $\simrel{\Gamma}{A_1 \times A_2}{\sem{(M_1, M_2)}}{(M_1, M_2)}$.
 \end{lemma}
 \begin{proof}
-    Follows by the semantic bind lemma.
+    Follows by the semantic bind lemma and the given hypotheses.
 \end{proof}
 
 
@@ -764,10 +876,10 @@ Then we have $\simrel{\Gamma}{A_1 \times A_2}{\sem{(M_1, M_2)}}{(M_1, M_2)}$.
         
         Observe that $(\eta(e_{c_2}(e_{c_1}(x)))) = T(e_{c_2})(\eta(e_{c_1}(x)))$.
         Thus, by the semantic bind lemma, with $\phi(\xbar) = T(e_{c_2})(\xbar)$
-        and $E = \upc c_2 \bullet$ it suffices to show that
-        \[ \erel{A_2}{\eta(e_{c_1}(x))}{\upc c_1 V}, \]
+        and $E = \upc {c_2} \bullet$ it suffices to show that
+        \[ \erel{A_2}{\eta(e_{c_1}(x))}{\upc {c_1} V}, \]
         and that for any $\vrel{A_2}{x'}{V'}$ we have % $\erel{A_3}{\phi(\eta(x'))}{E[V']}$
-        \[ \erel{A_3}{\eta(e_{c_2}(x'))}{\upc c_2 V'}. \]
+        \[ \erel{A_3}{\eta(e_{c_2}(x'))}{\upc {c_2} V'}. \]
         These hold by the induction hypotheses for $c_1$ and $c_2$ respectively.
 
 
@@ -899,21 +1011,106 @@ Then we have $\simrel{\Gamma}{A_1 \times A_2}{\sem{(M_1, M_2)}}{(M_1, M_2)}$.
 
 
 Now we can prove the fundamental lemma:
+\begin{lemma}[Fundamental Lemma]
+  Let $\Gamma \vdash M : A$. Then $\Gamma \vDash \sem{M} \sim M : A$.
+\end{lemma}
 \begin{proof}
     By induction on the term $M$, using the compatibility lemmas in each case.
 \end{proof}
 
 
 
-\section{Omitted Proofs Section \ref{sec:globalization}}
+%\section{Omitted Proofs Section \ref{sec:globalization}}
 
-\section{Omitted Proofs Section \ref{sec:framework}}
+\section{Omitted Details and Proofs for Section \ref{sec:framework}}
+
+\subsection{Graduality Schemata for Free Theories}
+
+We define by induction on execution traces satisfaction relations $M \vDash t$
+between an ITree $M$ and a $\textrm{PTrace}$ $t$ and $f \vDash t$ between an
+$R$-indexed family of ITrees and an $\textrm{OTrace}R$.
+\begin{align*}
+  {M \vDash \eta(V)} &= M \leadstomany \leaf(\eta(V))\\
+  {M \vDash \mho} &= M \leadstomany \leaf(\mho)\\
+  {M \vDash \sigma; o} &= M \leadstomany \sigma(f) \wedge f \vDash o\\
+\end{align*}
+\begin{align*}
+  f \vDash \textrm{end} &= \top \\
+  f \vDash r; p &= f(r) \vDash p
+\end{align*}
+%
+Additionally, we inductively define an error ordering $\sqsubseteq$ on player
+and opponent traces which intuitively means if $p \sqsubseteq q$ then $p$ is
+either equal to $q$ or it is a prefix of $q$ that ends in $\mho$.
+\begin{mathpar}
+  %\footnotesize
+  \mho \sqsubseteq p
+
+  \eta V \sqsubseteq \eta V
+
+  \inferrule{o \sqsubseteq o'}{\sigma; o \sqsubseteq \sigma; o'}
+
+  {\textrm{end} \sqsubseteq \textrm{end}}
+
+  \inferrule{p \sqsubseteq q}{r; p \sqsubseteq r; q}
+\end{mathpar}
+
+Next, we state two lemmas about the coinductive error ordering and bisimilarity
+on ITrees. The proofs are by a straightforward coinductive argument.
+
+\begin{lemma}[Properties of $\sqsubseteq$]
+  \label{lem:itree-strong-err}
+  Assume $M \sqsubseteq N$.
+  \begin{enumerate}
+  \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+  \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \sqsubseteq g(r)$.
+  \item If $N \leadsto \err$ then $M \leadsto \err$
+  \item If $N \leadsto \eta x$ then $M \leadsto \err$ or $M \leadsto \eta x$
+  \item If $N \leadsto \sigma(f)$ then $M \leadsto \err$ or $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \sqsubseteq g(r)$
+  \end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Properties of $\bisim$]
+  \label{lem:itree-bisim}
+  Assume $M \sqsubseteq N$.
+  \begin{enumerate}
+  \item If $M \leadsto \err$ then $N \leadsto \err$
+  \item If $M \leadsto \eta x$ then $N \leadsto \eta x$
+  \item If $M \leadsto \sigma(f)$ then $N \leadsto \sigma(g)$ with $\forall r\in \ar(\sigma). f(r) \bisim g(r)$.
+  \item If $N \leadsto \err$ then $M \leadsto \err$
+  \item If $N \leadsto \eta x$ then $M \leadsto \eta x$
+  \item If $N \leadsto \sigma(f)$ then $M \leadsto \sigma(g)$ with $\forall r \in \ar(\sigma). f(r) \bisim g(r)$
+  \end{enumerate}
+\end{lemma}
+
+Now we prove Theorem \ref{thm:itrees-ext-ord} about the extensional ordering $\ltbisim$ on ITrees:
+\begin{theorem}[Properties of $\ltbisim$]
+  $\ltbisim$ is transitive.
+  If $M \sqsubseteq N$ then $M \ltbisim N$.
+  If $M \bisim N$ then $M \ltbisim N$.
+\end{theorem}
+\begin{proof}
+  Transitivity is clear. The other two implications follow by induction on the
+  structure of the input trace and Lemmas \ref{lem:itree-strong-err} and
+  \ref{lem:itree-bisim}.
+\end{proof} 
 
 \subsection{Exception Transformer for Graduality Schemata}
 
-We first show that if $T$ gives the free models of $\calA$, then the error monad
-transformer applied to $T$ gives the free models of the theory of $\calA +
-\exn{E}$:
+In this section, we show that the exception monad transformer acts on
+$\calA$-graduality schemata. More concretely, the goal of this section is to
+prove the following theorem:
+%
+\begin{theorem}[Exception Transformer for Graduality Schemata]
+  Let $E$ be a finite type. Let $\calA$ be an ordinary algebraic theory, and
+  suppose we are given an $\calA$-graduality schema. Then there is a graduality
+  schema for the transformed theory $(\calA + \exn{E})$.
+\end{theorem}
+
+We first show that if $T$ gives the free models of $\calA$ on Set, then the
+error monad transformer applied to $T$ gives the free models of the theory of
+$\calA + \exn{E}$ on Set:
+%
 \begin{lemma}\label{lem:error-monad-transformer-free-models}
     Let $\calA$ be a guarded algebraic theory whose free models are given by
     $T$. Then the free models of the theory $\calA + \exn{E}$ are given by
@@ -989,6 +1186,7 @@ transformer applied to $T$ gives the free models of the theory of $\calA +
 \end{proof}
 
 Now we show that the monad transformer lifts to relations:
+%
 \begin{lemma}\label{lem:error-monad-transformer-free-domains}
     Let $\calA$ be an ordinary algebraic theory. Let $\calA^G \in \calA[\mho,
     \theta]$, i.e., $\calA^G$ is a guarded extension of $\calA$ with an error
@@ -1011,21 +1209,45 @@ Now we show that the monad transformer lifts to relations:
     E)$.
     
     We show that $\That'(A) := \That(A + E)$ gives the free domains of
-    $\calA^{G+}$. Here, $+$ denotes the coproduct of predomains, where in the
-    ordering and bisimilarity, $\inl$ is related to $\inl$ and $\inr$ to $\inr$,
-    and since $E$ is merely a type, the ordering and bisimilarity are equality.
+    $\calA^{G+}$. In $A + E$, the $+$ symbol denotes the coproduct of
+    predomains, where in the ordering and bisimilarity relations, $\inl$ is
+    related to $\inl$ and $\inr$ to $\inr$, and since $E$ is merely a type, the
+    ordering and bisimilarity are equality.
 
     The proof proceeds in several steps:
     \begin{itemize}
         \item We define the strong error ordering and weak bisimilarity on
-        $\That'(A)$ to be those of $\That(A + E)$.
+        $\That'(A)$ to be those of $\That(A + E)$. These relations satisfy the
+        properties required of the strong error ordering and weak bisimilarity
+        relations, since the relations on $\That(A)$ satisfy the properties for
+        all $A$.
+
         \item For a predomain relation $c : A \rel A'$, we define the lifting
         $\That'(c) = \That(c + =_E)$.
+
         \item We check the universal property of the lifting, as follows.
-        Consider a square $f \ltsq{c}{Ud} g$ where $d$ is a relation of
+        Consider a square $f \ltsq{c}{Ud} g$ where $c : A \rel A'$ is a
+        predomain relation, and $d : B \rel B'$ is a relation of
         $\calA^{G+}$-domains.
-        \item It is easily checked that the operations are monotone.
-        \item Next, we show that the strength $t : A \times \That'(A') \to \That'(A \times A')$ is a morphism of predomains.
+        %
+        Then we need to show that $f^* \ltsq{\That'(c)}{d} g^*$, where $-^*$
+        denotes the extension operation turning a function $A \to UB$ into a
+        homomorphism $T'(A) \to B$. By the definition of $-^*$ and the universal
+        property of the lifting for $\That$, it suffices to construct a
+        predomain square
+        %
+        $(f + B.\ex{\cdot}) \ltsq{c + =_E}{UB} (g + B.\ex{\cdot})$.
+        %
+        We proceed by cases on the input. In case both are $\inl$, then we use
+        the square $f \ltsq{c}{Ud} g$. If both are $\inr e$, then we need to
+        show that $(B.\ex{e}) \binrel{d} (B'.\ex{e})$ which is true as $d$ is a
+        relation of $\calA^{G+}$ domains and hence is a congruence with respect
+        to $\ex{e}$.
+
+
+        \item It is easily checked that the operations are monotone and
+        bisimilarity-preserving, and that the strength
+        $t : A \times T'(A') \to T'(A \times A')$ is a morphism of predomains.
         \item Lastly, for any predomain $A$, we have   
         \begin{align*}
             |\That'(A)| 
@@ -1037,11 +1259,56 @@ Now we show that the monad transformer lifts to relations:
     \end{itemize}
 \end{proof}
 
+Now we are ready to define the action of the exception transformer on graduality
+schemata. Let $\calA$ be an ordinary algebraic theory, and let $\calG$ be a
+graduality schema for $\calA$.
+%
+We write $\calAs, \calAsb$ for the guarded extensions of $\calA$ associated with
+$\calG$, and we write $T$ for the free-model monad for $\calAs$ on Set, and
+$\That$ for its lifting to predomains.
+%
+We define a graduality schema for $(\calA + \exn{E})$, as follows.
+\begin{itemize}
+    \item We define the guarded extensions 
+    $\calAgplus := \calAs + \exn{E}$ and 
+    $\calAgplus_b := \calAsb + \exn{E}$.
+
+    \item Then by Lemma \ref{lem:error-monad-transformer-free-models}, the free models of
+    $\calAgplus$ on Set are given by $T'(A) := T(A + E)$.
+
+    \item By Lemma \ref{lem:error-monad-transformer-free-domains}, we have that 
+    the free domains for $\calAgplus$ are given by $\That(A + E)$.
+
+    \item We define the extensional types $Z'(A) := Z(A + E)$ where $Z$ is the
+    family of extensional types for $\calG$ (we use $Z$ here to avoid confusion
+    with the type $E$ of exceptions). Next, we define the function
+    %
+    $\col'_A : T'^{gl}(A) \to Z'(A)$, i.e., $T^{gl}(A + E) \to Z(A + E)$ as 
+    %
+    \[ \col'_A := \col_{A + E}, \]
+    %
+    where $\col$ is the family of functions associated with the schema $\calG$.
+    
+    \item Lastly, the relation $\ltbisim_{Z'(A)}$ is defined to be
+    $\ltbisim_{Z(A + E)}$. Then since each $\ltbisim_{Z(A)}$ is a partial order,
+    in particular $\ltbisim_{Z(A + E)}$ is a partial order. Furthermore, it is
+    clear that the error ordering and bisimilarity relations on the globalized
+    monad imply $\ltbisim_{Z'(A)}$ on the output of $\col'_A$, since this holds for
+    $\ltbisim_{Z(A)}$ for all $A$.
+\end{itemize}
+
+
 
 \subsection{State Transformer for Graduality Schemata}
 
 In this section, we show that the state monad transformer acts on
-$\calA$-graduality schemata.
+$\calA$-graduality schemata. We prove the following theorem:
+\begin{theorem}[Global State Transformer for Graduality Schemata]
+  Let $S$ be a finite type. Let $\calA$ be an ordinary algebraic theory, and
+  suppose we are given an $\calA$-graduality schema. Then there is a graduality
+  schema for the transformed theory $(\calA \otimes \state{S})$.
+\end{theorem}
+
 % In particular:
 % \begin{itemize}
 %     \item For any guarded algebraic theory $\calA$, if the free models of
@@ -1049,15 +1316,16 @@ $\calA$-graduality schemata.
 %     are given by $S \to T(S \times A)$.
 % \end{itemize}
 
-First, we show that for any guarded algebraic theory $\calA$, if the free models
-of $\calA$ are given by $T$, then the free models of $\calA \otimes \state{S}$
-are given by $S \to T(S \times A)$.
+First, we show that for any guarded algebraic theory $\calAg$, if the free
+models of $\calAg$ are given by $T$, then the free models of $\calAg \otimes
+\state{S}$ are given by $S \to T(S \times A)$. (This is Theorem
+\ref{thm:state-monad-transformer} in the paper.)
 
-Recall that we are given a guarded algebraic theory $\calA = (\Sigma, E)$ with
-free-model monad $T_\calA$. We will show that the free-model monad for the
-theory $\calA \otimes \state{S}$ is given by
+Let $\calAg = (\Sigma, E)$ be a guarded algebraic theory with free-model monad
+$T$. We will show that the free-model monad for the theory $\calAg \otimes
+\state{S}$ is given by
 %
-\[ T'(A) := S \to T_\calA(S \times A). \]
+\[ T'(A) := S \to T(S \times A). \]
 %
 We begin by defining the operations. We let
 
@@ -1065,7 +1333,7 @@ We begin by defining the operations. We let
 %
 \[ \sem{\putop_s} m\, s' = m\, s, \]  
 %
-and $\sem{\oper} : [(\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later(T'(A)))] \to T'(A)$ defined by
+and we define $\sem{\oper} : [(\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later(T'(A)))] \to T'(A)$ by
 %
 \[ 
   \sem{\oper}(u, g)\, s = 
@@ -1081,8 +1349,8 @@ monad and hence omitted.
 We prove the tensor equations stating that $\get$ and $\putop$ commute with each
 operation in $\calA$:
 \begin{enumerate}
-    \item \emph{Get commutes with each operation in $\calA$}: Let $\oper :
-    (\tau, \gamma) \in \calA$. Let $u : \tau \to S \to T'(A)$ and $g : \gamma \to
+    \item \emph{Get commutes with each operation in $\calAg$}: Let $\oper :
+    (\tau, \gamma) \in \calAg$. Let $u : \tau \to S \to T'(A)$ and $g : \gamma \to
     \later(S \to T'(A))$. Let
     %
     \[ 
@@ -1119,7 +1387,7 @@ operation in $\calA$:
     We have
     %
     \begin{align*}
-        N(s) &= (\sem{\get}[\lambda s'. \sem{\oper}(p(s'), q(s'))])(s)
+        N(s) &= (\sem{\get}[\lambda s'. \sem{\oper}(p(s'), q(s'))])(s) \\
              &= (\lambda s'. \sem{\oper}(p(s'), q(s')))(s)(s) \\
              &= [\sem{\oper}(p(s), q(s))](s) \\
              &= T(A \times S).\sem{\oper}[(\lambda w. p(s)\, w\, s), (\lambda z. \lambda t. q(s)\, z\, t\, s)] \\
@@ -1128,11 +1396,11 @@ operation in $\calA$:
     %
     Thus, we conclude that $M = N$.
     
-    \item \emph{Put commutes with each operation in $\calA$}: This is similar to
+    \item \emph{Put commutes with each operation in $\calAg$}: This is similar to
     the above and hence omitted.
 \end{enumerate}
 
-Finally, we prove that the equations in $\calA$ hold. For this, we first prove
+Finally, we prove that the equations in $\calAg$ hold. For this, we first prove
 the following lemma:
 %
 \begin{lemma}
@@ -1141,7 +1409,7 @@ the following lemma:
 
     Let $f : \Gamma \to T'(A)$ be a function. Then for all $s \in S$, there exists a
     function $\fhat_s : \Gamma \to T(S \times A)$ such that, for all terms $t$ in
-    the signature $F_\Sigma(\Gamma)$, we have
+    $F_\Sigma(\Gamma)$, we have
     %
     \[ \sem{t}_{\fhat_s}^{T(S \times A)} = (\sem{t}_f^{T'(A)})(s). \]
 \end{lemma}
@@ -1194,7 +1462,7 @@ the following lemma:
     \end{itemize}
 \end{proof}
 
-Now we can show that the equations in $\calA$ hold:
+Now we can show that the equations in $\calAg$ hold:
 \begin{proof}
     Let $e = (\Gamma, l, r) \in
     E$, and let $f : \Gamma \to T'(A)$ be a function. We need to show
@@ -1202,7 +1470,7 @@ Now we can show that the equations in $\calA$ hold:
     \[ \sem{l}_f^{T'(A)} = \sem{r}_f^{T'(A)}, \]
 
     where both sides are functions $S \to T(S \times A)$. To this end, let $s \in
-    S$. Then by the Lemma, we have that there is $\fhat_s : \Gamma \to T(S \times
+    S$. Then by the above Lemma, we have that there is $\fhat_s : \Gamma \to T(S \times
     A)$ with the property described in the Lemma. In particular, we have
     %
     \begin{align*}
@@ -1212,7 +1480,7 @@ Now we can show that the equations in $\calA$ hold:
         &= (\sem{t}_f^{T'(A)})(s),
     \end{align*}
     %
-    where the second equality holds because $T(S \times A)$ is a model of $\calA$
+    where the second equality holds because $T(S \times A)$ is a model of $\calAg$
     and hence the equation holds when interpreted in $T(S \times A)$.
 \end{proof}
 
@@ -1224,7 +1492,7 @@ where $\eta : (S \times A) \to T(S \times A)$ is the unit for $T$.
 
 Finally, we show the universal property.
 \begin{proof}
-    Let $B$ be a model of the theory $\calA \otimes \th{\text{State}_S}$, and let $f : A \to UB$.
+    Let $B$ be a model of the theory $\calAg \otimes \state{S}$, and let $f : A \to UB$.
     %
     First, define $g : A \times S \to B$ as the following composition:
     %
@@ -1235,15 +1503,15 @@ Finally, we show the universal property.
     \[ \fbar = 
         S \to T(S \times A) \xrightarrow{S \to \gbar} S \to B \xrightarrow{B.\sem{\get}} B.  \]
     %
-    where $\gbar$ is the unique extension of $g$ to a homomorphism of $\calA$-models extending $g$.
+    where $\gbar$ is the unique extension of $g$ to a homomorphism of $\calAg$-models.
 
 
-    Then it is easily checked that $\fbar$ is a homomorphism of models of $\calA
+    Then it is easily checked that $\fbar$ is a homomorphism of models of $\calAg
     \otimes {\state{S}}$, and that $\fbar \circ \eta' = f$.
 \end{proof}
 
 Now we show uniqueness. Let $\phi, \phi' : T'(A) \to B$ be homomorphisms of
-$(\calA \otimes {\state{S}})$-models, and suppose $\phi(\eta'\, x) =
+$(\calAg \otimes {\state{S}})$-models, and suppose $\phi(\eta'\, x) =
 \phi'(\eta'\, x)$ for all $x$. That is, $\phi(\lambda s. \eta(s,x)) =
 \phi'(\eta(s,x))$. Then we claim that $\phi = \phi'$.
 
@@ -1254,10 +1522,10 @@ First, we need a small lemma:
 \begin{proof}
     Define $\psi, \psi' : T(S \times A) \to B$ by $\psi(m) = \phi(\lambda s.m)$
     and $\psi'(m) = \phi'(\lambda s.m)$. First, note that $\psi$ and $\psi'$ are
-    homomorphisms of $\calA$-models.
+    homomorphisms of $\calAg$-models.
     %
     Thus, by the universal property of $T(S \times A)$ as the free-model monad
-    for $\calA$, it suffices to show that $\psi \circ \eta = \psi' \circ \eta$.
+    for $\calAg$, it suffices to show that $\psi \circ \eta = \psi' \circ \eta$.
     We have
     \begin{align*}
         \psi(\eta(s,a)) 
@@ -1283,16 +1551,17 @@ Now let $x : T'(A)$. We have
     &= \phi'(x).
 \end{align*}
 
-Now we show that the monad transformer lifts to relations:
+Next, we show that the monad transformer lifts to relations:
 \begin{lemma}\label{lem:state-monad-transformer-free-domains} Let $\calA$ be an
     ordinary algebraic theory. Let $\calA^G \in \calA[\mho, \theta]$, be a
     guarded extension of $\calA$. Suppose that the adjunction between sets and
     models of $\calA^G$ lifts to a strong adjunction between predomains and
-    $\calA^G$-domains.
+    $\calA^G$-domains, with the free domains being given by $\That$.
     
-    Then for the theory $\calA^{G+} := (\calA^{G} \otimes \state{S})$, the
-    adjunction between sets and models of $\calA^{G+}$ lifts to a strong
-    adjunction between predomains and $\calA^{G+}$-domains.
+    Then for the theory $\calA^{G\otimes} := (\calA^{G} \otimes \state{S})$, the
+    adjunction between sets and models of $\calA^{G\otimes}$ lifts to a strong
+    adjunction between predomains and $\calA^{G\otimes}$-domains.
+    The free domains for $\calA^{G\otimes}$ are given by $S \to \That(S \times A)$.
 \end{lemma}
 \begin{proof}
     % We define $\calA^{G+}$ to be $\calA^{G} + \mho$. % i.e., exceptions
@@ -1306,24 +1575,506 @@ Now we show that the monad transformer lifts to relations:
     We show that $\That'(A) := S \to \That(S \times A)$ gives the free domains
     of $\calA^{G+}$. Here, $S$ is a discrete predomain, so the relations are
     given by equality. In addition, $\to$ denotes the predomain of morphisms of
-    predomains between $S$ and $\That(S \times A)$ and $\times$ denotes the
-    product of predomains.
+    predomains between $S$ and $\That(S \times A)$ (this is the same as ordinary
+    functions from $S$ to $\That(S \times A)$), and $\times$ denotes the product
+    of predomains.
 
     \begin{itemize}
         \item The strong error ordering and weak bisimilarity on $\That'(A)$ are
         those of the predomain $S \to \That(S \times A)$.
-        \item For a predomain relation $c : A \rel A'$, the lifting is given by $\That'(c) = S \to \That(S \times c)$
+
+        \item For a predomain relation $c : A \rel A'$, the lifting is given by
+        $\That'(c) = S \to \That(S \times c)$, where $\That(S \times c)$ is the
+        lifting of the relation $=_S \times c$.
+        %
+        More concretely, we have $f \binrel{\That'(c)} g$ iff for all $s \in S$,
+        we have $(f\, s) \binrel{\That(S \times c)} (g\, s)$.
+
         \item To verify the universal property of the lifting of a relation, we
         use the definition of the unique extension of a function $A \to UB$ to a
-        homomorphism out of $T'(A)$. The universal property for the lifted
-        relation then follows using the actions of $\to$ and $\times$ on squares
-        as well as the universal property of $\That$ on relations.
-        \item Next, we note that the strength $t : A \times \That'(A') \to \That'(A \times A')$ is a morphism of predomains.
-        \item Lastly, for any predomain $A$, we have   
-        \[ |\That'(A)| = |S \to \That(S \times A)| = S \to |\That(S \times A)| = S \to T(|S \times A|) = T'(|A|).\]
+        homomorphism out of $T'(A)$, as defined in the proof of Theorem
+        \ref{thm:state-monad-transformer} above. The universal property for the
+        lifted relation then follows using the actions of $\to$ and $\times$ on
+        squares as well as the universal property of $\That$ on relations.
+
+        \item It is easily checked that the operations are monotone and
+        bisimilarity-preserving, and that the strength $t : A \times T'(A') \to
+        T'(A \times A')$ is a morphism of predomains.
+        
+        \item Lastly, for any predomain $A$, we have
+        %
+        \begin{align*}
+            |\That'(A)| &= |S \to \That(S \times A)| \\
+                        &= S \to |\That(S \times A)| \\
+                        &= S \to T(|S \times A|)  \\
+                        &= T'(|A|).
+        \end{align*}
     \end{itemize}
 \end{proof}
 
-\subsection{The Writer Monad Transformer}
+Now we are ready to define the action of the global state transformer on
+graduality schemata. Let $\calA$ be an ordinary algebraic theory, and let
+$\calG$ be a graduality schema for $\calA$.
+%
+We write $\calAs, \calAsb$ for the guarded extensions of $\calA$ associated with
+$\calG$, and we write $T$ for the free-model monad for $\calAs$ on Set, and
+$\That$ for its lifting to predomains.
+%
+We define a graduality schema for $(\calA \otimes \state{S})$, as follows.
+\begin{itemize}
+    \item We define the guarded extensions 
+    $\calAgtimes := \calAs \otimes \state{S}$ and 
+    $\calAgtimes_b := \calAsb \otimes \state{S}$.
+
+    \item Then by Theorem \ref{thm:state-monad-transformer}, the free models of
+    $\calAgtimes$ on Set are given by $T'(A) := S \to T(S \times A)$.
+
+    \item By Lemma \ref{lem:state-monad-transformer-free-domains}, we have that 
+    the free domains for $\calAgtimes$ are given by $S \to \That(S \times A)$.
+
+    % \item The functor $T'$ commutes with clock quantification. First note that
+    % $S$ is finite and is hence clock-irrelevant. Then it follows from Theorem
+    % 4.2 of kristensen et al. \cite{kristensen-mogelberg-vezzosi2022}, that $T'$
+    % commutes with clock quantification.
+    % %
+    % Then if $A$ is clock-irrelevant, we have $\forall k. T'_k(A) \cong S \to T'$ provided $A$ is clock-irrelevant.
+
+    \item We define the extensional types $E'(A) := S \to E(S \times A)$, where
+    $E$ is the family of extensional types for $\calG$. Next, we define the
+    family of functions
+    %
+    $\col'_A : T'^{gl}(A) \to E'(A)$, i.e., $(S \to T^{gl}(S \times A)) \to (S \to E(S \times A))$, via 
+    %
+    \[ \col'_A(f) := \col_{S \times A} \circ f, \]
+    %
+    where $\col$ is the family of functions associated with the schema $\calG$.
+
+    \item Lastly, the relation $\ltbisim_{E'(A)}$ is defined to be $S \to
+    \ltbisim_{E(S \times A)}$, i.e., we have $f \binrel{\ltbisim_{E'(A)}} g$ iff
+    for all $s \in S$, we have $(f\, s) \binrel{\ltbisim_{E(S \times A)}} (g\, s)$.
+    
+    Then we observe that $\ltbisim_{E'(A)}$ is a partial order for each $A$. We
+    now show that the error ordering and bisimilarity relations on the
+    globalized monad imply $\ltbisim_{E'(A)}$ on the output of $\col'_A$.
+    %
+    More concretely, let $f, g : S \to T^{gl}(S \times A)$, and suppose that 
+    $f \ltdyn_{S \to T^{gl}(S \times A)} g$. Then we want to show that
+    $\col'_A(f) \ltbisim_{S \to E(S \times A)} \col'_A(g)$. Let $s \in S$.
+    It suffices to show
+    %
+    \[ \col_{S \times A}(f(s)) \ltbisim_{E(S \times A)} \col_{S \times A}(g(s)). \] 
+    %
+    This follows from the fact that $f(s) \ltdyn_{T^{gl}(S \times A)} g(s)$.
+
+    The same reasoning holds for bisimilarity.
+\end{itemize}
+
+\subsection{Writer Transformer for Graduality Schemata}
+
+In this section, we show that the writer monad transformer acts on
+$\calA$-graduality schemata. We prove the following theorem:
+\begin{theorem}[Writer State Transformer for Graduality Schemata]
+  Let $W$ be a monoid. Let $\calA$ be an ordinary algebraic theory, and
+  suppose we are given an $\calA$-graduality schema. Then there is a graduality
+  schema for the transformed theory $(\calA \otimes \writer{W})$.
+\end{theorem}
+
+We first show that if $T$ gives the free models of $\calA$, then the writer monad
+transformer applied to $T$ gives the free models of the theory of $\calA \otimes
+\writer{W}$:
+\begin{lemma}\label{lem:writer-monad-transformer-free-models}
+    Let $\calA$ be a guarded algebraic theory whose free models are given by
+    $T$. Then the free models of the theory $\calA \otimes \writer{W}$ are given by
+    $T'(A) = T(W \times A)$.
+\end{lemma}
+\begin{proof}
+    Let $\calA = (\Sigma_\calA, \text{Eqn}_\calA)$ be a guarded algebraic theory with
+    free-model monad given by $T_\calA$. Let $T'(A) = T(W \times A)$.
+
+    We first show that $T'(A)$ implements each operation in $\calA \otimes
+    \writer{W}$. For each $w : W$, we define 
+    %
+    \[ \sem{\wrt{w}} = T(\lambda(w',a).\, (w'w, a)). \]
+    %
+    For each operation $\oper : (\tau, \gamma)$ in $A$, we define $\sem{\oper} :
+    ((\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later (T'(A)))) \to T'(A)$
+    using the fact that $T(W \times A)$ implements the operations, i.e, we define
+    %
+    \[ \sem{\oper}(u, g) = T(W \times A).\sem{\oper}(u, g), \]
+    %
+    where $T$ is the functorial action of the monad.
+    
+    We define the inclusion of generators $\eta' : A \to T'(A)$ by
+    %
+    \[ \eta'(x) = T(W \times A).\eta(\epsilon, x), \]
+    %
+    where $\epsilon$ is the unit of the monoid $W$.
+
+    Next, we show that the equations are satisfied. First, the writer equations
+    $\wrt{\epsilon}(x) = x$ and $\wrt{w_1}(\wrt{w_2}(x)) = \wrt{w_1 \cdot
+    w_2}(x)$ follow by functoriality and associativity of the monoid.
+
+    Now we show that the equations of $\calA$ hold. Specifically, let $e =
+    (\Gamma, l, r)$ be an equation in $\text{Eqn}_\calA$, where $l, r$ are terms
+    in the signature $\Sigma_\calA$ with variables in $\Gamma$. Consider an
+    arbitrary $f : \Gamma \to T'(A)$. We need to show that $\sem{l}_f =
+    \sem{r}_f$. Since we know that $l$ and $r$ do not mention the operations
+    $\wrt{w}$, we know that this equality holds by the fact that $T(W \times A)$
+    is a model for $\calA$.
+
+    Lastly, we claim that each operation $\wrt{w}$ commutes with each operation
+    $\oper$ in $\calA$. This follows from the fact that the morphism $T(W \times
+    A).\sem{\oper}(u, g)$ is a homomorphism, i.e., preserves the operations in
+    $\calA$.
+
+    Finally, we show the universal property. Let $B$ be a model for $\calA \otimes
+    \writer{W}$ and let $f : A \to |B|$. We define $\fbar : T'(A) \to |B|$ using
+    the universal property of $T(W \times A)$. Namely, since $B$ is also a model for
+    $\calA$, it suffices to define a function $g : W \times A \to |B|$. We define
+    %
+    \[ g(w,x) = B.\wrt{w}(f(x)). \] 
+    %
+    Then by the universal property this extends uniquely to a function $\ghat :
+    T(W \times A) \to |B|$ that preserves the operations in $\calA$.
+    %
+    Then using the universal property of $T(W \times A)$ and the fact that $B$
+    satisfies the associativity equation of $\writer{W}$, we can show that
+    $\ghat$ is a homomorphism of models of $\calA \otimes \writer{W}$.
+    %
+    It is also straightforward to show that $\ghat \circ \eta' = f$, using the
+    fact that $B$ satisfies the identity equation of $\writer{W}$.
+
+    Uniqueness of $\ghat$ follows from the corresponding property for $T$.
+\end{proof}
+
+
+Next, we show that the monad transformer lifts to relations:
+\begin{lemma}\label{lem:writer-monad-transformer-free-domains}
+    Let $\calA$ be an ordinary algebraic theory. Let $\calA^G \in \calA[\mho,
+    \theta]$, be a guarded extension of $\calA$. Suppose that the adjunction
+    between sets and models of $\calA^G$ lifts to a strong adjunction between
+    predomains and $\calA^G$-domains, with the free domains being given by
+    $\That$.
+    
+    Then for the theory $\calA^{G\otimes} := (\calA^{G} \otimes \writer{W})$, the
+    adjunction between sets and models of $\calA^{G\otimes}$ lifts to a strong
+    adjunction between predomains and $\calA^{G\otimes}$-domains.
+    The free domains for $\calA^{G\otimes}$ are given by $\That(W \times A)$.
+\end{lemma}
+\begin{proof}
+    Let the free models of $\calA^G$ be given by $T$, and let the free domains
+    of $\calA^G$ be given by $\That$. By assumption, for any predomain $A$, we
+    have $|\That(A)| = T(|A|)$.
+    
+    We know by the above that at the level of sets, the free models of
+    $\calA^{G+}$ are given by $T'(A) = T(W \times A)$.
+    
+    We show that $\That'(A) := \That(W \times A)$ gives the free domains of
+    $\calA^{G+}$. Here, $W$ is a discrete predomain, so the relations are given
+    by equality. In addition, $\times$ denotes the product of predomains.
+
+    \begin{itemize}
+        \item The strong error ordering and weak bisimilarity on $\That'(A)$ are
+        those of the predomain $\That(W \times A)$.
+
+        \item For a predomain relation $c : A \rel A'$, the lifting is given by
+        $\That'(c) = \That(W \times c)$, i.e., the lifting of the relation $=_W \times c$.
+
+        \item To verify the universal property of the lifting of a relation, we
+        use the definition of the unique extension of a function $A \to UB$ to a
+        homomorphism out of $T'(A)$, as defined in the proof of Lemma
+        \ref{lem:writer-monad-transformer-free-models} above. The universal
+        property for the lifted relation then follows using the action of
+        $\times$ on squares as well as the universal property of $\That$ on
+        relations.
+
+        \item It is easily checked that the operations are monotone and
+        bisimilarity-preserving, and that the strength $t : A \times T'(A') \to
+        T'(A \times A')$ is a morphism of predomains.
+        
+        \item Lastly, for any predomain $A$, we have
+        %
+        \begin{align*}
+            |\That'(A)| &= |\That(W \times A)| \\
+                        &= T(|W \times A|) \\
+                        &= T(W \times |A|)  \\
+                        &= T'(|A|).
+        \end{align*}
+    \end{itemize}
+\end{proof}
+
+Now we are ready to define the action of the writer transformer on
+graduality schemata. Let $\calA$ be an ordinary algebraic theory, and let
+$\calG$ be a graduality schema for $\calA$.
+%
+We write $\calAs, \calAsb$ for the guarded extensions of $\calA$ associated with
+$\calG$, and we write $T$ for the free-model monad for $\calAs$ on Set, and
+$\That$ for its lifting to predomains.
+%
+We define a graduality schema for $(\calA \otimes \writer{W})$, as follows.
+\begin{itemize}
+    \item We define the guarded extensions 
+    $\calAgtimes := \calAs \otimes \writer{W}$ and 
+    $\calAgtimes_b := \calAsb \otimes \writer{W}$.
+
+    \item Then by Lemma \ref{lem:writer-monad-transformer-free-models}, the free models of
+    $\calAgtimes$ on Set are given by $T'(A) := S \to T(S \times A)$.
+
+    \item By Lemma \ref{lem:writer-monad-transformer-free-domains}, we have that 
+    the free domains for $\calAgtimes$ are given by $\That(W \times A)$.
+
+    \item We define the extensional types $E'(A) := E(W \times A)$, where
+    $E$ is the family of extensional types for $\calG$. Next, we define the
+    family of functions
+    %
+    $\col'_A : T'^{gl}(A) \to E'(A)$, i.e., $(T^{gl}(W \times A)) \to (E(W \times A))$, via 
+    %
+    \[ \col'_A := \col_{W \times A} \]
+    %
+    where $\col$ is the family of functions associated with the schema $\calG$.
+
+    \item Lastly, the relation $\ltbisim_{E'(A)}$ is defined to be $\ltbisim_{E(W \times A)}$.
+    %
+    Then we observe that $\ltbisim_{E'(A)}$ is a partial order for each $A$. We
+    now show that the error ordering and bisimilarity relations on the
+    globalized monad imply $\ltbisim_{E'(A)}$ on the output of $\col'_A$.
+    %
+    More concretely, let $x, y : T^{gl}(W \times A)$, and suppose that 
+    $x \ltdyn_{T^{gl}(W \times A)} y$. Then we want to show that
+    $\col'_A(x) \ltbisim_{E(W \times A)} \col'_A(y)$.
+    But by definition of $\col'$, this is the same as showing
+    %
+    \[ \col_{W \times A}(x) \ltbisim_{E(W \times A)} \col_{W \times A}(y). \] 
+    %
+    This follows from the fact that $x \ltdyn_{T^{gl}(W \times A)} y$.
+
+    The same reasoning holds for bisimilarity.
+\end{itemize}
+
+
+\subsection{Reader Transformer for Graduality Schemata}
+
+In this section, we show that the reader monad transformer acts on
+$\calA$-graduality schemata. We prove the following theorem:
+\begin{theorem}[Reader Transformer for Graduality Schemata]
+  Let $R$ be a finite type. Let $\calA$ be an ordinary algebraic theory, and
+  suppose we are given an $\calA$-graduality schema. Then there is a graduality
+  schema for the transformed theory $(\calA \otimes \reader{R})$.
+\end{theorem}
+
+First, we relate the free models of a guarded algebraic theory $\calAg$ to those
+of $\calAg \times \reader{R}$.
+\begin{lemma}\label{lem:reader-monad-transformer-free-models} Let $\calA$ be a
+    guarded algebraic theory whose free models are given by $T$. Then the free
+    models of the theory $\calA \otimes \reader{R}$ are given by $T'(A) = R \to
+    T(A)$.
+\end{lemma}
+\begin{proof}
+
+Let $\calAg = (\Sigma, E)$ be a guarded algebraic theory with free-model monad
+$T$. We will show that the free-model monad for the theory $\calAg \otimes
+\state{S}$ is given by
+%
+\[ T'(A) := R \to T(A). \]
+%
+We begin by defining the operations. We let
+%
+$\sem{\lookup} f\, r = f\, r\, r,$
+%
+and we define $\sem{\oper} : [(\tau_\oper \to T'(A)) \times (\gamma_\oper \to \later(T'(A)))] \to T'(A)$ by
+%
+\[ 
+  \sem{\oper}(u, g)\, r = 
+    T(A).\sem{\oper}
+      [(\lambda w. u\, w\, r), (\lambda z. \lambda t. g\, z\, t\, r)].
+\]
+
+Now, we show that the required equations hold when interpreted in $T'(A)$.
+%
+The proofs of the two laws from the reader theory are analogous to those for the
+ordinary reader monad and hence omitted.
+%
+Next, we consider the tensor equations stating that $\get$ commutes with each
+operation in $\calA$. The proof is analogous to the corresponding proof for the
+global state monad, and hence omitted.
+
+To prove that the equations in $\calAg$ hold, we first prove a following lemma,
+analogous to the one used in the proof for the global state monad transformer.
+%
+\begin{lemma}
+    Let $f : \Gamma \to T'(A)$ be a function. Then for all $r \in R$, there
+    exists a function $\fhat_r : \Gamma \to T(R)$ such that, for all terms $t$
+    in $F_\Sigma(\Gamma)$, we have
+    %
+    \[ \sem{t}_{\fhat_r}^{T(A)} = (\sem{t}_f^{T'(A)})(r). \]
+\end{lemma}
+The proof is similar to that of the analogous lemma for global state, and hence
+omitted.
+
+Now we can show that the equations in $\calAg$ hold:
+Let $e = (\Gamma, t_1, t_2) \in
+E$, and let $f : \Gamma \to T'(A)$ be a function. We need to show
+
+\[ \sem{t_1}_f^{T'(A)} = \sem{t_2}_f^{T'(A)}, \]
+
+where both sides are functions $R \to T(A)$. To this end, let $r \in R$.
+Then by the above Lemma, we have that there is $\fhat_r : \Gamma \to T(A)$
+with the property described in the Lemma. In particular, we have
+%
+\begin{align*}
+    (\sem{t_1}_f^{T'(A)})(s) 
+    &= \sem{t_1}_{\fhat_s}^{T(S \times A)} \\
+    &= \sem{t_2}_{\fhat_s}^{T(S \times A)} \\
+    &= (\sem{t_2}_f^{T'(A)})(s),
+\end{align*}
+%
+where the second equality holds because $T(A)$ is a model of $\calAg$
+and hence the equation holds when interpreted in $T(A)$.
+
+Next, we define $\eta' : A \to T'(A)$ by 
+%
+$\eta'(x) = \lambda r.\eta(x)$, 
+%
+where $\eta : A \to T(A)$ is the unit for $T$.
+
+Finally, we show the universal property.
+%
+Let $B$ be a model of the theory $\calAg \otimes \reader{R}$, and let $f : A \to UB$.
+%
+We define $\fbar : T'(A) \to B$ as the following composition:
+%
+\[ \fbar = 
+    R \to T(A) \xrightarrow{R \to f^*} R \to B \xrightarrow{B.\sem{\lookup}} B.  \]
+%
+where $f^*$ is the unique extension of $f$ to a homomorphism of $\calAg$-models.
+
+Then it is easily checked that $\fbar$ is a homomorphism of models of $\calAg
+\otimes {\reader{R}}$, and that $\fbar \circ \eta' = f$.
+
+The proof of uniqueness is similar to the corresponding proof for global state,
+and is hence omitted.
+\end{proof}
+
+Next, we show that the monad transformer lifts to relations:
+\begin{lemma}\label{lem:reader-monad-transformer-free-domains}
+    Let $\calA$ be an ordinary algebraic theory. Let $\calA^G \in \calA[\mho,
+    \theta]$, be a guarded extension of $\calA$. Suppose that the adjunction
+    between sets and models of $\calA^G$ lifts to a strong adjunction between
+    predomains and $\calA^G$-domains, with the free domains being given by
+    $\That$.
+    
+    Then for the theory $\calA^{G\otimes} := (\calA^{G} \otimes \reader{R})$,
+    the adjunction between sets and models of $\calA^{G\otimes}$ lifts to a
+    strong adjunction between predomains and $\calA^{G\otimes}$-domains. The
+    free domains for $\calA^{G\otimes}$ are given by $R \to \That(A)$.
+\end{lemma}
+\begin{proof}
+    % We define $\calA^{G+}$ to be $\calA^{G} + \mho$. % i.e., exceptions
+    Let the free models of $\calA^G$ be given by $T$, and let the free domains
+    of $\calA^G$ be given by $\That$. By assumption, for any predomain $A$, we
+    have $|\That(A)| = T(|A|)$.
+    
+    We know by the above that at the level of sets, the free models of
+    $\calA^{G+}$ are given by $T'(A) = R \to T(A)$.
+    
+    We show that $\That'(A) := R \to \That(A)$ gives the free domains of
+    $\calA^{G+}$. Here, $R$ is a discrete predomain, so the relations are given
+    by equality. In addition, $\to$ denotes the predomain of morphisms of
+    predomains between $R$ and $\That(A)$ (this is the same as ordinary
+    functions from $R$ to $\That(A)$), and $\times$ denotes the product of
+    predomains.
+
+    \begin{itemize}
+        \item The strong error ordering and weak bisimilarity on $\That'(A)$ are
+        those of the predomain $R \to \That(A)$.
+
+        \item For a predomain relation $c : A \rel A'$, the lifting is given by
+        $\That'(c) = R \to \That(c)$.
+        %
+        More concretely, we have $f \binrel{\That'(c)} g$ iff for all $r \in R$,
+        we have $(f\, r) \binrel{\That(c)} (g\, r)$.
+
+        \item To verify the universal property of the lifting of a relation, we
+        use the definition of the unique extension of a function $A \to UB$ to a
+        homomorphism out of $T'(A)$, as defined in the proof of Lemma
+        \ref{lem:reader-monad-transformer-free-models} above. The universal
+        property for the lifted relation then follows using the actions of $\to$
+        and on squares as well as the universal property of $\That$ on
+        relations.
+
+        \item It is easily checked that the operations are monotone and
+        bisimilarity-preserving, and that the strength $t : A \times T'(A') \to
+        T'(A \times A')$ is a morphism of predomains.
+        
+        \item Lastly, for any predomain $A$, we have
+        %
+        \begin{align*}
+            |\That'(A)| &= |R \to \That(A)| \\
+                        &= R \to |\That(A)| \\
+                        &= R \to T(|A|)  \\
+                        &= T'(|A|).
+        \end{align*}
+    \end{itemize}
+\end{proof}
+
+Now we are ready to define the action of the reader transformer on graduality
+schemata. Let $\calA$ be an ordinary algebraic theory, and let $\calG$ be a
+graduality schema for $\calA$.
+%
+We write $\calAs, \calAsb$ for the guarded extensions of $\calA$ associated with
+$\calG$, and we write $T$ for the free-model monad for $\calAs$ on Set, and
+$\That$ for its lifting to predomains.
+%
+We define a graduality schema for $(\calA \otimes \reader{R})$, as follows.
+\begin{itemize}
+    \item We define the guarded extensions 
+    $\calAgtimes := \calAs \otimes \reader{R}$ and 
+    $\calAgtimes_b := \calAsb \otimes \reader{R}$.
+
+    \item Then by Lemma \ref{lem:reader-monad-transformer-free-models}, the free models of
+    $\calAgtimes$ on Set are given by $T'(A) := R \to T(A)$.
+
+    \item By Lemma \ref{lem:reader-monad-transformer-free-domains}, we have that 
+    the free domains for $\calAgtimes$ are given by $R \to \That(A)$.
+
+    \item We define the extensional types $E'(A) := R \to E(A)$, where
+    $E$ is the family of extensional types for $\calG$. Next, we define the
+    family of functions
+    %
+    $\col'_A : T'^{gl}(A) \to E'(A)$, i.e., $(R \to T^{gl}(A)) \to (R \to E(A))$, via 
+    %
+    \[ \col'_A(f) := \col_{A} \circ f, \]
+    %
+    where $\col$ is the family of functions associated with the schema $\calG$.
+
+    \item Lastly, the relation $\ltbisim_{E'(A)}$ is defined to be $R \to
+    \ltbisim_{E(A)}$, i.e., we have $f \binrel{\ltbisim_{E'(A)}} g$ iff
+    for all $r \in R$, we have $(f\, r) \binrel{\ltbisim_{E(A)}} (g\, r)$.
+    
+    Then we observe that $\ltbisim_{E'(A)}$ is a partial order for each $A$. We
+    now show that the error ordering and bisimilarity relations on the
+    globalized monad imply $\ltbisim_{E'(A)}$ on the output of $\col'_A$.
+    %
+    More concretely, let $f, g : R \to T^{gl}(A)$, and suppose that 
+    $f \ltdyn_{R \to T^{gl}(A)} g$. Then we want to show that
+    $\col'_A(f) \ltbisim_{R \to E(A)} \col'_A(g)$. Let $r \in R$.
+    It suffices to show
+    %
+    \[ \col_{A}(f(r)) \ltbisim_{E(A)} \col_{A}(g(r)). \] 
+    %
+    This follows from the fact that $f(r) \ltdyn_{T^{gl}(A)} g(r)$.
+
+    The same reasoning holds for bisimilarity.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
 
 

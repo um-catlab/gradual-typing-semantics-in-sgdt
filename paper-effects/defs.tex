@@ -370,7 +370,8 @@
 \newcommand{\opin}[1]{\text{In}_{#1}}
 \newcommand{\opout}[1]{\text{Out}_{#1}}
 
-\newcommand{\step}{\text{step}}
+%\newcommand{\step}{\text{step}}
+\DeclareMathOperator{\step}{step}
 \DeclareMathOperator{\run}{run}
 %\newcommand{\run}{\text{run}}
 % \newcommand{\run}[1]{\text{run}{#1}}
@@ -388,6 +389,10 @@
 \newcommand{\bstep}{\text{AdminStep}}
 
 \newcommand{\calA}{\mathcal{A}}
+\newcommand{\calAg}{\calA^G}
+\newcommand{\calAgplus}{\calA^{G+}}
+\newcommand{\calAgtimes}{\calA^{G\otimes}}
+
 \NewCommandCopy{\oldth}{\th}
 \renewcommand{\th}[1]{\textrm{Thy}({#1})}
 \newcommand{\calAerr}{\calA_{\mho}}
