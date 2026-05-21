@@ -95,9 +95,10 @@ Below we address specific points from the reviews:
   languages with real world, advanced features. The key lesson is that
   we don't need to perform manual, ad-hoc arguments for establishing
   graduality for languages with effects. Instead, we can reuse more
-  general principles. In particular, the inclusion of operational
-  semantics in our framework means that we can more closely match the
-  way that researchers model languages.
+  general principles. In particular, since our framework includes
+  operational semantics, it can accommodate the style of semantics and
+  graduality theorems for effectful gradually-typed languages that
+  arise in practice and that previously needed to be done manually.
 
 
 * Guarded operations besides θ
