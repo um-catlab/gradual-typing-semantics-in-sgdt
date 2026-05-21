@@ -1,0 +1,149 @@
+We thank the reviewers for their helpful feedback and insightful
+questions. In the revision, we plan to clarify the novelty of our
+contribution over prior work and discuss the relationship to the
+existing work on gradual typing and algebraic effects, in particular,
+the work of New et al. on GrEff (cited as [23] in the paper).
+
+Below we address specific points from the reviews:
+
+* Relationship with prior work on graduality for algebraic effects
+
+  There are two distinct but related questions involving the
+  relationship with prior work on gradual typing for algebraic
+  effects. First, there is the question of whether our framework could
+  accommodate *effect handlers*. The second question is about the
+  specific relationship to the work of New et al. on GrEff ([23] in
+  the paper).
+
+  Viewing effect handlers as a language for working with free theories
+  (i.e., theories without equations), we can accommodate handlers with
+  minor additions to our framework. The key is that handlers would
+  need to be treated like other effects in that there is no gradual
+  *effect typing*. In other words, the signature of effects is fixed
+  and fully static throughout the program. The specific technical
+  changes would include:
+  
+  - Adding a new term precision rule for the handler terms
+  - Modifying the operational semantics to specify the stepping
+    behavior of handlers
+  - Verifying the soundness of the term precision rule in the
+    denotational semantics
+  - Proving a compatibility lemma for handler terms in the logical
+    relation for adequacy
+  
+
+  The primary difference between our work and the paper on GrEff is
+  that the GrEff work discusses gradualization of *effect typing* with
+  handlers (which implies in particular that there are no equations,
+  only operations). On the other hand, in our work we are considering
+  gradual typing for languages with more general algebraic effects as
+  represented by algebraic theories, which can have equations (e.g.,
+  state). We are not concerned in this work with gradualizing effect
+  typing; rather, we describe how to prove graduality for a language
+  parameterized by a given notion of effect as specified by an
+  algebraic theory.
+
+  That being said, we believe the underlying approach we follow (i.e.,
+  the denotational semantics the adequacy proof, etc.) could in principle be
+  adapted to model a language like GrEff, but this would not fit into
+  the general framework we developed. Moreover, it is not clear that
+  there is a reasonable extension of the framework that would include
+  a system like GrEff.
+
+  To summarize: it should be straightforward to adapt our framework to
+  accommodate effect handlers without GrEff style gradual effect
+  typing, while modeling the full GrEff system would require
+  significant effort and does not align with our goal for this work.
+
+
+* Agda mechanization
+
+  Reviewers A and C mention the absence of an Agda mechanization and
+  ask about challenges to mechanizing our results. We are confident
+  that it is possible to extend the Agda development of Giovannini et
+  al. with our results; the primary obstacle is time. More concretely,
+  aspects that would need to be built from scratch include:
+
+  - the syntax and small-step operational semantics and proofs that
+    the semantics satisfies the usual progress, preservation, and
+    determinism properties
+  - the definition of the logical relation for adequacy and proof of
+    associated lemmas
+  - the proofs of the compatibility lemmas for the logical relation
+  - the definition of guarded algebraic theories and operations on
+    theories
+  - the notion of A_{℧s}-domains for an algebraic theory A, as well as
+    a construction of the adjunction between the (double) category of
+    predomains and A_{℧s} domains
+  - notions of player and opponent traces and the orderings on them
+  - a globalization construction on the free algebras of a free
+    theory, that is, a map from the guarded free algebra into a
+    coinductive interaction tree
+  - "transformer theorems" relating the theory transformers we support
+    to transformers of graduality schemata
+
+  In all, our estimation is that this work, if carried out in full,
+  would be roughly on the scale of the entire existing mechanization
+  of Giovannini et al.
+    
+
+* Broader lessons on gradual typing and/or algebraic effects
+
+  Reviewer B asks what the combined framework teaches us about either
+  gradual typing or algebraic effects. Our work contributes the next
+  important step towards a systematic theory of gradual typing for
+  languages with real world, advanced features. The key lesson is that
+  we don't need to perform manual, ad-hoc arguments for establishing
+  graduality for languages with effects. Instead, we can reuse more
+  general principles. In particular, the inclusion of operational
+  semantics in our framework means that we can more closely match the
+  way that researchers model languages.
+
+
+* Guarded operations besides θ
+
+  Reviewer B asks if the only intended example of operations with
+  guarded arities is θ. The primary reason we use this generality is
+  that we consider two distinct θ operations (one for "true" steps,
+  and one for "bureaucratic steps"). The notion of guarded arity
+  allows us to cleanly abstract over both of these operations in our
+  proofs.
+
+
+* Why no infinite arities?
+
+  Reviewer C asks whether we could extend our framework to allow for
+  infinitary effects. We believe this is possible in principle, but
+  there are a few steps we would need to take to extend existing
+  results. First we would need to modify the cast calculus syntax, in
+  a way similar to Kavvos [1], who defines a notion of first-order
+  universe and establishes an isomorphism between a syntactic universe
+  of values (used within the object language) and a semantic universe
+  of values (used for the meta-level arity types). Second, we would
+  need to ensure that the globalization result for the free algebras
+  of free theories continues to hold. For finitary theories, we used a
+  result of Møgelberg and Zwart [2] (see their Proposition 3.4). We
+  would need to extend result to infinitary theories, but we believe
+  that this holds.
+
+
+* Partiality as an effect
+
+  Reviewer C asks whether our framework could handle recursive
+  definitions by modeling partiality as an effect. Indeed, guarded
+  type theory is the algebraic way of talking about the delay monad;
+  the explicit connection is made via the notion of /globalization/
+  [3]. In particular, when we globalize the free-algebras for a free
+  theory, the result is a coinductive interaction tree; with no
+  operations besides θ, this results in the usual delay monad.
+
+  Guarded type theory provides a nice setting in which to perform
+  coinductive reasoning without worrying about the syntactic
+  restrictions of coinductive definitions in proof assistants. In this
+  sense, we believe that the delay monad and other coinductive
+  definitions are best understood in terms of guarded type theory.
+
+
+[1]: G. A. Kavvos. Adequacy for Algebraic Effects Revisited. OOPSLA 2025. https://doi.org/10.1145/3720457
+[2]: Rasmus Ejlers Møgelberg and Maaike Zwart. What Monads Can and Cannot Do with a Few Extra Pages. Logical Methods in Computer Science. https://lmcs.episciences.org/16664
+[3]: Robert Atkey and Conor McBride. Productive Coprogramming with Guarded Recursion. ICFP 2013. https://doi.org/10.1145/2500365.2500597

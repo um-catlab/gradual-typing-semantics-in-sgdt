@@ -1,0 +1,192 @@
+OOPSLA 2026 Paper #1050 Reviews and Comments
+===========================================================================
+Paper #1050 An Effect-Generic Approach to Proving Graduality
+
+
+Review #1050A
+===========================================================================
+
+Overall merit
+-------------
+2. Weak Reject - lean negative, but will not argue to reject
+
+Paper summary
+-------------
+The paper addresses the challenge of proving the graduality theorem for gradually typed languages that feature algebraic effects. The core difficulty is that the precise statement of graduality depends on what effects are observable, so every new combination of effects requires a bespoke reformulation and reproof of the theorem. To address this problem, the paper proposes a generic framework parameterized by a *guarded algebraic theory* $\mathcal{A}$ specifying the available effects. Given any such theory, the framework mechanically produces: (1) a call-by-value cast calculus with effect operations drawn from $\mathcal{A}$; (2) a small-step operational semantics and a multi-step run function; (3) a denotational semantics by replacing the error domain with a free $\mathcal{A}_{\mho s}$-algebra; and (4) an adequacy theorem relating the two semantics. The key insight is that graduality can be proved once, at the level of the generic framework, by requiring only that the algebraic effects can be "lifted to relations", and that the resulting relational structure is compatible with the error ordering and stepping operations. The final graduality result for the operational semantics is obtained by composing a guarded denotational graduality theorem (Theorem 1.1), an adequacy theorem (Theorem 6.2), and a *globalization* step that eliminates the guarded-type-theory features from the statement. To demonstrate applicability, the paper instantiates the framework in two ways: (a) via a *trace schema* for free theories, yielding a generic graduality theorem expressed as a concrete relation on coinductive interaction trees; and (b) via *monad transformers* for theories built from four standard building blocks (exceptions, reader, writer, global state). This allows complex effect theories to be assembled compositionally.
+
+Detailed review
+---------------
+## Strengths
+
++ The paper solves a seemingly pressing problem in the metatheory of gradual typing: the graduality theorem must normally be reproved from scratch for each new combination of effects. The paper presents a generic methodology that applies to a wide class of effectful cast calculi parameterized by algebraic theories.
+
++ The decomposition of operational gradualtity to denotational graduality and operational adequacy is elegant.
+
+## Weaknesses
+
+- The paper does not handle effect handlers, which is main practical feature of modern effectful langauges. 
+
+- Conspicuous absence of mechanized formalization, considering that the main contribution of the paper is a novel way to do metatheory.
+
+## Detailed Comments
+
+**Absence of effect handlers.** My main complaint with this paper is the absence of effect handlers in core calculus. The paper's stated motivation is to provide a generic proof of graduality that abstracts over the concrete effects present in a language. The problem becomes interesting precisely when you consider gradual typing for *effect handlers* (instead of just algebraic operations). Effect handlers are a first-class language feature in many contemporary languages (e.g., OCaml 5 and Eff) and their interaction with gradual typing is subtle: casts on computation types must account for the *row* of effects a computation may raise, and handlers introduce new forms of subtyping and coercion. GrEff (New et al, OOPSLA'23) directly addresses this problem via an operational logical-relations approach and proves graduality for a language with first-class effect handlers. The paper acknowledges that accommodating gradual effect systems would require "changes to the denotational semantics, including adding effect tracking". While the paper's framework is currently limited to algebraic operations (one-shot, non-resumable from the perspective of the cast calculus), GrEff handles full algebraic handlers with deep and shallow handler semantics. I understand the contribution of the paper is a novel approach to metatheory (as opposed to a novel gradual effect typing system in GrEff), but I would've liked to see a demonstration of this meta-theory on something substantial like GrEff.
+
+Apropos of the above point, the monad-transformer instantiations in Table 1 model effects like state and exceptions in a fixed, pre-wired manner rather than as first-class handler-definable computations. It is therefore not clear that the paper's framework can ever be extended to cover GrEff-style effect handlers without a fundamental redesign of the syntax and type precision ordering in Sec. 3. 
+
+**Absence of mechanized proofs.** The paper's core contribution is a generic (presumably re-usable) approach to proving graduality, and its technical development is founded on a significant amount of technical machinery. Yet, none of the proofs in the paper are mechanized (The data-availability statement explicitly says "there is no associated artifact"). Moreover, several key proof obligations are deferred to Appendix, e.g., formal definitions of trace satisfaction, the coinductive error ordering on $\text{ITree}_\Sigma X$ (Def. 8.2 and Thm 8.3), and the Fundamental Lemma (Lemma 6.1).  The absence of mechanization is particularly concerning given that the framework is built in guarded type theory. There are mature proof assistants with native support for the relevant constructions: Guarded Cubical Agda (Møgelberg et al, POPL'19) supports Ticked Cubical Type Theory and has already been used to mechanize the results of Giovannini et al's POPL'25 on which the current paper is based (cited in the paper as [14]). Considering this context, I think the lack of mechanization is a notable omission
+
+Questions for authors to answer in their response
+-------------------------------------------------
+1.  What does it take to extend the current framework to handle effect-handler terms?
+2. What are the main obstacles to formalizing the technical development in Guarded Cubical Agda?
+
+
+
+Review #1050B
+===========================================================================
+
+Overall merit
+-------------
+2. Weak Reject - lean negative, but will not argue to reject
+
+Paper summary
+-------------
+The paper presents a gradual type system for a language parametrised by an algebraic theory describing both the effects and guarded operations such as the stepping θ. In this general setting, the authors develop operational and denotational semantics, prove adequacy and graduality, and show how the theory can be instantiated to obtain the trace-based graduality theorem for interaction trees, as well as monad transformers for exceptions and state.
+
+Detailed review
+---------------
+The paper is precisely written and the formal development is technically competent. The instantiations to interaction trees and monad transformers are reassuring sanity checks, and as far as I can judge (I am an expert in algebraic effects but not in gradual typing), the proofs of adequacy and graduality follow cleanly from the combined framework. I see no major technical flaws.
+
+I do have four reservations, ranging from minor to major.
+
+The first, small concern is the presentation. The paper is accessible up through Section 4, but from Section 5 onwards, when the contributions begin, it becomes dense and starts to heavily rely on the technical machinery of prior work. Some explanation of which ingredients come from where would substantially help the reader assess the contribution.
+
+Second, the only operation in the paper that exploits the generalisation to guarded arities is the stepping operation. If stepping is the sole motivating example, the framing should make this clear and the framework could be simplified (unless the authors emphasise that this is indeed the simplest way of adding guarded stepping). If the generalisation is genuinely more expressive, the paper would benefit from at least one further example of a guarded operation that is not stepping.
+
+My third, and larger, concern is the contribution. The paper combines two established lines of work: Giovannini et al.'s framework for gradual typing and Kavvos's treatment of adequacy for algebraic effects. The two frameworks are essentially orthogonal, and their composition proceeds without apparent friction. This is unsurprising: algebraic effects are a well-tested general approach, and any framework developed for specific effects could in principle be recast in algebraic form. As a result, the paper reads as a data point confirming that the two approaches compose cleanly, rather than as a source of new insight into either side. What I would have welcomed - and what would have raised my enthusiasm considerably - is a discussion of what the combination teaches us: does gradual typing benefit from the algebraic formulation in some new way, or does the gradual setting reveal anything about algebraic effects that was not previously visible?
+
+My fourth, and decisive, concern is the lack of engagement with the existing work of [23] on graduality and algebraic effects, including handlers. This work sits closest to the present paper's contribution, yet is briefly cited at the end without serious comparison.
+
+Without a proper discussion of how the present contribution relates to [23], I would lean towards weak reject; with it, I am willing to lean towards weak accept (and am of course willing to be convinced even further regarding other issues I have raised).
+
+### Small comments
+
+- line 100: Can you elaborate on what is "a cast calculus"?
+- line 243: Also remark that both arities described above are instances of response types.
+- line 249: Missing subscript in $x : σ_{\mathrm{op}}$
+- line 258: Unnecessary parentheses in $γ → (⊳B)$
+- line 345: Do you have any other examples of operations with guarded arities except for step? Also, I find it strange that you introduce the concept of guarded theories, but then give mostly examples of ordinary theories. I suggest you to move the majority of the material to an introductory section on ordinary algebraic theories, and then have a separate section where you show the generalisation to guarded theories and emphasise the differences.
+- line 362: Can you display an equation expressing the commutativity between two operations? This would make it easier to understand the equation in Remark 2.
+- line 384: Why not be explicit and write $T_{𝒜 ⊗ \mathit{State}}$ instead of $T'$?
+- line 453: Add parentheses to $(? ⇀ ?) ⊑ ?$.
+- line 456: For someone not familiar with gradual typing, the lack of contravariance in the precision rule for functions seems strange. Can you elaborate on it in the text?
+- line 461: The context $Δ$ is missing in all four up/down rules.
+- line 462: Are there any restrictions on $c$ in ErrBot?
+- line 517: Is $𝒜_{Ʊ_{sb}} = 𝒜_{Ʊ_s} + 𝒜_b$, where $𝒜_b$ is the theory with only $θ^b$?
+- line 526: The lifting $†$ is never defined. Also, what is $T_{Ʊ_{sb}}.η$?
+- line 737: typo "denOtational"
+- line 1115: I am a bit worried about feasibility of the extension to local effects.
+- line 1125: The work of [23] seems highly relevant, but is only briefly mentioned in the conclusion. How do your contributions compare to theirs?
+
+Questions for authors to answer in their response
+-------------------------------------------------
+- How does your contribution compare in detail with [23]?
+- Is the stepping operation θ the only intended use of the generalisation to guarded arities? If so, could the framework be simplified. If not, can you give a further example of a guarded operation?
+- Beyond confirming compatibility, what does the combined framework teach us about either gradual typing or algebraic effects?
+
+
+
+Review #1050C
+===========================================================================
+
+Overall merit
+-------------
+3. Weak Accept - lean positive, but will not argue to accept
+
+Paper summary
+-------------
+Previous work has introduced a denotational semantics for gradual typing based on guarded type theory.
+This paper extends that work with effects.
+Given a proper instantiation of the desired algebraic effects, the developed framework can generate operational and denotational semantics, with a proof of adequacy relating the two.
+The dynamic gradual guarantee can then also be established, as a denotational statement and as a more conventional operational statement, thanks to the adequacy theorem.
+Most of the technical development involves adapting and reestablishing the recipes from Giovannini et al. to the notion of guarded algebraic theory.
+The authors present two "case studies" to demonstrate the applicability of their framework, one instantiation for free theories and one for monad transformers.
+Various combinations of common effects are then supported by the framework through these two generic constructions.
+
+Detailed review
+---------------
+I enjoyed reading this paper and found it to be a solid contribution to the theory of gradual typing.
+My main concern is that this paper might not be very accessible to a broad OOPSLA audience, given its heavy reliance on prior work in the presentation and the (kind of inevitable) dense technicalities.
+
+#### Strengths
+
+- Although the technical contributions are heavily based on the previous work, the extension introduces multiple non-trivial challenges, and the paper does a good job in addressing them.
+  
+  The graduality statement about operational semantics, through its connection to denotational semantics, seems to be a new contribution over Giovannini et al., but I am not sure (as I am not familiar with this previous work). If so, the authors should clarify this in the paper.
+
+- Despite the technical nature of the paper and my concern about the presentation, I think the writing is nonetheless well-structured and fairly clear at a high level.
+  The challenges are also well-presented.
+
+- The technical development is solid and seems rigorous.
+
+#### Concerns
+
+- The presentation relies heavily on Giovannini et al.
+  Although some background is provided, it inevitably gets dense for readers who are not already familiar with that work, and it gets increasingly difficult to follow later on.
+
+  Especially in the latter half of the paper, each piece of machinery is discussed in a short section, with most of the information deferred to prior work or the appendix.
+
+  I understand that this is quite challenging, as not providing enough background would confuse the readers, but providing too much background would leave no room for the discussion of the new contributions.
+  I do not have a good suggestion for that, but perhaps you should consider removing some cool stuff that is less interesting or less important and focusing on a few key contributions.
+  For example, the discussion of perturbations and quasi-representable relations doesn't help me understand the paper better, and it doesn't provide enough detail for me to appreciate it (I could totally misjudge its importance, though).
+  See the specific comments below for additional examples and suggestions.
+
+- (Minor) Giovannini et al. includes an Agda mechanization, so it is a bit surprising that this paper does not do such a mechanization, given that it is an extension of that work.
+  Have you attempted to mechanize the formalization?
+  Are there any challenges that prevent you from doing so?
+
+#### Specific comments
+
+1. L222: This point doesn't seem to add anything to the presentation and is never explored again in the paper.
+   It is used on L371, but it unfortunately only serves the purpose of confusing me; it took me a while to realize the argument is a tick evidence.
+
+2. L248: Would this be a limitation as many effectful operators accept infinitely many inputs?
+   Like a write can have `Nat` as input.
+   It is not clear to me whether having an infinite number of operators would cause any trouble.
+
+3. L333 (nitpick): Is this $\Rightarrow$ supposed to be $\to$?
+
+4. L346: Any other examples with a nontrivial guarded arity, or is `Step` the only one you consider?
+
+5. L436: I have a rough idea of what this judgment means, but it would be nice to provide more explanation here.
+   For example, what exactly is the role of $c$ here?
+   The context is also not used in the rules in Fig. 1 (and in fact many of the rules there elide the context).
+
+6. L545: At this point I already forgot what the bar (in $\bar{M}$) represents or whether it is introduced at all.
+
+7. L578 (nitpick): I think you should explain (perhaps earlier) why this corresponds to a recursive unfolding step.
+
+8. Fig.2: In various rules here, where does the typing context $\Gamma$ come from?
+   Is it part of the semantics judgment that you elided?
+
+9. L595: Where does $V$ come from?
+
+10. L627: I was not able to understand this part.
+    More explanation might be needed here.
+
+11. Section 5.1.2: It seems you only discuss what needs to be done, without the actual definition of construction.
+    Are they in the appendix?
+
+Questions for authors to answer in their response
+-------------------------------------------------
+1. Regarding my second concern, why not mechanize it in Agda like previous work?
+
+2. Why is there a finitary restriction?
+   It is quite common to have infinite types for effectful operators.
+   What are the potential challenges without this restriction?
+   To be fair, I feel this is probably not a huge issue in practice, as you can always pick a large enough number (e.g., big enough that the amount of memory available can't represent all elements of the type).
+
+3. Partiality can also be modeled as an effect (e.g., delay monad).
+   Do you think your framework would benefit from handling recursive definitions this way instead of guarded type theory?
+   Is it possible to support this kind of effect in your framework, and how would it interact with the guarded theory?
