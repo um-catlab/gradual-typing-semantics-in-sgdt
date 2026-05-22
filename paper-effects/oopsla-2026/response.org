@@ -10,17 +10,17 @@ Below we address specific points from the reviews:
 
   There are two distinct but related questions involving the
   relationship with prior work on gradual typing for algebraic
-  effects. Specifically could we accommodate effect handlers and how
+  effects. Specifically, could we accommodate effect handlers, and how
   do we relate to the work of New et al. on GrEff ([23] in the paper).
 
   The framework in our paper gives a language with a fixed global
   notion of effect given by an algebraic theory. Languages with effect
   handlers can be modeled as using effects given by free theories
   (those with no equations). If you were to fix a global effect
-  signature, our framework would accommodate effect handlers, we would
+  signature, our framework would accommodate effect handlers; we would
   only have to add a new handler form to the language and extend our
   denotational semantics and logical relation with some easy cases to
-  extend the result. From this perspective our work is more general
+  extend the result. From this perspective, our work is more general
   than just effect handlers because we also model effects like state
   that require equations.
 
@@ -29,14 +29,14 @@ Below we address specific points from the reviews:
   different effect signatures, so that a programmer can reason about
   which effects can be raised and prove that all effects are
   handled. This would not fit into our framework since it changes the
-  language design at a more fundamental level but it could be easily
+  language design at a more fundamental level, but it could be easily
   accommodated, as long as the gradual typing is only over ordinary
   value types rather than effect types.
 
   GrEff supports *gradual* effect typing, which means that there is a
   dynamic effect and semantically there are casts between effects. We
-  expect our approach to generalize to handle this feature but it is a
-  more significant extension to the current work than just adding
+  expect our approach to generalize to handle this feature, but it is
+  a more significant extension to the current work than just adding
   support for effect handlers.
 
 * Agda mechanization
@@ -58,18 +58,17 @@ Below we address specific points from the reviews:
     theories
   - the notion of A_{℧s}-domains for an algebraic theory A, as well as
     a construction of the adjunction between the (double) category of
-    predomains and A_{℧s} domains
-  - notions of player and opponent traces and the orderings on them
+    predomains and A_{℧s}-domains
+  - notions of player and opponent traces and the orderings on traces
   - a globalization construction on the free algebras of a free
-    theory, that is, a map from the guarded free algebra into a
-    coinductive interaction tree
+    theory, that is, a map from the guarded free algebras into
+    coinductive interaction trees
   - "transformer theorems" relating the theory transformers we support
     to transformers of graduality schemata
 
   In all, our estimation is that this work, if carried out in full,
   would be roughly on the scale of the entire existing mechanization
   of Giovannini et al.
-
 
 * Broader lessons on gradual typing and/or algebraic effects
 
@@ -80,18 +79,17 @@ Below we address specific points from the reviews:
   this is to bring the systematic denotational approach of prior work
   to operational graduality as well as extending the denotational
   approach to handle algebraic effects. The fact that the resulting
-  combination is a consequence of designing the correct abstractions,
-  which is where the hard work lies.
+  combination works straightforwardly is a consequence of designing
+  the correct abstractions, which is where the hard work lies.
 
 * Guarded operations besides θ
 
-  Reviewer B asks if the only intended example of operations with
-  guarded arities is θ. The primary reason we use this generality is
-  that we consider two distinct θ operations (one for "true" steps,
+  Reviewers B and C ask if the only intended example of operations
+  with guarded arities is θ. The primary reason we use this generality
+  is that we consider two distinct θ operations (one for "true" steps,
   and one for "bureaucratic steps"). The notion of guarded arity
   allows us to cleanly abstract over both of these operations in our
   proofs.
-
 
 * Why no infinite arities?
 
@@ -109,13 +107,12 @@ Below we address specific points from the reviews:
   would need to extend result to infinitary theories, but we believe
   that this holds.
 
-
 * Partiality as an effect
 
   Reviewer C asks whether our framework could handle recursive
   definitions by modeling partiality as an effect. Indeed, guarded
   type theory is the algebraic way of talking about the delay monad;
-  the explicit connection is made via the notion of /globalization/
+  the explicit connection is made via the notion of *globalization*
   [3]. In particular, when we globalize the free-algebras for a free
   theory, the result is a coinductive interaction tree; with no
   operations besides θ, this results in the usual delay monad.
@@ -126,6 +123,9 @@ Below we address specific points from the reviews:
   sense, we believe that the delay monad and other coinductive
   definitions are best understood in terms of guarded type theory.
 
+
 [1]: G. A. Kavvos. Adequacy for Algebraic Effects Revisited. OOPSLA 2025. https://doi.org/10.1145/3720457
+
 [2]: Rasmus Ejlers Møgelberg and Maaike Zwart. What Monads Can and Cannot Do with a Few Extra Pages. Logical Methods in Computer Science. https://lmcs.episciences.org/16664
+
 [3]: Robert Atkey and Conor McBride. Productive Coprogramming with Guarded Recursion. ICFP 2013. https://doi.org/10.1145/2500365.2500597
