@@ -10,59 +10,43 @@ Below we address specific points from the reviews:
 
   There are two distinct but related questions involving the
   relationship with prior work on gradual typing for algebraic
-  effects. First, there is the question of whether our framework could
-  accommodate *effect handlers*. The second question is about the
-  specific relationship to the work of New et al. on GrEff ([23] in
-  the paper).
+  effects. Specifically could we accommodate effect handlers and how
+  do we relate to the work of New et al. on GrEff ([23] in the paper).
 
-  Viewing effect handlers as a language for working with free theories
-  (i.e., theories without equations), we can accommodate handlers with
-  minor additions to our framework. The key is that handlers would
-  need to be treated like other effects in that there is no gradual
-  *effect typing*. In other words, the signature of effects is fixed
-  and fully static throughout the program. The specific technical
-  changes would include:
-  
-  - Adding a new term precision rule for the handler terms
-  - Modifying the operational semantics to specify the stepping
-    behavior of handlers
-  - Verifying the soundness of the term precision rule in the
-    denotational semantics
-  - Proving a compatibility lemma for handler terms in the logical
-    relation for adequacy
-  
+  The framework in our paper gives a language with a fixed global
+  notion of effect given by an algebraic theory. Languages with effect
+  handlers can be modeled as using effects given by free theories
+  (those with no equations). If you were to fix a global effect
+  signature, our framework would accommodate effect handlers, we would
+  only have to add a new handler form to the language and extend our
+  denotational semantics and logical relation with some easy cases to
+  extend the result. From this perspective our work is more general
+  than just effect handlers because we also model effects like state
+  that require equations.
 
-  The primary difference between our work and the paper on GrEff is
-  that the GrEff work discusses gradualization of *effect typing* with
-  handlers (which implies in particular that there are no equations,
-  only operations). On the other hand, in our work we are considering
-  gradual typing for languages with more general algebraic effects as
-  represented by algebraic theories, which can have equations (e.g.,
-  state). We are not concerned in this work with gradualizing effect
-  typing; rather, we describe how to prove graduality for a language
-  parameterized by a given notion of effect as specified by an
-  algebraic theory.
+  Many calculi with effect handlers allow for *effect typing* where
+  different portions of the code are given types corresponding to
+  different effect signatures, so that a programmer can reason about
+  which effects can be raised and prove that all effects are
+  handled. This would not fit into our framework since it changes the
+  language design at a more fundamental level but it could be easily
+  accommodated, as long as the gradual typing is only over ordinary
+  value types rather than effect types.
 
-  That being said, we believe the underlying approach we follow (i.e.,
-  the denotational semantics the adequacy proof, etc.) could in principle be
-  adapted to model a language like GrEff, but this would not fit into
-  the general framework we developed. Moreover, it is not clear that
-  there is a reasonable extension of the framework that would include
-  a system like GrEff.
-
-  To summarize: it should be straightforward to adapt our framework to
-  accommodate effect handlers without GrEff style gradual effect
-  typing, while modeling the full GrEff system would require
-  significant effort and does not align with our goal for this work.
-
+  GrEff supports *gradual* effect typing, which means that there is a
+  dynamic effect and semantically there are casts between effects. We
+  expect our approach to generalize to handle this feature but it is a
+  more significant extension to the current work than just adding
+  support for effect handlers.
 
 * Agda mechanization
 
   Reviewers A and C mention the absence of an Agda mechanization and
   ask about challenges to mechanizing our results. We are confident
   that it is possible to extend the Agda development of Giovannini et
-  al. with our results; the primary obstacle is time. More concretely,
-  aspects that would need to be built from scratch include:
+  al. with our results; the primary obstacle is the extensive time and
+  labor required. More concretely, aspects that would need to be built
+  from scratch include:
 
   - the syntax and small-step operational semantics and proofs that
     the semantics satisfies the usual progress, preservation, and
@@ -85,21 +69,19 @@ Below we address specific points from the reviews:
   In all, our estimation is that this work, if carried out in full,
   would be roughly on the scale of the entire existing mechanization
   of Giovannini et al.
-    
+
 
 * Broader lessons on gradual typing and/or algebraic effects
 
   Reviewer B asks what the combined framework teaches us about either
   gradual typing or algebraic effects. Our work contributes the next
   important step towards a systematic theory of gradual typing for
-  languages with real world, advanced features. The key lesson is that
-  we don't need to perform manual, ad-hoc arguments for establishing
-  graduality for languages with effects. Instead, we can reuse more
-  general principles. In particular, since our framework includes
-  operational semantics, it can accommodate the style of semantics and
-  graduality theorems for effectful gradually-typed languages that
-  arise in practice and that previously needed to be done manually.
-
+  languages with real world, advanced features. Our contribution to
+  this is to bring the systematic denotational approach of prior work
+  to operational graduality as well as extending the denotational
+  approach to handle algebraic effects. The fact that the resulting
+  combination is a consequence of designing the correct abstractions,
+  which is where the hard work lies.
 
 * Guarded operations besides θ
 
@@ -143,7 +125,6 @@ Below we address specific points from the reviews:
   restrictions of coinductive definitions in proof assistants. In this
   sense, we believe that the delay monad and other coinductive
   definitions are best understood in terms of guarded type theory.
-
 
 [1]: G. A. Kavvos. Adequacy for Algebraic Effects Revisited. OOPSLA 2025. https://doi.org/10.1145/3720457
 [2]: Rasmus Ejlers Møgelberg and Maaike Zwart. What Monads Can and Cannot Do with a Few Extra Pages. Logical Methods in Computer Science. https://lmcs.episciences.org/16664
