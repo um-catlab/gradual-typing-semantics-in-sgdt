@@ -6,7 +6,7 @@ the work of New et al. on GrEff (cited as [23] in the paper).
 
 Below we address specific points from the reviews:
 
-* Relationship with prior work on graduality for algebraic effects
+* *Relationship with prior work on graduality for algebraic effects*
 
   There are two distinct but related questions involving the
   relationship with prior work on gradual typing for algebraic
@@ -39,7 +39,7 @@ Below we address specific points from the reviews:
   a more significant extension to the current work than just adding
   support for effect handlers.
 
-* Agda mechanization
+* *Agda mechanization*
 
   Reviewers A and C mention the absence of an Agda mechanization and
   ask about challenges to mechanizing our results. We are confident
@@ -56,9 +56,10 @@ Below we address specific points from the reviews:
   - the proofs of the compatibility lemmas for the logical relation
   - the definition of guarded algebraic theories and operations on
     theories
-  - the notion of A_{℧s}-domains for an algebraic theory A, as well as
-    a construction of the adjunction between the (double) category of
-    predomains and A_{℧s}-domains
+  - the notion of $\mathcal{A}_{\mho s}$-domains for an algebraic
+    theory $\mathcal{A}$, as well as a construction of the adjunction
+    between the (double) category of predomains and $\mathcal{A}_{\mho
+    s}$-domains
   - notions of player and opponent traces and the orderings on traces
   - a globalization construction on the free algebras of a free
     theory, that is, a map from the guarded free algebras into
@@ -70,7 +71,7 @@ Below we address specific points from the reviews:
   would be roughly on the scale of the entire existing mechanization
   of Giovannini et al.
 
-* Broader lessons on gradual typing and/or algebraic effects
+* *Broader lessons on gradual typing and/or algebraic effects*
 
   Reviewer B asks what the combined framework teaches us about either
   gradual typing or algebraic effects. Our work contributes the next
@@ -82,16 +83,16 @@ Below we address specific points from the reviews:
   combination works straightforwardly is a consequence of designing
   the correct abstractions, which is where the hard work lies.
 
-* Guarded operations besides θ
+* *Guarded operations besides $θ$*
 
   Reviewers B and C ask if the only intended example of operations
-  with guarded arities is θ. The primary reason we use this generality
-  is that we consider two distinct θ operations (one for "true" steps,
-  and one for "bureaucratic steps"). The notion of guarded arity
-  allows us to cleanly abstract over both of these operations in our
-  proofs.
+  with guarded arities is $θ$. The primary reason we use this
+  generality is that we consider two distinct $θ$ operations (one for
+  "true" steps, and one for "bureaucratic steps"). The notion of
+  guarded arity allows us to cleanly abstract over both of these
+  operations in our proofs.
 
-* Why no infinite arities?
+* *Why no infinite arities?*
 
   Reviewer C asks whether we could extend our framework to allow for
   infinitary effects. We believe this is possible in principle, but
@@ -107,7 +108,7 @@ Below we address specific points from the reviews:
   would need to extend result to infinitary theories, but we believe
   that this holds.
 
-* Partiality as an effect
+* *Partiality as an effect*
 
   Reviewer C asks whether our framework could handle recursive
   definitions by modeling partiality as an effect. Indeed, guarded
