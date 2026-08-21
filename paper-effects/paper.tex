@@ -262,92 +262,6 @@ monad-transformer-like construction for state and exception-like
 effects. With the interaction trees as a base case, the monad
 transformers can be iterated to construct new models on demand.
 
-%% The tradeoff is that results in
-%% guarded type theory are constructions 
-
-%% Establishing graduality for a given cast calculus has traditionally been a
-%% tedious endeavor. One common approach involves defining a step-indexed logical
-%% relation over an operational semantics \cite{new-ahmed2018,
-%% new-licata-ahmed2019, new-jamner-ahmed19, new-giovannini-licata-2022}; these
-%% methods are inherently dependent on the particular calculus being modeled and
-%% offer little opportunity for reuse of mathematical abstractions across different
-%% developments. Another method, developed by New and Licata \cite{new-licata18},
-%% constructs a denotational semantics using \emph{classical} domain theory. While
-%% compositional, this approach suffers from a lack of expressiveness: classical
-%% domain-theoretic techniques appear incapable of modeling viciously
-%% self-recursive structures such as higher-order store
-%% \cite{Birkedal-Stovring-Thamsborg-2009}, which are common in real-world
-%% gradually-typed languages.
-%% %
-%% Thus, it remained an open question whether one could give a semantics for
-%% gradual typing that combined the expressiveness of the step-indexed approach
-%% with the compositional nature of denotational semantics.
-
-% Graduality has remained a difficult property to establish, with existing
-% methods being largely tied to syntactic or operational specifics of the
-% language being modeled and offering little opportunity for reuse of common
-% mathematical abstractions.
-
-% Recently, Giovannini et al. \cite{gtt-sgdt} combined the expressiveness of the
-% step-indexed approach with the compositional nature of denotational semantics
-% by...
-
-%% Recently, Giovannini et al. \cite{gtt-sgdt} answered this question affirmatively
-%% by constructing a denotational semantics for a simple gradually-typed
-%% programming language using the tools of guarded type theory
-%% \cite{birkedal-mogelberg-schwinghammer-stovring2011}, and proved that their
-%% model validates the graduality property. Their model combines the expressive
-%% power of step-indexing techniques with the compositional nature of denotational
-%% semantics.
-%% %
-%% However, the semantics developed by Giovannini et al. has the limitation that it
-%% is a single model for a quite bare-bones gradually-typed language. Real-world
-%% languages can include effects, polymorphism, dependent types, etc.
-%% %
-%% Furthermore, it is unclear how to relate their model to a more typical
-%% operational semantics for a cast calculus. It is desirable to establish an
-%% adequacy result relating their denotational semantics to an operational model.
-%% More specifically, writing $\sem{M}$ for the denotation of a term $M$, adequacy
-%% states that an equality of denotations $\sem{M} = \sem{N}$ implies that $M$ and
-%% $N$ behave the same operationally. This allows one to use facts proved in the
-%% denotational semantics to reason about the operational behavior of terms.
-%% %
-%% More specifically, an adequacy result provides a means of translating the
-%% graduality theorem --- a statement about the \emph{denotations} of terms ---
-%% into a statement about the \emph{operational behavior} of terms.
-
-% In this work, we seek to address these limitations by
-% In this work, we seek to address the limitations of the prior model by 
-
-%% In this work, we take a step towards modeling more realistic gradually-typed
-%% languages using guarded type theory: we extend the denotational semantics of
-%% Giovannini et al. to account for arbitrary algebraic effects, and we establish
-%% an adequacy theorem relating the resulting denotational model to an effectful
-%% operational semantics.
-
-% The level of generality needed to model arbitrary algebraic effects means that
-% the semantics we produce is correspondingly generic. This is true both
-% denotationally and operationally. On the denotational side, we generalize the
-% semantics of Giovannini et al. to allow for arbitrary algebraic effects. The
-% (guarded) graduality theorem we obtain is essentially a statement relating term
-% precision to the behavior of the interaction trees that the terms denote.
-
-% TODO: update
-% Likewise, we construct a generic effectful operational semantics for the cast
-% calculus in guarded type theory.
-
-% While this approach is applicable to any
-% algebraic theory representing the programming language's effects, what is
-% missing is a way to relate the small-step operational semantics it produces to a
-% more traditional effectful small-step semantics. For example, a small-step
-% semantics for a language with global state would normally involve a transition
-% relation between pairs of a term and state.
-
-% TODO: update
-% The missing step in both the operational and denotational semantics is supplied
-% by a suitable notion of algebra that interprets the guarded interaction trees as
-% a concrete element of an ``observation'' type.
-
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
 The main contribution of this paper is a framework for constructing effectful
@@ -396,10 +310,10 @@ graduality proof, we require also an extension of the free algebra
 monad for the theory from sets to act on the error ordering and
 bismilarity relations we use in the proof.
 
-The final proof of graduality results from the composition of several constructions.
-First, we develop a guarded denotational model of gradual typing with effects
-based on the existing model of Giovannini et al. The result is a \textbf{guarded
-denotational graduality} theorem:
+The final proof of graduality results from the composition of several
+constructions. First, we develop a guarded denotational model of gradual typing
+with effects based on the existing model of Giovannini et al. The result is a
+\textbf{guarded denotational graduality} theorem:
 %
 \begin{theorem}[Guarded Denotational Graduality]
   If $\cdot \vdash M \ltdyn N: \nat$, then $\sem{M} \ltbisim \sem{N}$.
@@ -548,7 +462,6 @@ specifically, a typical guarded type theory has at least the following features:
  
 We will use a tilde to denote a term of type $\later A$, e.g., $\tilde{M}$.
 
-% TODO later is an applicative functor, but not a monad
 
 % Clocked Cubical Type Theory
 \subsubsection{Ticked Cubical Type Theory}
@@ -557,7 +470,6 @@ Following Giovannini et al. \cite{gtt-sgdt}, in this paper we will work in a
 specific form of guarded type theory with access to additional constructs called
 \emph{ticks} and \emph{clocks}.
 
-% TODO review and consider trimming
 The specific type theory in which we work is called Ticked Cubical Type Theory
 \cite{mogelberg-veltri2019}, an extension of Cubical Type Theory
 \cite{CohenCoquandHuberMortberg2017} that has an additional sort called
@@ -591,7 +503,6 @@ operation symbols $\Op$. Each operation symbol $\oper : \Op$ has an
 \textbf{ordinary arity} given by a type $\tau_\oper$ and a \textbf{guarded
 arity} given by a type $\gamma_\oper$. We write $\oper : (\tau, \gamma)$ to mean
 $\oper$ has ordinary arity $\tau$ and guarded arity $\gamma$.
-% Each operation \oper : (\tau, \gamma) has ordinary arity \tau and guarded arity \gamma.
 %
 % We do not require the arity types to be finite.
 If the arity types are finite, i.e., $\tau_\oper = [n]$ for some $n$ with $[n]$
@@ -651,14 +562,8 @@ $\Sigma$-algebra $B$ and any map of variables $f : A \to B$, there is a unique
 map $F_\Sigma(A) \to B$ extending $f$. In other words, if we specify how to
 interpret the variables $A$ as elements of $B$, this extends uniquely to an
 interpretation of any term. We write $\sem{t}$ to denote such an interpretation.
-%
-% Given any equation $e = (\Gamma_e, l_e, r_e)$, we can interpret $e$ in any
-% $\Sigma$-algebra $B$ by asking that each side maps to the same term in $B$. This
-% will be useful in defining the notion of guarded algebraic theory.
 
 We now consider the addition of equations to a signature.
-% A \textbf{guarded algebraic theory} $\calA$ consists of a guarded signature
-% $\Sigma_\calA$ and a collection of equations $E_\calA$. 
 A \textbf{guarded algebraic theory} $\calA$ is given by a signature
 $\Sigma_\calA$ and a collection of equations $E_\calA$. An equation
 $e$ consists of a context $\Gamma_e$ of free variables, and a pair of terms
@@ -674,13 +579,6 @@ a \textbf{model of a theory} $\calA = (\Sigma, E)$ is a model $B$ of the
 signature $\Sigma$ such that for each equation $e = (\Gamma, l , r)$ in $E$, we have
 $\sem{l} = \sem{r}$ for all instantiations $f : \Gamma_e \to B$ of the free
 variables of $e$.
-% i.e., for all $f : \Gamma_e \to B$.
-
-
-% A \emph{model} of an algebraic theory $\calA$ is a set $B$ with an interpretation
-% of the operations in $\Sigma_A$, such that all equations in $E_A$ hold. Formally
-% speaking, this means that when we interpret the LHS and RHS of each equation as
-% elements of $B$, those elements are equal.
 
 For a guarded algebraic theory $\calA$, the category of $\calA$-models has a
 forgetful functor $U_\calA$ to the category of sets, which simply takes the
@@ -702,14 +600,6 @@ category of sets, which is known as the \textbf{free model monad}.
 % For a given theory $\calA$, we denote the free model monad for $\calA$ by
 % $T_\calA$.
 
-
-% Because we are modeling gradual typing, at a minimum we want to ensure that our
-% theory contains an operation corresponding to error, and since our semantics is
-% intensional, i.e., step-aware, we also include an operation corresponding to
-% taking an observable step. Such a step will occur whenever a non-well-founded
-% recursive definition is unfolded; in the case of gradual typing this would be
-% when inspecting a value of the dynamic type.
-% % TODO cite GTT-SGDT paper?
 
 \subsection{Examples of Algebraic Theories}\label{sec:alg-theory-examples}
 
@@ -856,10 +746,7 @@ In our next example, the guarded arity is nontrivial:
     guarded-recursive equation
     %
     $L(X) \cong X + \later L(X).$
-    % TODO cite paper on guarded lift monad
 \end{example}
-
-%\max{state, reader, and non-determinism? Need to show off the generality here}
 
 \subsection{Operations on Algebraic Theories}
 
@@ -870,7 +757,6 @@ et al. \cite{HYLAND200670}.
 First, given two guarded algebraic theories $\calA_1$ and $\calA_2$, we define their
 \emph{sum} $\calA_1 + \calA_2$ by combining the operations and the equations in
 $\calA_1$ and $\calA_2$. We do not impose any additional equations.
-% TODO cite paper on combining algebraic theories.
 % TODO example
 %
 Likewise, given two theories $\calA_1$ and $\calA_2$, we define their
@@ -901,10 +787,6 @@ $\calA_2$.
 \end{remark}
 
 \subsection{Theory Transformers and Monad Transformers}
-
-% Another operation on guarded algebraic theories involves augmenting a given
-% theory $\calA$ with the operations and equations of a second theory $\calA_0$;
-% we call such an operation a \textbf{theory transformer} for $\calA_0$.
 
 Taking the sum or tensor with a fixed guarded algebraic theory gives a notion of
 \textbf{theory transformer}.
@@ -943,13 +825,8 @@ support, and their corresponding monad transformers:
   \label{tab:theory-and-monad-transformers}
 \end{table}
 
-% \max{Shouldn't this be the part where we discuss monad transformers as
-%   well? I think this is where we should basically list theory/monad
-%   transformers we handle and what you can get out of them.}
-
 \subsection{Relational Aspects}
 
-%\max{This paragraph could be more concise and more informative}
 Since we are modeling gradual typing, we need our mathematical structures to be
 equipped with a notion of relation to model the graduality ordering. This theory
 was developed extensively by Giovannini et al. in their denotational model for
@@ -958,20 +835,6 @@ with an ordering relation to model the graduality ordering, as well as a notion
 of weak bisimilarity that relates terms that differ only in the number of steps
 they take. We discuss how to generalize these relations to the setting of
 algebraic effects in Section \ref{sec:denotational-semantics}.
-
-% The implication of this is that the categories involved in the
-% adjunction described above are not merely the category of sets and the category
-% of $\calA$-models. We require additional relational structure: a relation to
-% model the graduality ordering as well as a notion of weak bisimilarity that
-% relates terms that differ only in the number of steps they take. These relations
-% are crucial ingredient in the graduality proof. Since these relational aspects
-% are not relevant for the operational semantics, we defer a detailed discussion
-% to the section on denotational semantics.
-
-% for now, it is sufficient to keep in mind that the categories involved, and the
-% free-model monad $T_\calA$ for a given algebraic theory $\calA$, enjoy this
-% additional structure.
-
 
 \section{A Generic Syntax for Gradual Typing with Effects}\label{sec:syntax}
 
@@ -1025,22 +888,6 @@ in $\calA + \error$ of finite arity $n$, then given $n$ terms of type $A$
 has type $A$. We write $\mho$ to denote the term corresponding to the operation
 $\err$ in $\error$.
 
-% We mention two notes about the relationship between the given algebraic theory
-% and the syntax. First, 
-
-% We assume that the meta-level arity types of each operation exist as
-% object-level types within the cast calculus. While these types are not
-% \emph{equal}, there will be an isomorphism allowing us to translate between
-% them. For example, if we have an operation $\oper$ of arity $\mathbb{N}$, then
-% in the syntax the corresponding term will have type $\nat$. We leave implicit
-% the conversion between the syntactic and semantic versions of the arities.
-
-
-% Terms:
-% upcasts and downcasts
-% effect operations
-
-% explain type precision
 
 % New, Licata, and Ahmed gave a syntax and logic axiomatizing the graduality
 % property \cite{new-licata-ahmed2019}.
@@ -1183,7 +1030,7 @@ $\synoper{M}{n} \ltdyn \synopernoidx{M_i'}{n}$.
 
 %e.g., the rule for application says that if $M \ltdyn M'$ and $N \ltdyn N'$ then $M\,N \ltdyn M'\,N'$. 
 For the sake of brevity, the congruence rules are elided from the
-figure. %\max{TODO: add congruence for operations}
+figure.
 %
 Using these congruence rules, reflexivity $M \ltdyn M$ is admissible. As in the
 syntax of Giovannini et al. \cite{gtt-sgdt}, and in accordance with the original
@@ -1198,49 +1045,10 @@ Lastly, we have the four fundamental rules for reasoning about casts (\upl,
 \upr, \dnl, \dnr) from prior work, which axiomatize the upcasts and downcasts as
 behaving like least upper bounds and greatest lower bounds, respectively.
 
-% these say that the upcast is a kind of \emph{least upper bound} and dually that
-% the downcast is a \emph{greatest lower bound}.
-
-
-% \begin{figure}
-%   \footnotesize
-%   \begin{mathpar}
-
-%   \inferrule*[right=EquivTyPrec]
-%   {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
-%   {\Delta\vdash M \ltdyn M' : c'}
-
-%   \inferrule*[right=ErrBot]
-%   {}
-%   {\Delta \vdash \mho \ltdyn M : c}
-
-%   \inferrule*[right=UpL]
-%   {M \ltdyn M' : cc_r}
-%   {\upc {c} M \ltdyn M' : c_r}
-
-%   \inferrule*[right=UpR]
-%   {M \ltdyn M' : c_l}
-%   {M \ltdyn \upc {c} M' : c_lc}
-
-%   \inferrule*[right=DnL]
-%   {M \ltdyn M' : c_r}
-%   {\dnc {c} M \ltdyn M' : cc_r}
-
-%   \inferrule*[right=DnR]
-%   {M \ltdyn M' : c_lc}
-%   {M \ltdyn \dnc {c} M' : c_l}
-%   \end{mathpar}
-%   \caption{Term Precision Rules (Selected)}
-%   \label{fig:term-prec}
-% \end{figure}
 
 % Our goal in the remainder of this work is to define an operational semantics for
 % this cast calculus and prove that it satisfies graduality. For an outline of our
 % approach to doing so, refer to Section \ref{sec:overview-of-approach}.
-
-% compositional denotational semantics of types, terms, type and term precision
-% from which we can easily extract a big step semantics that satisfies graduality
-% and respects the equational theory of the calculus.
 
 
 \section{Operational Semantics}\label{sec:operational-semantics}
@@ -1295,7 +1103,6 @@ relating $\oper_i$ to the operations of $\calA$. The guarded extensions taken as
 input are as follows:
 %
 \begin{enumerate}
-  %\item $\calAerr \in \calA[\mho]$, i.e., $\calA$ extended with errors.
 
   \item $\calAs \in \calA[\mho, \theta^s]$, i.e., $\calA$ extended with errors and
   (true) stepping.
@@ -1315,10 +1122,6 @@ each operation $\oper$, of arity $\tau_\oper$, there is a function $\sem{\oper}
 : (\tau_\oper \to \Ts X) \to \Ts X$. In addition, the monad supports error via
 $\mho : \Ts(X)$ and stepping via a guarded step operation $\theta^s : (\later
 \Ts(X)) \to \Ts(X)$.
-%
-% The monad $\Ts$ supports each of the above, in addition to a guarded step
-% operation $\theta^s : \later \Ts(X) \to \Ts(X)$.
-%
 The same is true of $\Tsb$, but it has two guarded step operations
 $\theta^s, \theta^b : \later \Tsb(X) \to \Tsb(X)$.
 %
@@ -1344,8 +1147,6 @@ $\calA$ while $\calAsb$ does not, or vice versa.
 
 \subsection{Defining the Operational Semantics}
 
-% TODO: define the theory of \calA + stepping
-
 In what follows, we use $\term{A}$ to denote the (meta-theoretic) type of closed
 terms of type $A$ in the cast calculus, and likewise $\val{A}$ denotes the type
 of closed values of type $A$ in the cast calculus.
@@ -1357,9 +1158,6 @@ Our goal is to define a guarded multi-step operational semantics, i.e., a functi
 Observe that the output of running a term is a monadic value. The monad accounts
 for all possible effects that may occur as the term is being run: operations in
 $\calA$, runtime errors, as well as true and bureaucratic steps.
-%
-% We write $M \Dwn \hat{V}$ to mean that $\run(M) = \hat{V}$ and we write $M
-% \Uparrow$ to mean that $\run(M) = \fix \thetatrue$.
 %
 To define the $\run$ function, we first model small-step reduction as a function
 %
@@ -1386,18 +1184,6 @@ multi-step semantics in Section \ref{sec:big-step-semantics}.
 % every operation in $\calA_\mho$ has trivial guarded arity, so there are no
 % guarded values.
 
-% Notation for stepping
-% For the sake of brevity, we use the following notation for stepping. If
-% $\step{M} = \inr(\hat{N}, ty)$, we say that $M \stepsin{0} \hat{N}$ if $ty =
-% \bstep$ and $M \stepsin{1} \hat{N}$ if $ty = \tstep$. That is, the natural
-% number (either $0$ or $1$) indicates whether the step is a true step or an
-% bureaucratic step. In the cost analogy discussed above, the natural number
-% represents the ``cost'' of performing the step, whereby true steps have cost $1$
-% and bureaucratic steps have cost $0$.
-% %
-% For a pure reduction step $\hat{N} = \inl N$, we omit the $\inl$ and simply
-% write $M \stepsin{k} N$.
-
 We define an endofunctor $\Sigmahat(X) = X + \Sigma_\mho(X)$. Its action on a
 function $f : X \to Y$ is defined in the obvious way, using $f$ in the first
 case, and the action of $\Sigma_\mho$ on $f$ in the second case.
@@ -1416,38 +1202,6 @@ step, where true steps have cost $1$ and bureaucratic steps have cost $0$.
 For a pure reduction step $\hat{N} = \cpure(N)$, we often omit the $\cpure{}$ and
 simply write $M \stepsin{k} N$.
 
-
-
-% Old version:
-% To define the $\run$ function, we first model small-step reduction as a function
-% %
-% \[ \step : (M : \term{A}) \to (\Sigma_{V \in \val{A}} (M = V)) + (T(\term{A}) \times \steptype). \]
-% %
-% That is, given a term of type $A$, either that term is a value, or it takes an
-% effectful step. Here, $\steptype$ is simply a type with two inhabitants:
-% $\steptype := \tstep \alt \bstep$, where $\tstep$ represents a true step and
-% $\bstep$ represents a bureaucratic step.
-% %
-% Notice that the small-step function, by virtue of its type signature, includes
-% the usual progress, preservation, and determinacy theorems.
-
-
-
-% Goal: operational graduality
-% TODO: should we move this to before the operational semantics section?
-% Our main goal in the rest of the paper will be to prove that this big-step
-% semantics validates the graduality property:
-
-% \begin{theorem}[Graduality]
-%   Suppose $M \ltdyn N : \nat$. Then either:
-%   \begin{enumerate}
-%     \item $M \Dwn \mho$, where $\mho \in T_{db} (\val{\nat})$ is the error element of the monad.
-%     \item $M \Dwn \eta\, n$ and $N \Dwn \eta\, n$ where $n \in \nat$.
-%     \item $M \Uparrow$ and $N \Uparrow$.
-%     \item $M \Dwn \text{op}(V)$ and $N \Dwn \text{op}(V)$ % M and N both terminate with a 0-ary effect
-%   \end{enumerate}
-% \end{theorem}
-
 \subsection{Defining the Small-Step Semantics}\label{sec:small-step-semantics}
 
 Figure \ref{fig:operational-semantics} defines the small-step semantics. The
@@ -1461,31 +1215,6 @@ whose signature we have discussed previously.
 In particular, any term $M$ that does not match one of these rules is equal to a
 value $V$, and hence $\step(M)$ returns $\inl$ applied to the value $V$ and the
 proof that $M$ is equal to $V$.
-% %
-% \begin{itemize}
-%   \item A reduction rule $M \stepsin{k} \hat{N}$, where $\hat{N}$ is of type
-%   $(\term{A} + \Sigma_\mho(\term{A})) \times \steptype)$, should be translated as
-%   $\step(M) = \inr (\hat{N}, t)$ where $t = \tstep$ if $k = 1$ and $t = \bstep$
-%   if $k = 0$. That is, the number $k$ (either $0$ or $1$) determines whether the
-%   step is considered a true step or a bureaucratic step.
-
-%   \item A \emph{pure reduction rule} is a special case of the above where
-%   $\hat{N} = \cpure{N}$ for some term $N$. In this case, we write $M
-%   \stepsin{k} N$, where $N$ is a term, leaving the $\cpure{}$ constructor
-%   implicit.
-
-%   \item An \emph{impure reduction rule} is one where $\hat{N} = \ceff{(\oper,
-%   u)}$ for some $\oper : \calA_\mho.\Op$ and $u : \tau_\oper \to \term{A}$. Note
-%   that every operation in $\calA_\mho$ has trivial guarded arity, so there are
-%   no guarded values.
-  
-%   \item Any term $M$ that does not match one of these rules is equal to a value
-%   $V$, and hence $\step(M)$ returns $\inl$ applied to the value $V$ and the
-%   proof that $M$ is equal to $V$.
-
-%   \item We write $\mho$ to denote the element $(\err, *)$ of
-%   $\Sigma_\mho(\term{A})$.
-% \end{itemize}
 
 To define the $\step$ function, we stage the definition in two parts. We first
 define an auxiliary function $M \stepsinprim{k} \hat{N}$ for stepping a term
@@ -1494,10 +1223,8 @@ concerned with stepping an arbitrary term (i.e., potentially within an
 evaluation context). The notational conventions for $\stepsinprim{}$ are the
 same as those for $\stepsin{}$.
 
-% TODO cite wrapping semantics for casts
 % TODO define/explain tags
 % TODO make sure to distinguish between meta-level lambda and object-level lambda
-% TODO fix the congruence rules for evaluation contexts
 
 \begin{figure}
   \footnotesize
@@ -1564,22 +1291,6 @@ same as those for $\stepsin{}$.
       { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_3 }
       { \dnc {(cc')} V \stepsinprim{0} (\dnc c (\dnc c' V)) }
 
-    % \inferrule*[right=$\iarr$Up, leftskip=1em]
-    %   { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : A }
-    %   { (\upc (\injarr c) M) \stepsin{0} (\upc \iarr (\upc c M))}
-
-    % \inferrule*[right=$\iarr$Dn, leftskip=2em]
-    %   { c : A \ltdyn (\dyntodyn) \and \Gamma \vdash M : \dyn }
-    %   { (\dnc (\injarr c) M) \stepsin{0} (\dnc c (\dnc \iarr M))}
-
-    % \inferrule*[right=$\itimes$Up]
-    %   { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : A }
-    %   { (\upc (\injtimes c) M) \stepsin{0} (\upc \itimes (\upc c M))}
-
-    % \inferrule*[right=$\itimes$Dn, leftskip=2em]
-    %   { c : A \ltdyn (\dyn \times \dyn) \and \Gamma \vdash M : \dyn }
-    %   { (\dnc (\injtimes c) M) \stepsin{0} (\dnc c (\dnc \itimes M))}
-
   \end{mathpar}
 
   \vspace{1em}\textbf{Casts involving dyn:}
@@ -1608,10 +1319,6 @@ same as those for $\stepsin{}$.
   \begin{mathpar}
 
     % Effects
-    % \inferrule*[right=Eff]
-    %   { \eff{op} \sigma \tau }
-    %   { \synop{op} V x M \stepslabel{\eff {op} V W} M[W/x] }
-
     \inferrule*[right=Eff, leftskip=2em]
       { \oper : [n] }
       { \synoper{M}{n} \stepsinprim{0} \ceff{(\oper, (\lambda\, (i : [n]).\, M_i))} }  
@@ -1622,19 +1329,14 @@ same as those for $\stepsin{}$.
       { i \in \{0,1\} \and M \stepsinprim{i} \hat{N}}
       { E[M] \stepsin{i} \Sigmahat(E[\cdot])(\hat{N}) }
 
-    % \inferrule*[right=EffCong]
-    %   {M \stepslabel {\eff {op} V W} N}
-    %   {E[M] \stepslabel {\eff {op} V W} E[N]}
-
-
   \end{mathpar}
   \caption{Operational Semantics (Selected Rules)}
   \label{fig:operational-semantics}
 \end{figure}
 
-There are $\beta$ rules for functions, pairs, and bind, which are standard. Next
-are the rules involving casts. We first have rules involving upcasts and
-downcasts of functions and products.
+There are $\beta$ rules for functions and pairs, which are standard. Next are
+the rules involving casts. We first have rules involving upcasts and downcasts
+of functions and products.
 %
 For function casts, we use the standard \emph{wrapping semantics} of contracts
 \cite{findler-felleisen02}. In particular, when a function $V_f$ is upcasted, it
@@ -1649,9 +1351,6 @@ of the pair, and likewise for downcasting.
 Next we have rules for up and down casts involving composed precision
 derivations $cc'$ These rules state the up (resp. down) cast for $cc'$ steps to
 the composition of the up (resp. down) casts for $c$ and $c'$.
-% For example, to upcast a term using the precision derivation $\injarr c$ where
-% $c : A \ltdyn (\dyntodyn)$, we first upcast the term by $c$, and then upcast the
-% result by $\iarr : \dyntodyn \ltdyn \dyn$.
 %
 Finally, we have the rules involving downcasting a value that was cast to $\dyn$
 using the injection casts $\inat$, $\iarr$, and $\itimes$. In each case,
@@ -1662,12 +1361,6 @@ $\ceff{(\mho, *)}$, representing that an error was raised. Note that when
 downcasting a dynamically-typed function, we record a true step, i.e., a
 recursive unfolding. In the denotational semantics, this corresponds to
 inserting a $\theta$.
-%
-% Note also that these rules only mention the primitive injection forms $\inat$,
-% $\iarr$, and $\itimes$ rather than the composed forms $\injarr c$ and $\injtimes
-% c$. This is sufficient because casts involving $\injarr c$ or $\injtimes c$ will
-% first step to terms involving $\iarr$ and $\itimes$, which can then be handled
-% using the rules just discussed.
 
 Next, we have our second impure reduction rule. This rule states that for an
 operation $\oper \in \Sigma_\mho$ with arity $n$, the term $\synoper{M}{n}$
@@ -1680,16 +1373,6 @@ environment to provide the value $i$. Instead, when we interpret the semantics
 in a monad supporting the effects, we will invoke the corresponding operation on
 the monad. The continuation will then select the appropriate term $M_i$ based on
 the value of $i$ it receives from the environment.
-% Note that since $\tau$ is a metatheoretic type, strictly speaking a conversion
-% is necessary to substitute $z$ in the object-level term $M$. As mentioned in
-% Section \ref{sec:syntax}, we assume that the arity of each operation is
-% isomorphic to a corresponding syntactic type. For the sake of simplicity, we
-% elide these conversions.
-
-% for any possible request value $V$ and
-% response value $W$, the term $\synop{op} V x M$ steps to $M[W/x]$. This
-% represents the fact that the environment has responded with value $W$, after
-% which the program continues as $M$ with $W$ in place of $x$.
 
 The final rule says that we can perform pure and impure reductions under an
 evaluation context. Recall that $\Sigmahat$ is the endofunctor defined by
@@ -1707,11 +1390,6 @@ $ \run : \term{A} \to \Tsb (\val{A}).$
 %
 Notice that the codomain allows for two kinds of steps: true steps, and
 bureaucratic steps.
-% It is necessary that the monad be able to accommodate both kinds of steps. 
-
-% On the one hand, we want to preserve the true steps taken by terms so that we
-% can relate them to the recursive unfoldings on the denotational side. On the
-% other hand, because it is not necessarily the case that there are an 
 
 We define $\run$ by guarded recursion to be the unique function satisfying the
 properties
@@ -1742,9 +1420,9 @@ Notice that the recursive call to $\run$ is guarded by a $\theta$, so the
 guarded fixpoint operator provides a unique function satisfying the above
 properties.
 
-
-
-% \max{I think we need examples here of how this is really the normal operational semantics when we take specific examples like state, reader, probability etc.}
+% \max{I think we need examples here of how this is really the normal
+% operational semantics when we take specific examples like state, reader,
+% probability etc.}
 % \eric{I added an example with state.}
 
 We conclude this section with an example of how our semantics works for a
@@ -1804,14 +1482,6 @@ computational steps.
 
 \subsubsection{Models of Guarded Algebraic Theories in Predomains}
 
-% As a first step, we work over an arbitrary guarded algebraic theory that has
-% suitable operations for error and stepping. Even though our framework is
-% parameterized by an \emph{ordinary} algebraic theory, everything in this section
-% applies to the more general setting of guarded algebraic theories. This section
-% can be seen as analogous to Section \ref{sec:guarded-algebraic-theories}, except
-% now, instead of defining models of guarded algebraic theories in the category of
-% sets, we define models in the category of predomains and their morphisms.
-
 Let $\calA = (\Sigma, E)$ be an ordinary algebraic theory (see Section
 \ref{sec:guarded-algebraic-theories} for the relevant definitions). Recall that
 $\Sigma$ is a signature consisting of a type of operation names $\Op$, where
@@ -1830,10 +1500,6 @@ relation $\bisim_A$ intended to represent when two elements are the same up to
 a finite number of steps. They call a structure $(A, \ltdyn_A, \bisim_A)$ a
 \textbf{predomain}. Our goal is to lift the notion of model of guarded algebraic
 theory from sets to predomains.  
-% We recall the definition of predomain from the work of Giovannini et al
-% \cite{gtt-sgdt}. A predomain $A$ is a set with a partial order $\ltdyn_A$ and a
-% reflexive, symmetric bisimilarity relation $\bisim_A$.
-
 
 First, we observe that the induced polynomial endofunctor
 $\Sigma : \type \to \type$ extends to an endofunctor on the category of
@@ -1874,23 +1540,6 @@ endofunctor $\Sigma$. Using the action of $\Sigma$ on predomains defined above,
 an algebra of $\Sigma$ is a predomain $B$ equipped with a morphism of predomains
 $\Sigma(B) \to B$. 
 %
-%
-% a distinguished error element $\mho$ and a distinguished $\theta_B \colon \later
-% B \to B$. 
-%
-% As in the definition of an error domain from the denotational model of
-% Giovannini et al., we require that $\mho$ is the smallest element in the
-% ordering, that $\theta$ respects the relations (i.e., it is a morphism of
-% predomains), and that $\delta_B := \theta_B \circ \nxt$ is bisimilar to the
-% identity.
-%
-% As in the definition of an error domain, we also require that the algebra comes
-% with ordering and a bisimilarity relations, that $\mho$ is the smallest element
-% in the ordering, that $\theta$ respects the relations (i.e., it is a morphism of
-% predomains), and that $\delta_B := \theta_B \circ \nxt$ is bisimilar to the
-% identity.
-%
-% \eric{Some of these definitions may be able to be moved to the appendix.}
 More formally, we make the following definition:
 %
 \begin{definition}\label{def:sigma-domain} 
@@ -2277,8 +1926,6 @@ identity in $\Ts(X)$ to $\delta_b$ in $\Tsb(Y)$.
 %
 The formal definition can be found in \citeappendix.
 %The precise definition is given in Figure \ref{fig:relational-lifting}. 
-%\eric{TODO: ensure this is in the appendix}
-
 
 The logical relation is defined in Figure \ref{fig:logical-relation}. We define
 a \textbf{value relation}
@@ -2296,8 +1943,6 @@ relation at the larger type $\dyn \times \dyn$, this is merely syntactic sugar;
 to be completely rigorous, we would simply \emph{define} the relation
 $\calV_{\dyn \times \dyn}$ in an analogous manner to the definition for the
 product case $\calV_{A \times A'}$.
-% TODO explain this further?
-
 
 \begin{figure}
   \footnotesize
@@ -2326,7 +1971,7 @@ product case $\calV_{A \times A'}$.
 
 
   \begin{array}{rcl}
-      \erel {A} {\bar{x}} {N} &:=& \liftvrel{A}{\bar{x}}{(\run N)} % \bar{x} \binrel{(\bbt(\calV_{A}))} (\run{N})
+      \erel {A} {\bar{x}} {N} &:=& \liftvrel{A}{\bar{x}}{(\run N)}
   \end{array}
 
   \end{mathpar}
@@ -2337,8 +1982,6 @@ product case $\calV_{A \times A'}$.
 
 
 \subsection{Fundamental Lemma}
-
-% $\gambar$ maps $x : A \in \Gamma$ to $\sem{A}$ and $\gamma'$ maps $x : A \in \Gamma$ to $\val{A}$
 
 We begin by defining the extension of the value relation to contexts.
 Concretely, we define $\grel{\Gamma}{\gambar}{\gamma'}$, where $\gambar :
@@ -2369,20 +2012,13 @@ result that $\run(M) \equiv_b \sem{M}$:
   Let $\Gamma \vdash M : A$. Then $\Gamma \vDash \sem{M} \sim M : A$.
 \end{lemma}
 %
-For the proof of this lemma, see \citeappendix. % TODO cite appendix
+For the proof of this lemma, see \citeappendix.
 %
 The above implies the adequacy of the denotational semantics with respect to the
 operational semantics:
 \begin{theorem}[Adequacy]
   Let $\cdot \vdash M : \nat$. Then we have $\run{M} \equiv_b \sem{M}$.
 \end{theorem}
-
-% \subsection{Summary of Results So Far}
-
-% Logical relation
-% Fundamental Lemma
-% Adequacy of the term model
-% Adequacy of the relational model
 
 
 
