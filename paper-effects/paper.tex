@@ -2489,6 +2489,72 @@ equal.
 
 \section{Discussion}\label{sec:discussion}
 
+\subsection{Problematic Algebraic Theories}\label{sec:problematic-theories}
+
+So far, we have shown that our framework is capable of handling any algebraic
+theory constructed as a repreated application of the four supported theory transformers
+(exceptions, reader, writer, and global state) to a finitary free theory. A
+natural question is whether we have anything to say about algebraic theories
+that do not arise in this manner, e.g., the theories of finite nondeterministic
+or probabilistic choice, theories modeling reversible effects, etc.
+
+As a partial answer, let us discuss theories that we \emph{cannot} support.
+There are two scenarios we must distinguish. First, there are algebraic theories
+that are fundamentally at odds with gradual typing, in a manner we make precise
+below. The prototypical example of such a theory is that of groups. The
+intuition is that if we had a cast calculus whose terms supported a group-like
+effect, we could use the monotonicity of the inverse operation to force a
+contradiction to graduality. We do not support these theories because they are
+simply not compatible with gradual typing.
+
+% TODO: theorem for algebraic theories with a Malcev operation
+\begin{definition} A \textbf{Malcev operation} in an algebraic theory is an
+operation $f(x,y,z)$ such that $f(x,x,y) = y$ and $f(x,y,y) = x$.
+%
+A \textbf{Malcev theory} is an algebraic theory containing a Malcev operation.
+\end{definition}
+
+\begin{lemma}[No-Go Result for Malcev Theories]
+  Let $\calA$ be a Malcev theory. Then there is no language that both satisfies
+  graduality and whose terms carry an algebra structure for $\calA + \{\mho\}$.
+\end{lemma}
+\begin{proof}
+Let $M \colon \dyn$ be a program such that $M \equiv \mathsf{true}$.
+%
+Then $M :: \mathsf{Nat} \sqsubseteq M$, and $M :: \mathsf{Nat} \equiv \mho$.
+%
+Define a context $C[-]$ = $f(\mho, -, M)$. By monotonicity, we have 
+$C[M :: \mathsf{Nat}] \ltdyn C[M]$. Now note that 
+%
+$C[M :: \mathsf{Nat}] = f(\mho, (M :: \mathsf{Nat}), M) = f(\mho, \mho, M) = M$,
+%
+and $C[M] = f(\mho, M, M) = \mho$.
+
+Thus, we have shown $M \ltdyn \mho$, which means $M$ must be $\mho$, but $M$
+returns a value. This contradicts graduality.
+\end{proof}
+\begin{corollary}
+  There is no language satisfying graduality whose terms carry a group structure.
+\end{corollary}
+
+The second class consists of theories that in principle are compatible with
+graduality, but which do not quite fit into our framework. The primary example
+here is the theory of join semilattices, which models finite nondeterministic
+choice. The issue arises from the combination of commutativity and idempotency.
+In brief, the ordering on the free algebras of such a theory extended with error
+and $\theta$ is not antisymmetric, an issue that occurs already for the
+original, unextended theory of join semilattices. There, the ordering on the
+free join semilattice (i.e., the finite powerset) is the Egli-Milner ordering
+\cite{TODO}, which is easily seen to not be antisymmetric in general. A similar
+result holds for the extended theory.
+%
+This failure of antisymmetry means that the free algebras in the category of
+\emph{predomains} (i.e., posets equipped with a bisimilarity relation) are in
+general a nontrivial quotient of the free algebras in the category of sets. That
+is, the lifting property we require in our denotational semantics may fail to
+hold. We leave to future work the exploration of how we might adapt the
+framework to accommodate such theories.
+
 \subsection{Related Work}
 
 % Comparison with guarded interaction trees
