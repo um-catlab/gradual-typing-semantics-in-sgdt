@@ -2555,6 +2555,56 @@ is, the lifting property we require in our denotational semantics may fail to
 hold. We leave to future work the exploration of how we might adapt the
 framework to accommodate such theories.
 
+
+\subsection{Effect Handlers and (Gradual) Effect Typing}
+
+Many languages with algebraic effects also support \emph{effect handlers}, which
+allow the programmer to respond to raised effects internally to the language.
+% The extent to which our framework can accommodate handlers depends on a few
+% factors. First,
+%
+Assuming a fixed global effect signature with no equations, supporting handlers
+can is straightforward: we would simply add a new syntactic handler form to the
+cast calculus and extend the semantics and the logical relation for adequacy
+with the appropriate cases.
+
+The notion of \emph{effect typing} allows for different portions of the code to
+be given types corresponding to different effect signatures, so that aprogrammer
+can reason about which effects can be raised and prove that all effects are
+handled. As effect typing requires a more fundamental change to the language
+design, it does not fit into our framework. With that said, it could in
+principle be accommodated without major changes to our framework, provided that
+the gradual typing is over value types only and not over effect types. As the
+question of effect typing is mostly orthogonal to the goals of our work, we
+have chosen not to pursue it.
+
+Prior work has also studied \emph{gradual} effect typing, with a prominent
+example being the GrEff language \cite{new-giovannini-licata-2022} of New et al.
+GrEff supports a dynamic effect and allows for casts between effect types. We
+expect that our framework can be generalized to support such languages, but it
+is a much more significant extension to the current work than supporting
+effect handlers and plain effect typing. 
+% The increase in generality required would obscure the focus on our primary
+% goal, which is to bring...
+%
+In contrast to the GrEff paper, the focus of the present paper is on bringing
+the systematic denotational approach begun in prior work to operational
+graduality, and on extending the denotational approach to handle algebraic
+effects. Our success in this effort is in large part a consequence of the work
+done in designing the correct abstractions. 
+% for modeling effectful gradual typing denotationally and relating the two semantics.
+
+% Much of the interesting work lies in designing the correct abstractions such
+% that the resulting combination works straightforwardly.
+
+% The fact that the resulting combination works straightforwardly is a consequence
+% of designing the correct abstractions, which is where the hard work lies.
+
+% Modifying the framework to accommodate gradual effect typing in the style of
+% GrEff would require a significant increase in generality and would obscure the
+% focus on our primary goal, which is to bring the systematic denotational
+% approach begun in prior work to...
+
 \subsection{Related Work}
 
 % Comparison with guarded interaction trees
