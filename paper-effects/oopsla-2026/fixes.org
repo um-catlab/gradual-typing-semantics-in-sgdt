@@ -1,0 +1,116 @@
+* Review B
+
+** TODO line 100:
+  Can you elaborate on what is "a cast calculus"?
+  
+** TODO line 243:
+  Also remark that both arities described above are instances of
+  response types.
+  
+** TODO line 249:
+  Missing subscript in $x : σ_{\mathrm{op}}$
+  
+** TODO line 258:
+  Unnecessary parentheses in $γ → (⊳B)$
+  
+** TODO line 345:
+  Do you have any other examples of operations with guarded arities
+  except for step? Also, I find it strange that you introduce the
+  concept of guarded theories, but then give mostly examples of
+  ordinary theories. I suggest you to move the majority of the
+  material to an introductory section on ordinary algebraic theories,
+  and then have a separate section where you show the generalisation
+  to guarded theories and emphasise the differences.
+
+** TODO line 362:
+  Can you display an equation expressing the commutativity between two
+  operations? This would make it easier to understand the equation in
+  Remark 2.
+  
+** TODO line 384:
+  Why not be explicit and write $T_{𝒜 ⊗ \mathit{State}}$ instead of
+  $T'$?
+  
+** TODO line 453:
+  Add parentheses to $(? ⇀ ?) ⊑ ?$.
+  
+** TODO line 456:
+  For someone not familiar with gradual typing, the lack of
+  contravariance in the precision rule for functions seems
+  strange. Can you elaborate on it in the text?
+  
+** TODO line 461:
+  The context $Δ$ is missing in all four up/down rules.
+  
+** TODO line 462:
+  Are there any restrictions on $c$ in ErrBot?
+  
+** TODO line 517:
+  Is $𝒜_{Ʊ_{sb}} = 𝒜_{Ʊ_s} + 𝒜_b$, where $𝒜_b$ is the theory with only
+  $θ^b$?
+  
+** TODO line 526:
+  The lifting $†$ is never defined. Also, what is $T_{Ʊ_{sb}}.η$?
+  
+** TODO line 737:
+  typo "denOtational"
+  
+** TODO line 1115:
+  I am a bit worried about feasibility of the extension to local
+  effects.
+  
+** TODO line 1125:
+  The work of [23] seems highly relevant, but is only briefly
+  mentioned in the conclusion. How do your contributions compare to
+  theirs?
+
+
+* Review C
+  
+** TODO L222:
+  This point doesn't seem to add anything to the presentation and is
+  never explored again in the paper.  It is used on L371, but it
+  unfortunately only serves the purpose of confusing me; it took me a
+  while to realize the argument is a tick evidence.
+
+** TODO L248:
+  Would this be a limitation as many effectful operators accept
+  infinitely many inputs?  Like a write can have `Nat` as input.  It
+  is not clear to me whether having an infinite number of operators
+  would cause any trouble.
+
+** TODO L333 (nitpick):
+  Is this $\Rightarrow$ supposed to be $\to$?
+
+** TODO L346:
+  Any other examples with a nontrivial guarded arity, or is `Step` the
+  only one you consider?
+
+** TODO L436:
+  I have a rough idea of what this judgment means, but it would be
+  nice to provide more explanation here.  For example, what exactly is
+  the role of $c$ here?  The context is also not used in the rules in
+  Fig. 1 (and in fact many of the rules there elide the context).
+
+** TODO L545:
+  At this point I already forgot what the bar (in $\bar{M}$)
+  represents or whether it is introduced at all.
+
+** TODO L578 (nitpick):
+  I think you should explain (perhaps earlier) why this corresponds to
+  a recursive unfolding step.
+
+** TODO Fig.2:
+  In various rules here, where does the typing context $\Gamma$ come
+  from? Is it part of the semantics judgment that you elided?
+
+** TODO L595:
+  Where does $V$ come from?
+
+** TODO L627:
+  I was not able to understand this part.  More explanation might be
+  needed here.
+
+** TODO Section 5.1.2:
+  It seems you only discuss what needs to be done, without the actual
+  definition of construction.  Are they in the appendix?
