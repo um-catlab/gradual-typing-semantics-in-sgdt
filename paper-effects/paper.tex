@@ -2567,20 +2567,21 @@ allow the programmer to respond to raised effects internally to the language.
 % The extent to which our framework can accommodate handlers depends on a few
 % factors. First,
 %
-Assuming a fixed global effect signature with no equations, supporting handlers
-can is straightforward: we would simply add a new syntactic handler form to the
-cast calculus and extend the semantics and the logical relation for adequacy
-with the appropriate cases.
+Assuming a fixed global effect signature with no equations, modeling handlers in
+our framework is straightforward: we would simply add a new syntactic handler
+form to the generic cast calculus, along with a corresponding congruence rule
+for term precision. We would then extend the semantics and the logical relation
+for adequacy with the appropriate cases.
 
 The notion of \emph{effect typing} allows for different portions of the code to
-be given types corresponding to different effect signatures, so that aprogrammer
-can reason about which effects can be raised and prove that all effects are
-handled. As effect typing requires a more fundamental change to the language
-design, it does not fit into our framework. With that said, it could in
+be given types corresponding to different effect signatures, so that the
+programmer can reason about which effects can be raised and prove that all
+effects are handled. As effect typing requires a more fundamental change to the
+language design, it does not fit into our framework. However, it could in
 principle be accommodated without major changes to our framework, provided that
 the gradual typing is over value types only and not over effect types. As the
-question of effect typing is mostly orthogonal to the goals of our work, we
-have chosen not to pursue it.
+question of effect typing is mostly orthogonal to the goals of our work, we have
+chosen not to pursue it in this paper.
 
 Prior work has also studied \emph{gradual} effect typing, with a prominent
 example being the GrEff language \cite{new-giovannini-licata-2022} of New et al.
@@ -2588,14 +2589,22 @@ GrEff supports a dynamic effect and allows for casts between effect types. We
 expect that our framework can be generalized to support such languages, but it
 is a much more significant extension to the current work than supporting
 effect handlers and plain effect typing. 
+%
+The extension would include adding effect tracking in the denotational
+semantics, adapting the notions of perturbation and quasi-representable relation
+to accommodate gradual effect types, and solving a domain equation for the
+dynamic effect type analogous to the equation for the dynamic value type.
+%
 % The increase in generality required would obscure the focus on our primary
 % goal, which is to bring...
-%
-In contrast to the GrEff paper, the focus of the present paper is on bringing
-the systematic denotational approach begun in prior work to operational
+The subsequent increase in complexity of our model would obscure the focus on
+our primary goal. Whereas the focus of the GrEff paper is on the design of a
+language with gradual effect typing, the focus of the present paper is on
+bringing the systematic denotational approach begun in prior work to operational
 graduality, and on extending the denotational approach to handle algebraic
-effects. Our success in this effort is in large part a consequence of the work
-done in designing the correct abstractions. 
+effects.
+% Our success in this effort is in large part a consequence of the work done in
+% designing the correct abstractions.
 % for modeling effectful gradual typing denotationally and relating the two semantics.
 
 % Much of the interesting work lies in designing the correct abstractions such
