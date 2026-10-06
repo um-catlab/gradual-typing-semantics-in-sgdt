@@ -265,8 +265,10 @@ transformers can be iterated to construct new models on demand.
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
 The main contribution of this paper is a framework for constructing effectful
-gradually-typed cast calculi along with an operational semantics satisfying
-graduality.
+gradually-typed cast calculi\footnotemark~along with an operational semantics
+satisfying graduality. \footnotetext{In a gradually-typed language, programmers
+typically write code in a \emph{surface language}; this is then elaborated into
+a \emph{cast calculus}, where the type casts are made explicit.}
 %
 The framework is parameterized by an \emph{algebraic theory}, which
 specifies what effectful operations are available (e.g., reading from a
@@ -517,7 +519,9 @@ then we say that the signature is \textbf{finitary}.
   \emph{response type} of the operation is the type of the value that the
   environment sends back to the program once the operation is complete. We can
   encode this definition into ours by having a separate algebraic operation
-  $\oper_x$ for each $x : \sigma$.
+  $\oper_x$ for each $x : \sigma_\oper$. To encode the response types, we assign
+  to each operation $\oper_x$ the arity $\tau_\oper$. 
+  % response type corresponds to arity
 \end{remark} 
 
 Given a guarded signature $\Sigma$ as described above, we define the
@@ -532,7 +536,7 @@ concretely, a $\Sigma$-algebra consists of a set $B$ equipped with
 interpretations for each of the operations in $\Sigma$. That is, for each $\oper
 : (\tau, \gamma)$, there is a function
 %
-\[ \sem{\oper} : ((\tau \to B) \times (\gamma \to (\later B))) \to B. \]
+\[ \sem{\oper} : ((\tau \to B) \times (\gamma \to \later B)) \to B. \]
 %
 % This view makes it clear that $\sigma$ is the request type, i.e., the type of
 % value sent to the environment, while $\tau$ is the response type, i.e., the type
@@ -707,7 +711,7 @@ throughout the paper.
     %
     The free-model monad for this theory is the \emph{global state monad}
     %
-    $F_{\state{S}}(X) \cong S \Rightarrow (S \times X).$
+    $F_{\state{S}}(X) \cong S \to (S \times X).$
 
 \end{example}
 
@@ -763,7 +767,21 @@ Likewise, given two theories $\calA_1$ and $\calA_2$, we define their
 \emph{tensor product} $\calA_1 \otimes \calA_2$ by combining the operations and
 equations as in the coproduct, but also imposing additional equations that state
 the commutativity of each of the operations in $\calA_1$ with all of those in
-$\calA_2$.
+$\calA_2$. 
+% That is, for each pair of operations $\oper_1 : (\tau_1, \gamma_1)
+% \in \calA_1$ and $\oper_2 : (\tau_2, \gamma_2) \in \calA_2$, and each function 
+% $a : \tau_1 \times \tau_2 \to X$ and $b : \gamma_1 \times \gamma_2 \to \later X$,
+% we have
+% %
+% \[ \oper_1 (
+%     (\lambda i.  \oper_2(\lambda j. a(i,j))),
+%     (\lambda i'. \oper_2(\lambda j'. b(i',j')))
+%   )
+%   = \oper_2 (
+%     (\lambda j . \oper_1(\lambda i.  a(i,j))),
+%     (\lambda j'. \oper_1(\lambda i'. b(i',j')))
+%   )
+% \]
 
 \begin{example}
   The theory $\state{S} \otimes \steptheory$ models computations that can
@@ -802,7 +820,7 @@ Let $\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad
 for $\calA$, then the free-model monad for the theory $\calA \otimes \state{S}$
 is given by
 %
-\[ T'(A) := S \to T_\calA(S \times A). \]
+\[ T_{\calA \otimes \state{S}}(A) := S \to T_\calA(S \times A). \]
 %
 \end{theorem}
 %
@@ -956,7 +974,7 @@ $\err$ in $\error$.
   \begin{mathpar}
     \inferrule{}{r(A) : A \ltdyn A}\and
     \inferrule{c : A \ltdyn A' \and c' : A' \ltdyn A''}{cc' : A \ltdyn A''}\and
-    \inferrule{}{\iarr \colon \dyn \ra \dyn \ltdyn \dyn}\and
+    \inferrule{}{\iarr \colon (\dyn \ra \dyn) \ltdyn \dyn}\and
     \inferrule{}{\inat \colon \nat \ltdyn \dyn}\and
     \inferrule{}{\itimes \colon \dyn \times \dyn \ltdyn \dyn}\and
     \inferrule{c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o'}{c_i \ra c_o : (A_i \ra A_o) \ltdyn (A_i' \ra A_o')}\and
@@ -979,25 +997,25 @@ $\err$ in $\error$.
   {\Delta\vdash M \ltdyn M' : c \and c \equiv c'}
   {\Delta\vdash M \ltdyn M' : c'}
 
-  \inferrule*[right=ErrBot]
-  {}
+  \inferrule*[right=ErrBot, leftskip=1em]
+  {\Gamma \vdash M : A' \and c : A \ltdyn A'}
   {\Delta \vdash \mho \ltdyn M : c}
 
   \inferrule*[right=UpL]
-  {M \ltdyn M' : cc_r}
-  {\upc {c} M \ltdyn M' : c_r}
+  {\Delta \vdash M \ltdyn M' : cc_r}
+  {\Delta \vdash  \upc {c} M \ltdyn M' : c_r}
 
   \inferrule*[right=UpR]
-  {M \ltdyn M' : c_l}
-  {M \ltdyn \upc {c} M' : c_lc}
+  {\Delta \vdash M \ltdyn M' : c_l}
+  {\Delta \vdash M \ltdyn \upc {c} M' : c_lc}
 
   \inferrule*[right=DnL]
-  {M \ltdyn M' : c_r}
-  {\dnc {c} M \ltdyn M' : cc_r}
+  {\Delta \vdash M \ltdyn M' : c_r}
+  {\Delta \vdash \dnc {c} M \ltdyn M' : cc_r}
 
   \inferrule*[right=DnR]
-  {M \ltdyn M' : c_lc}
-  {M \ltdyn \dnc {c} M' : c_l}
+  {\Delta \vdash M \ltdyn M' : c_lc}
+  {\Delta \vdash M \ltdyn \dnc {c} M' : c_l}
   \end{mathpar}
   \caption{Syntax for Gradual Typing with Effects}
   \label{fig:gtlc-syntax}
@@ -1014,8 +1032,12 @@ We also have term precision, the extension of type precision to terms.
 Selected term precision rules are shown at the bottom of Figure \ref{fig:gtlc-syntax}.
 %
 As in prior work, term precision rules have the form $\Delta \vdash M \ltdyn M'
-: c$ where $\Delta$ is a context mapping variables to type precision
-derivations.
+: c$ where $\Delta$ is a context mapping variables to type precision derivations
+$c_i : A_i \ltdyn A_i'$, and $c : A \ltdyn A'$ is a type precision derivation.
+%
+For this judgment to be well formed, we require that $M$ have type $A$ in the
+context consisting of each of the types $A_i$, and that $M'$ have type $A'$ in
+the context consisting of each of the types $A_i'$.
 %
 % The judgment is only well formed when every use of $x : c$ for $c : A
 % \ltdyn A'$ is used with type $A$ in $M$ and $A'$ in $M'$ and similarly
@@ -1128,11 +1150,11 @@ $\theta^s, \theta^b : \later \Tsb(X) \to \Tsb(X)$.
 Note that while the guarded extension $\calAs$ and monad $\Ts$ are not directly
 used in the definition of the operational semantics, they are needed for the
 denotational semantics. Moreover, it is crucial that $\calAs$ and $\calAsb$ are
-related in a strict manner: the only difference is the addition of a second
-stepping operation $\theta^b$ in $\calAsb$ (and potentially equations relating
-$\theta^b$ to operations in $\calAs$). This requirement rules out situations
-where $\calAs$ has equations relating $\mho$ and $\theta^s$ to operations in
-$\calA$ while $\calAsb$ does not, or vice versa.
+related in a strict manner: the only difference between the two is that
+$\calAsb$ has an additional stepping operation $\theta^b$ (and potentially
+equations relating $\theta^b$ to operations in $\calAs$). This requirement rules
+out situations where $\calAs$ has equations relating $\mho$ and $\theta^s$ to
+operations in $\calA$ while $\calAsb$ does not, or vice versa.
 
 % Moreover, it is crucial that $\calAsb$ is the same as
 % $\calAs$ other than the additional stepping operation. (We do not want a
@@ -1252,16 +1274,14 @@ same as those for $\stepsin{}$.
     % Upcast of a function steps when applied to a value:
     \inferrule*[right=Up$\to$, leftskip=1em]
       { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o'  \\\\
-        \and \Gamma \vdash V_f : A_i \ra A_o 
-        \and \Gamma \vdash V : A_i'}
+        \and \cdot \vdash V_f : A_i \ra A_o}
       { (\upc (c_i \ra c_o) V_f) \stepsinprim{0} (\lambda x. (\upc {c_o} (V_f\, (\dnc {c_i} x)))) }
 
     % Downcast of a function steps when applied to a value:
     \showifextended{
     \inferrule*[right=Dn$\to$]
       { c_i : A_i \ltdyn A_i' \and c_o : A_o \ltdyn A_o' \\\\
-        \and \Gamma \vdash V_f : A_i \ra A_o 
-        \and \Gamma \vdash V : A_i'}
+        \and \cdot \vdash V_f : A_i \ra A_o}
       { (\dnc {(c_i \ra c_o)} V_f) \stepsinprim{0} (\lambda x. (\dnc {c_o} (V_f\, (\upc {c_i} x)))) }
     }
 
@@ -1269,13 +1289,13 @@ same as those for $\stepsin{}$.
     % values:
     \inferrule*[right=Up$\times$, leftskip=1em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
-        \\\\ \Gamma \vdash V_1 : A_1 \and \Gamma \vdash V_2 : A_2}
+        \\\\ \cdot \vdash V_1 : A_1 \and \cdot \vdash V_2 : A_2}
       { \upc {(c_1 \times c_2)} (V_1, V_2) \stepsinprim{0} (\upc {c_1} V_1, \upc {c_2} V_2) }
 
     \showifextended{
     \inferrule*[right=Dn$\times$, leftskip=2em]
       { c_1 : A_1 \ltdyn A_1' \and c_2 : A_2 \ltdyn A_2' 
-        \\\\ \Gamma \vdash V_1 : A_1' \and \Gamma \vdash V_2 : A_2'}
+        \\\\ \cdot \vdash V_1 : A_1' \and \cdot \vdash V_2 : A_2'}
       { \dnc {(c_1 \times c_2)} (V_1, V_2) \stepsinprim{0} (\dnc {c_1} V_1, \dnc {c_2} V_2) }
     }
   \end{mathpar}
@@ -1284,11 +1304,11 @@ same as those for $\stepsin{}$.
 
     % "Composition" of casts with inj-arr and inj-times:
     \inferrule*[right=CmpUp]
-      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_1 }
+      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \cdot \vdash V : A_1 }
       { \upc {(cc')} V \stepsinprim{0} (\upc c' (\upc c V)) }
 
     \inferrule*[right=CmpDn]
-      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \Gamma \vdash V : A_3 }
+      { c : A_1 \ltdyn A_2 \and c' : A_2 \ltdyn A_3 \\\\ \cdot \vdash V : A_3 }
       { \dnc {(cc')} V \stepsinprim{0} (\dnc c (\dnc c' V)) }
 
   \end{mathpar}
@@ -1353,14 +1373,16 @@ derivations $cc'$ These rules state the up (resp. down) cast for $cc'$ steps to
 the composition of the up (resp. down) casts for $c$ and $c'$.
 %
 Finally, we have the rules involving downcasting a value that was cast to $\dyn$
-using the injection casts $\inat$, $\iarr$, and $\itimes$. In each case,
-we check that the tag of the upcast matches the tag of the downcast, e.g., the
+using the injection casts $\inat$, $\iarr$, and $\itimes$. In each case, we
+check that the tag of the upcast matches the tag of the downcast, e.g., the
 upcast is $\iarr$ and the downcast is $\iarr$. If the tags match, then the cast
 steps to the original value. Otherwise, the term takes an effectful step to
 $\ceff{(\mho, *)}$, representing that an error was raised. Note that when
 downcasting a dynamically-typed function, we record a true step, i.e., a
-recursive unfolding. In the denotational semantics, this corresponds to
-inserting a $\theta$.
+recursive unfolding. This is done to match the denotational semantics: there,
+the function case of the dynamic type is guarded by a later modality; as a
+result, inspecting a dynamically-typed function requires an observable step (via
+the $\theta$ operation).
 
 Next, we have our second impure reduction rule. This rule states that for an
 operation $\oper \in \Sigma_\mho$ with arity $n$, the term $\synoper{M}{n}$
@@ -1406,10 +1428,11 @@ properties
 \end{mathpar}
 %
 In the above, the function $f : (\term{A} + \Sigma_\mho(\term{A})) \to
-\Tsb(\term{A})$ is defined by cases, mapping $\cpure{M}$ to $\eta^{\Tsb}(M)$,
-and mapping $\ceff{(\oper, u, g)}$ to $\Tsb(\term{A}).\oper(\eta \circ u,
-(\later \eta) \circ g)$. (Note that $u : \tau_\oper \to \term{A}$ and $g :
-\gamma_\oper \to \later (\term A)$.)
+\Tsb(\term{A})$ is defined by cases, mapping $\cpure{M}$ to $\eta(M)$ with
+$\eta$ the unit of the monad $\Tsb$, and mapping $\ceff{(\oper, u)}$ to
+$\Tsb(\term{A}).\oper(\eta \circ u)$. (Note that $u : \tau_\oper \to \term{A}$.)
+%
+The function $-^\dag$ is the monadic extension for $\Tsb$.
 %
 The variable $\mathit{ty}$ has type $\steptype$, and $\delta_{\mathit{ty}} =
 \theta_{\mathit{ty}} \circ \nxt$ is the ``delay'' function on $\Tsb$. The type
@@ -1671,20 +1694,26 @@ graduality, we seek to lift this adjunction to a strong adjunction between
 predomains and $\calAs$-domains. To do so, we need to define the error ordering
 and weak bisimilarity relation on $T(X)$. Because we require the error ordering
 to be antisymmetric, we cannot define it generically --- we cannot guarantee
-that the resulting relation will be antisymmetric. Instead, the construction of
-the denotational semantics takes this relational data as input. Concretely, the
-data consists of the definition of the weak bisimilarity relation, and the
-lifting of a predomain relation $c : A \rel A'$ to a $\calAs$-domain relation
-$T(c)$. The latter is required to have the property that given a reflexive,
-antisymmetric relation $\ltdyn_A$, the lifting is also reflexive and
-antisymmetric. In addition, it must satisfy the following universal property: if
-we have a predomain square $f \ltsq{c}{Ud} g$ where $f : A \to UB$ and $g : A'
-\to UB'$ and $d : B \rel B'$ is a $\calAs$-domain relation, then there is a
-square $f^* \ltsq{T(c)}{d} g^*$ where $f^*$ denotes the extension of $f$ to a
-homomorphism $T(A) \to B$.
+that the resulting relation will be antisymmetric. We could quotient by
+order-equivalence, but the result is in general a nontrivial quotient of the
+Set-based free algebra.
+%
+Instead, the construction of the denotational semantics takes this
+relational data as input. Concretely, the data consists of the definition of the
+weak bisimilarity relation, and the lifting of a predomain relation $c : A \rel
+A'$ to a $\calAs$-domain relation $T(c)$. The latter is required to have the
+property that given a reflexive, antisymmetric relation $\ltdyn_A$, the lifting
+is also reflexive and antisymmetric. In addition, it must satisfy the following
+universal property: if we have a predomain square $f \ltsq{c}{Ud} g$ where $f :
+A \to UB$ and $g : A' \to UB'$ and $d : B \rel B'$ is a $\calAs$-domain
+relation, then there is a square $f^* \ltsq{T(c)}{d} g^*$ where $f^*$ denotes
+the extension of $f$ to a homomorphism $T(A) \to B$.
 %
 Lastly, we require that the algebraic operations on $T(A)$ and the monad unit
 $\eta$ respect the ordering and bisimilarity relations.
+
+In the Appendix, the required data and lifting properties are established for
+free theories as well as for our supported theory transformers.
 
 \subsection{Perturbations and Quasi-Representable Relations}\label{sec:perturbations}
 
@@ -1702,7 +1731,7 @@ semantics, allowing the perturbed term to be in lock-step with a cast.
 %
 As the details of perturbations are largely irrelevant to our development, we
 refer the reader to their paper \cite{gtt-sgdt}. However, there are two novel
-aspects of perturbations as they relate to our dentational semantics.
+aspects of perturbations as they relate to our denotational semantics.
 
 The first important point is that the construction of perturbations and
 quasi-representable relations is independent of the details of the adjunction
@@ -2744,8 +2773,10 @@ includes an appendix containing omitted definitions and proofs.
 \end{DIFnomarkup}
 
 % EXTENDED VERSION
+\begin{ifextended}
 \newpage
 \appendix
 \input{appendix}
+\end{ifextended}
 
 \end{document}

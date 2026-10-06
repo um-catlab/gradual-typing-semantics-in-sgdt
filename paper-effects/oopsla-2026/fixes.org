@@ -1,16 +1,17 @@
 * Review B
 
-** TODO line 100:
+** DONE line 100:
   Can you elaborate on what is "a cast calculus"?
+*** ERIC: Added a footnote
   
-** TODO line 243:
+** DONE line 243:
   Also remark that both arities described above are instances of
   response types.
   
-** TODO line 249:
+** DONE line 249:
   Missing subscript in $x : σ_{\mathrm{op}}$
   
-** TODO line 258:
+** DONE line 258:
   Unnecessary parentheses in $γ → (⊳B)$
   
 ** TODO line 345:
@@ -27,42 +28,48 @@
   operations? This would make it easier to understand the equation in
   Remark 2.
   
-** TODO line 384:
+** REVIEW line 384:
   Why not be explicit and write $T_{𝒜 ⊗ \mathit{State}}$ instead of
   $T'$?
+  *** ERIC: I changed it, but looks a bit off with the parens so far away from the T
   
-** TODO line 453:
+** DONE line 453:
   Add parentheses to $(? ⇀ ?) ⊑ ?$.
   
-** TODO line 456:
+** REVIEW line 456:
   For someone not familiar with gradual typing, the lack of
   contravariance in the precision rule for functions seems
   strange. Can you elaborate on it in the text?
+  *** ERIC: This is relatively common knowledge in gradual typing, and I'm assuming most people reading the paper would already know this.
   
-** TODO line 461:
+** DONE line 461:
   The context $Δ$ is missing in all four up/down rules.
   
-** TODO line 462:
+** DONE line 462:
   Are there any restrictions on $c$ in ErrBot?
+  *** ERIC: Introduced M and c in the premise of the rule
   
-** TODO line 517:
+** REVIEW line 517:
   Is $𝒜_{Ʊ_{sb}} = 𝒜_{Ʊ_s} + 𝒜_b$, where $𝒜_b$ is the theory with only
   $θ^b$?
+  *** ERIC: $𝒜_{Ʊ_{sb}}$ is a guarded extension of $𝒜_{Ʊ_s}$ with an additional operation $θ^b$. That is, there may be equations between $θ^b$ and the operations in $𝒜_{Ʊ_s}$. This is stated in the text, but I edited the text to make it clearer.
   
-** TODO line 526:
+** DONE line 626:
   The lifting $†$ is never defined. Also, what is $T_{Ʊ_{sb}}.η$?
   
-** TODO line 737:
+** DONE line 737:
   typo "denOtational"
   
-** TODO line 1115:
+** DONE line 1115:
   I am a bit worried about feasibility of the extension to local
   effects.
+  *** ERIC: This is listed as future work, and anything we said at this point would be speculative
   
-** TODO line 1125:
+** REVIEW line 1125:
   The work of [23] seems highly relevant, but is only briefly
   mentioned in the conclusion. How do your contributions compare to
   theirs?
+  *** ERIC: Added a section on handlers and gradual effect typing to the discussion
 
 
 * Review C
@@ -78,39 +85,54 @@
   infinitely many inputs?  Like a write can have `Nat` as input.  It
   is not clear to me whether having an infinite number of operators
   would cause any trouble.
+  *** ERIC: 
+    Infinite arity operations must be treated carefully. 
+    We believe this is possible in principle, but there are a 
+    few steps we would need to take to extend existing results.
 
-** TODO L333 (nitpick):
+** DONE L333 (nitpick):
   Is this $\Rightarrow$ supposed to be $\to$?
 
 ** TODO L346:
   Any other examples with a nontrivial guarded arity, or is `Step` the
   only one you consider?
+  *** ERIC: 
+    No, just step, but we consider theories with *two* step operations.
+    Also, our more general notion of guarded algebraic theory is easier to define.
 
-** TODO L436:
+** DONE L436:
   I have a rough idea of what this judgment means, but it would be
   nice to provide more explanation here.  For example, what exactly is
   the role of $c$ here?  The context is also not used in the rules in
   Fig. 1 (and in fact many of the rules there elide the context).
 
-** TODO L545:
+** REVIEW L545:
   At this point I already forgot what the bar (in $\bar{M}$)
   represents or whether it is introduced at all.
+  *** ERIC: The bar indicates that it is an element of \Sigma_\mho(X). I don't think it's necessary to make a change here.
 
-** TODO L578 (nitpick):
+** REVIEW L578 (nitpick):
   I think you should explain (perhaps earlier) why this corresponds to
   a recursive unfolding step.
+  *** ERIC: Added explanation that this behavior corresponds to the denotational semantics.
 
-** TODO Fig.2:
+** REVIEW Fig.2:
   In various rules here, where does the typing context $\Gamma$ come
   from? Is it part of the semantics judgment that you elided?
+  *** ERIC: 
+    Replaced $\Gamma$ with $\cdot$, (the small-step semantics is over closed terms).
+    But I'm also not sure whether we need typing judgments as assumptions at all.
 
-** TODO L595:
+** DONE L595:
   Where does $V$ come from?
+  *** ERIC: Removed $V$
 
-** TODO L627:
+** REVIEW L627:
   I was not able to understand this part.  More explanation might be
   needed here.
+  *** ERIC: Added additional info as requested by Reviewer B
 
-** TODO Section 5.1.2:
+** DONE Section 5.1.2:
   It seems you only discuss what needs to be done, without the actual
   definition of construction.  Are they in the appendix?
+  *** ERIC: Mentioned that the constructions are in the appendix
