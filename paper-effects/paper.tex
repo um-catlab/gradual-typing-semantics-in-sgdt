@@ -39,7 +39,7 @@
 
 \ExplSyntaxOn
 \bool_new:N \g__is_extended
-\bool_set_false:N \g__is_extended
+\bool_set_true:N \g__is_extended
 
 \NewDocumentCommand{\showifextended}{m}{\bool_if:NT \g__is_extended {#1}}
 \NewDocumentCommand{\showconference}{m}{\bool_if:NF \g__is_extended {#1}}
@@ -1691,23 +1691,25 @@ be a guarded extension with error and step operations. Suppose the free models
 of $\calAs$ are given by a functor $F$ defining a strong adjunction between sets
 and $\calAs$-models. In analogy with the prior guarded denotational model of
 graduality, we seek to lift this adjunction to a strong adjunction between
-predomains and $\calAs$-domains. To do so, we need to define the error ordering
+predomains and $\calAs$-domains. To do so, we need to define an error ordering
 and weak bisimilarity relation on $T(X)$. Because we require the error ordering
 to be antisymmetric, we cannot define it generically --- we cannot guarantee
-that the resulting relation will be antisymmetric. We could quotient by
-order-equivalence, but the result is in general a nontrivial quotient of the
-Set-based free algebra.
-%
-Instead, the construction of the denotational semantics takes this
+that the resulting relation will be antisymmetric. We can quotient $T(X)$ by
+order-equivalence to force antisymmetry, but the result in general will be a
+nontrivial quotient of the Set-based free algebra.
+
+Instead, the construction of the denotational semantics takes the required
 relational data as input. Concretely, the data consists of the definition of the
 weak bisimilarity relation, and the lifting of a predomain relation $c : A \rel
 A'$ to a $\calAs$-domain relation $T(c)$. The latter is required to have the
 property that given a reflexive, antisymmetric relation $\ltdyn_A$, the lifting
-is also reflexive and antisymmetric. In addition, it must satisfy the following
-universal property: if we have a predomain square $f \ltsq{c}{Ud} g$ where $f :
-A \to UB$ and $g : A' \to UB'$ and $d : B \rel B'$ is a $\calAs$-domain
-relation, then there is a square $f^* \ltsq{T(c)}{d} g^*$ where $f^*$ denotes
-the extension of $f$ to a homomorphism $T(A) \to B$.
+is also reflexive and antisymmetric.
+%
+In addition, the relational lifting must satisfy the following universal
+property: if we have a predomain square $f \ltsq{c}{Ud} g$ where $f : A \to UB$
+and $g : A' \to UB'$ and $d : B \rel B'$ is a $\calAs$-domain relation, then
+there is a square $f^* \ltsq{T(c)}{d} g^*$ where $f^*$ denotes the extension of
+$f$ to a homomorphism $T(A) \to B$.
 %
 Lastly, we require that the algebraic operations on $T(A)$ and the monad unit
 $\eta$ respect the ordering and bisimilarity relations.
@@ -1718,7 +1720,8 @@ free theories as well as for our supported theory transformers.
 \subsection{Perturbations and Quasi-Representable Relations}\label{sec:perturbations}
 
 On top of the adjunction between predomains and error domains, Giovannini et al.
-require additional structure to validate the cast rules for gradual typing.
+require additional structure to validate the cast rules for gradual typing in a
+compositional manner.
 %
 % to ensure  that certain cast terms remain in lock-step in their step-sensitive error ordering
 %
@@ -1726,12 +1729,34 @@ To that end, they equip predomains with a monoid of \textbf{perturbations}.
 These are interpreted as morphisms that are bisimilar to the identity, i.e.,
 morphisms that can do nothing except take (a finite number of) steps.
 %
+More concretely, the predomains denoting value types are equipped with a monoid
+$M_A$ of syntactic perturbations, and a homomorphism of monoids $i_A \colon M_A
+\to \morbisimid{A} := \{ f : A \to A \mid f \bisim \id_A \}$. Likewise, the
+error domains corresponding to computation types are equipped with a monoid
+$M_B$ and a homomorphism of monoids $i_B \colon M_B \to \morbisimid{B}$.
+
 The idea is that the perturbations mimic the steps taken by casts in the
-semantics, allowing the perturbed term to be in lock-step with a cast.
-%
+semantics, allowing the perturbed term to be placed in lock-step with a cast.
+This is crucial for compositional relational reasoning in the denotational
+semantics, as reasoning up to weak bisimilarity is \emph{not} transitive in the
+guarded setting. Perturbations provide a controlled form of step-insensitivity
+that is amenable to transitive reasoning. As the perturbations are weakly
+bisimilar to the identity, they make no difference in the denotation of term
+precision that is used to establish graduality.
+
+% We begin by recalling that term precision $M \ltdyn N : A$ is modeled in the
+% semantics of Giovannini et al. by $\sem{M} \ltbisim \sem{N}$ where
+% %
+% \[ f \ltbisim g := \exists f', g'. f \bisim f' \ltdyn g' \bisim g. \]
+% %
+% That is, we do not require that $f$ and $g$ are in lock-step; we are allowed to
+% use any $f'$ bisimilar to $f$ and $g'$ bisimilar to $g$ such that $f'$ is
+% lock-step related to $g'$ in the error ordering.
+
 As the details of perturbations are largely irrelevant to our development, we
-refer the reader to their paper \cite{gtt-sgdt}. However, there are two novel
-aspects of perturbations as they relate to our denotational semantics.
+refer the reader to their paper \cite{gtt-sgdt} for a more detailed discussion.
+However, there are two novel aspects of perturbations as they relate to our
+denotational semantics.
 
 The first important point is that the construction of perturbations and
 quasi-representable relations is independent of the details of the adjunction
