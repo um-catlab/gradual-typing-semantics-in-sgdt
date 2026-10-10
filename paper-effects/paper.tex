@@ -299,6 +299,8 @@ of gradual typing to relational database programming.
 We have additionally identified algebraic theories that do not meet our
 requirements but are still compatible with graduality. A key example of this
 class is the theory of join-semilattices, used to model nondeterministic choice.
+Both classes of algebraic theories are discussed in more detail in Section
+\ref{sec:non-examples}.
 
 
 % These proofs require only that the given algebraic effect can be lifted to
@@ -2691,9 +2693,47 @@ This failure of antisymmetry means that the free algebras in the category of
 the category of sets.
 % That is, the free algebras do not satisfy the lifting property. 
 
-\eric{TODO: discuss what this would imply for gradual functional logic programming}
+\eric{Below is my attempt at describing what this would imply for gradual functional logic programming.}
+This observation has implications for a gradually-typed functional logic
+language. Suppose we have a language with a binary choice operation $\vee$ and a
+print operation $\mathsf{print}$, and consider a term $M : \dyn$. By the rules
+for term precision, we have $\mho \ltdyn M :: \mathsf{Nat} \ltdyn M$. Then by
+idempotence and monotonicity for $\vee$, we have
+%
+$(\mho \vee M) = (\mho \vee \mho \vee M) \ltdyn (\mho \vee (M :: \mathsf{Nat}) \vee M)$ 
+%
+and conversely,
+%
+$(\mho \vee (M :: \mathsf{Nat}) \vee M) \ltdyn (\mho \vee M \vee M) = (\mho \vee M)$.
+%
+% Thus, the two distinct terms above are order-equivalent in the graduality
+% ordering, which means they should behave equivalently. This does indeed hold
+% if $M$ is of base type, and that is sufficient for the graduality result.
+% However, for higher-order types the result is counterintuitive: 
+This argument applies to any chain of terms $M_1 \ltdyn M_2 \ltdyn M_3$, showing
+that $M_1 \vee M_3$ is order-equivalent to $M_1 \vee M_2 \vee M_3$ in the
+graduality ordering. This means that they should have equivalent operational
+behavior. This is indeed the case if the terms are of base type and do not print
+anything, because every chain of output values is of the form $\mho \ltdyn V$
+for some value $V$.
+% This is sufficient for establishing graduality, as the property is only
+% concerned with terms of base type.
+However, for higher-order types, the result is more complicated. For instance,
+suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
+:: \textsf{Nat})$, and $M_3$ is the identity. Then the order-equivalence result
+means that the denotations of $M_1 \vee M_3$ and $M_1 \vee M_2 \vee M_3$ are
+equal. In other words, the denotational semantics cannot tell the difference
+between a computation that nondeterministically chooses between $M_1$ and $M_3$,
+and one that chooses between all three of them. Now define a context
+%
+$C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
+%
+Then $\sem{C[M_1 \vee M_3]} = \sem{C[M_1 \vee M_2 \vee M_3]}$. On the other
+hand, the possible outputs, viewed as sets of traces, are $\{ a\mho, ab0 \}$ and
+$\{ a\mho, ab\mho, ab0 \}$ respectively. Thus, the denotational semantics is not
+adequate for exact operational behavior.
 
-The same phenomenon occurs in any theory that includes join semilattices,
+This same phenomenon occurs in any theory that includes join semilattices,
 including idempotent semirings. We leave to future work the exploration of how
 we might adapt the framework to accommodate such theories.
 
