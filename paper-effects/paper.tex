@@ -113,9 +113,10 @@
     As a first step toward reusable, expressive semantic models of gradual
     typing, Giovannini et al. defined a denotational model of a simple
     gradually-typed cast calculus using guarded type theory, and they
-    conjectured that their approach would extend straightforwardly to
+    conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
     accommodate arbitrary algebraic effects specified by an algebraic theory.
-    
+
+    \max{This second paragraph is too long-winded. Also if you say it's delicate you should probably lead with ``One the one hand''}
     In this work, we show that the relationship between gradual typing and
     algebraic effects is more delicate than those authors conjectured. Given a
     gradually typed lambda calculus parameterized by an algebraic theory
@@ -136,7 +137,7 @@
     On the other hand, we also identify a class of algebraic effects which are
     fundamentally incompatible with gradual typing. In any gradually-typed
     language supporting such operations, the graduality theorem becomes trivial.
-    This class includes theories with group-like operations, including the
+    This class includes theories with \max{inverse like operations rather than group-like could be better term here?}group-like operations, including the
     theories of groups, rings, and modules.
     %
     Lastly, we identify a class of ``intermediate'' algebraic effects that have
@@ -255,16 +256,17 @@ observable behavior. The result is a tedious recapitulation of prior
 arguments adapted to new effects, but where fundamentally very little
 of the argument for graduality truly has changed.
 
-In addition to the above challenge, there is a more serious problem: certain
+In addition to the above challenge\max{It's not clear that you are moving from background to a contribution here}, there is a more serious problem: certain
 effects are fundamentally incompatible with graduality. For example, suppose we
 have a language with a binary group operation $g(M, N)$ and an inverse operation
 such that $g(M, M^{-1}) = e$. If the multiplication and the inverse operations
 are monotone with respect to the precision ordering on terms, then the
-graduality theorem fails to hold! More specifically, if $M$ is a
+graduality theorem fails to hold\max{I don't think this is an appropriate framing. You can say a particular language doesn't satisfy graduality, but if we talk about an abstract language it doesn't make as much sense. I would restate it that the presence of graduality forces the equational theory of the language to be trivial}! More specifically, if $M$ is a
 dynamically-typed term such that $M \equiv \mathsf{zero}$, then we can show
 using monotonicity of multiplciation and inverse that $M \ltdyn \mho$, with
-$\mho$ the error term. This contradicts graduality, as $M$ returns a value.
+$\mho$ the error term. This contradicts graduality, as $M$ returns a value\max{what is this example? zero is the zero of the group or the value zero? Is there anything specific to zero or can you prove all $M \ltdyn \mho$?}.
 
+\max{shouldn't you introduce what prior work conjectured before showing that it is wrong?}
 These challenges demonstrate that the combination of gradual typing with effects
 is more delicate than anticipated in prior work. For instance, Giovannini et al.
 conjectured that their approach would extend without issue to arbitrary
@@ -287,6 +289,7 @@ semantics (3) an adequacy theorem relating operational and denotational
 semantics (4) a graduality proof for the denotational semantics, which is then
 transported via adequacy to the operational semantics.
 
+\max{starting a paragraph with ``on the other hand'' doesn't make sense unless the previous paragraph started with ``on the one hand''.}
 On the other hand, in developing the framework, we identified important criteria
 that algebraic theories need to satisfy to make the generic graduality proof
 work. Many natural algebraic theories do not meet these requirements. These
@@ -294,10 +297,10 @@ include theories such as groups, which as we saw above are incompatible with
 graduality in a fundamental way. The same argument applies to the theories of
 rings and of modules. The latter theory has been applied to modeling relational
 databases \cite{TODO}; our result therefore has consequences for the application
-of gradual typing to relational database programming.
+of gradual typing to relational database programming\max{what are the consequences?}.
 %
 We have additionally identified algebraic theories that do not meet our
-requirements but are still compatible with graduality. A key example of this
+requirements but are still compatible with graduality\max{in what sense do we know in a positive sense that they are compatible with graduality? Wouldn't that require us to prove graduality of a specific system?}. A key example of this
 class is the theory of join-semilattices, used to model nondeterministic choice.
 Both classes of algebraic theories are discussed in more detail in Section
 \ref{sec:non-examples}.
@@ -307,6 +310,7 @@ Both classes of algebraic theories are discussed in more detail in Section
 % relations, the concrete details of the use of those relations are then used
 % modularly in the graduality and adequacy proofs.
 
+\max{this paragraph seems out of place here.}
 The foundation for our work is \emph{guarded type theory}
 \cite{birkedal-mogelberg-schwinghammer-stovring2011}, which allows us to define
 the semantics, adequacy and graduality proofs in a concise way. Guarded type
@@ -453,6 +457,7 @@ interaction tree base case, we can build up a complex effect theory
 with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
+\max{10 sections in 26 pages is crazy. Do we really need so many different sections?}
 \begin{enumerate}
     \item In Section \ref{sec:background}, we provide background
       on guarded type theory and algebraic theories that will be used
