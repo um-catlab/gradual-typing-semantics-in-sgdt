@@ -2614,6 +2614,7 @@ equal.
 \end{example}
 
 \section{Theories That Do Not Fit Into Our Framework}\label{sec:non-examples}
+\max{horrible title of this section}
 
 So far, we have shown that our framework is capable of handling any algebraic
 theory constructed as a repreated application of the four supported theory
@@ -2625,14 +2626,14 @@ theory. Next, we consider algebraic theories that do not fit into our framework.
 We specifically focus on item \ref{itm:gs-lifting} in the defintion of a
 graduality schema. In particular, recall that the input algebraic theory must be
 such that its free models lift from the category of sets to the category of
-predomains (i.e., posets equipped with a bisimilarity relation). Several common
+predomains (i.e., posets equipped with a bisimilarity relation)\max{do we have to repeat the definition here?}. Several common
 algebraic theories do not enjoy this property. In the following two sections, we
-identify two distinct classes of theories for which the property fails to hold.
+identify two distinct classes of theories for which the property fails to hold.\max{``In the following two sections'' waste of words}
 
 \subsection{Malcev Theories}
 
 First, there are algebraic theories that are fundamentally at odds with gradual
-typing, in a manner we make precise below. The prototypical example of such a
+typing, in a manner we make precise below\max{``in a manner we make precise below'' is in like two sentences you don't need to say it}. The prototypical example of such a
 theory is that of groups. As discussed in the introduction, if we have a cast
 calculus whose terms supported a group-like effect, we can use the monotonicity
 of the inverse operation to force a contradiction to graduality.
@@ -2642,7 +2643,7 @@ We can abstract over the group example using the notion of a Malcev operation as
 defined below:
 %
 \begin{definition} A \textbf{Malcev operation} in an algebraic theory is an
-operation $f(x,y,z)$ such that $f(x,x,y) = y$ and $f(x,y,y) = x$.
+operation $f(x,y,z)$ such that $f(x,x,y) = y$ and $f(x,y,y) = x$.\max{citations??}
 %
 A \textbf{Malcev theory} is an algebraic theory containing a Malcev operation.
 \end{definition}
@@ -2663,6 +2664,7 @@ $C[M :: \mathsf{Nat}] \ltdyn C[M]$. Now note that
 $C[M :: \mathsf{Nat}] = f(\mho, (M :: \mathsf{Nat}), M) = f(\mho, \mho, M) = M$,
 %
 and $C[M] = f(\mho, M, M) = \mho$.
+\max{This derivation should be in the \emph{introduction}. You can't bury it at the end of the paper}
 
 Thus, we have shown $M \ltdyn \mho$, which means $M$ must be $\mho$, but $M$
 returns a value. This contradicts graduality.
@@ -2677,10 +2679,11 @@ returns a value. This contradicts graduality.
 Other Malcev theories include abelian groups, rings, and modules over a ring (of
 which vector spaces are a special case). The above result implies that
 gradually-typed languages cannot support such operations. \eric{TODO: mention
-gradual quantum programming?}
+gradual quantum programming?}\max{I would definitely mention gradual quantum somewhere}
 
 \subsection{Idempotent, Commutative Operations}
 
+\max{isn't idempotence the important part, not commutative?}
 The second class of non-examples consists of theories that in principle are
 compatible with graduality, but which do not quite fit into our framework
 because they do not satisfy the required lifting property. The primary example
@@ -2737,6 +2740,7 @@ Then $\sem{C[M_1 \vee M_3]} = \sem{C[M_1 \vee M_2 \vee M_3]}$. On the other
 hand, the possible outputs, viewed as sets of traces, are $\{ a\mho, ab0 \}$ and
 $\{ a\mho, ab\mho, ab0 \}$ respectively. Thus, the denotational semantics is not
 adequate for exact operational behavior.
+\max{This paragraph is not very clear. Let's hash it out on the board tomorrow.}
 
 This same phenomenon occurs in any theory that includes join semilattices,
 including idempotent semirings. We leave to future work the exploration of how
