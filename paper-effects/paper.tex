@@ -112,19 +112,20 @@
     %
     As a first step toward reusable, expressive semantic models of gradual
     typing, Giovannini et al. defined a denotational model of a simple
-    gradually-typed cast calculus using guarded type theory, and they
-    conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
-    accommodate arbitrary algebraic effects specified by an algebraic theory.
-
-    %\max{This second paragraph is too long-winded. Also if you say it's delicate you should probably lead with ``One the one hand''}
-    In this work, we show that the relationship between gradual typing and
-    algebraic effects is more delicate than those authors conjectured. Given a
-    gradually typed lambda calculus parameterized by an algebraic theory
-    describing the effects available in the program, 
+    gradually-typed cast calculus using guarded type theory.
     %
-    On the one hand, we identify sufficient conditions on an algebraic theory
-    that allow us to prove graduality for a cast calculus supporting that
-    theory's operations.
+    % As a first step toward reusable, expressive semantic models of gradual
+    % typing, Giovannini et al. defined a denotational model of a simple
+    % gradually-typed cast calculus using guarded type theory, and they
+    % conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
+    % accommodate arbitrary algebraic effects specified by an algebraic theory.
+
+    In this work, we investigate to what extent their approach can be extended
+    to model gradual typing with algebraic effects. We identify sufficient
+    conditions on an algebraic theory that allow us to prove graduality for a
+    cast calculus supporting that theory's operations. We then construct a
+    framework for gradual typing parameterized by an algebraic theory satisfying
+    these conditions.
     %
     Each instantiation of the framework provides a concrete operational
     semantics and a denotational semantics that generalizes the model of
@@ -134,7 +135,12 @@
     combine standard semantics of state and exception-like effects in a
     compositional manner to produce new instantiations.
 
-    On the other hand, we also identify a class of algebraic effects which are
+    % Given a gradually typed lambda calculus parameterized by an algebraic
+    % theory describing the effects available in the program, we identify
+    % sufficient conditions on an algebraic theory that allow us to prove
+    % graduality for the calculus.
+
+    We additionally identify a class of algebraic effects which are
     fundamentally incompatible with gradual typing. In any gradually-typed
     language supporting such operations, the graduality theorem becomes trivial.
     This class includes theories with inverse-like operations, including the
