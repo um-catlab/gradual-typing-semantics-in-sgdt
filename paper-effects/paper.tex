@@ -146,11 +146,10 @@
     This class includes theories with inverse-like operations, including the
     theories of groups, rings, and modules.
     %
-    Lastly, we identify a class of ``intermediate'' algebraic effects that have
-    a nontrivial interaction with graduality but are not outright incompatible
-    with it. Among these are the theory of join semilattices, used to model
-    non-determinism. Further study is needed to determine if our framework can
-    accommodate these theories.
+    We observe that other algebraic effects avoid this obstruction but fall
+    outside our framework. Among these is the theory of join semilattices, used
+    to model non-determinism. Further study is needed to determine if our
+    framework can accommodate these theories.
 
     % First, we identify a class of well-behaved effect theories for which we can
     % prove end-to-end graduality theorem via a suitable generalization of the
@@ -269,16 +268,16 @@ of the argument for graduality truly has changed.
 % effects is straightforward and left its investigation to future work.
 
 In this work, we investigate the extent to which we can prove graduality for
-effects systematically, generically in the effect.
-%
-% They conjectured that the extension of their model to accommodate arbitrary
-% algebraic effects is straightforward and left its investigation to future
-% work.
-%
-Our primary contribution is a semantic framework for gradual typing with
-effects. We build on the denotational approach of Giovannini et al., who defined
-a semantics for a simple gradually-typed language in guarded type theory and
-used it prove graduality \cite{gtt-sgdt}. Our framework abstracts over the
+effects systematically, generically in the effect. We build on the denotational
+approach of Giovannini et al., who defined a semantics for a simple
+gradually-typed language in guarded type theory and used it to prove graduality
+\cite{gtt-sgdt}. In doing so, we observed that there are delicate interactions
+between specific effects and the graduality property. Perhaps unexpectedly, not
+all effects are compatible with graduality, regardless of the proof method. We
+return to this point below.
+
+Our primary contribution is a semantic framework for gradual typing with effects
+building on the work of Giovannini et al. Our framework abstracts over the
 specific choice of effects, allowing for concrete sets of effects to be
 recovered as particular instantiations. We describe the effects using
 \emph{algebraic theories}, an idea commonly known as \emph{algebraic effects}
@@ -309,37 +308,65 @@ Second, we give a monad-transformer-like construction for state and
 exception-like effects. With the interaction trees as a base case, the monad
 transformers can be iterated to construct new models on demand.
 
-In developing the framework, we identified important criteria that algebraic
-theories need to satisfy to make our generic graduality proof work. We found
-that many natural algebraic theories do not meet these requirements. These
-include theories such as groups, which we observed to be incompatible with
-graduality in a fundamental way. 
+Our framework requires the algebraic theory to satisfy a semantic lifting
+condition for its free algebras (Section \ref{sec:extending-to-predomains}).
 %
-For example, suppose we have a language with a nullary operation $e$, a binary
-group operation $M \cdot N$, and an inverse operation $M^{-1}$ such that $M
-\cdot M^{-1} = e$. If the multiplication and the inverse operations are monotone
-with respect to the precision ordering on terms, then the graduality theorem
-forces the equational theory of the language to be trivial!
+In developing the framework, we observed that some amount of restriction on the
+theory is inevitable. For example, the theory of groups is incompatible with
+graduality in a fundamental way. The argument uses only monotonicity and the
+equations of the theory. 
+% In developing the framework, we identified sufficient conditions on algebraic
+% theories for which we can prove an end-to-end graduality result. We found that
+% several natural algebraic theories fall outside this class. These include
+% theories such as groups, which we observed to be incompatible with graduality in
+% a fundamental way. The argument uses only monotonicity and the equations of the
+% theory. 
 %
-For any term $M$, the term precision rules state that $\mho \ltdyn M$ with
-$\mho$ the error term. Then by monotonicity of inverse we have $\mho^{-1} \ltdyn
-M^{-1}$ and then by monotonicity of multiplciation we have $M = (\mho \cdot
-\mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$. This means $M
-\equiv \mho$.
+Suppose we have a language with a nullary operation $e$, a binary group
+operation $M \cdot N$, and an inverse operation $M^{-1}$ such that $M \cdot
+M^{-1} = e$. If the multiplication and the inverse operations are monotone with
+respect to the precision ordering on terms, then every term is equivalent to the
+error term, so the graduality result only holds trivially.
+%
+More concretely, for any term $M$, the term precision rules state that $\mho
+\ltdyn M$ with $\mho$ the error term. Then by monotonicity of inverse we have
+$\mho^{-1} \ltdyn M^{-1}$ and then by monotonicity of multiplication we have $M
+= (\mho \cdot \mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$.
+Graduality then implies that $M$ must error.
 %
 \eric{I changed the argument based on your feedback. The original argument was closer to what you had written on Zulip.}
 %
-The same argument applies to the theories of rings and of modules. The latter
-theory has been applied to modeling relational databases \cite{TODO}; our result
-therefore has consequences for the application of gradual typing to relational
-database programming\max{what are the consequences?}.
 
+More generally, the above argument works with any operation $f$ such that $f(x,
+x, y) = y$ and $f(x, y, y) = x$; this is known as a \emph{Malcev operation}
+\cite{TODO}. Given such an $f$, for any $M$, we have $M = f(\mho, \mho, M)
+\ltdyn f(\mho, M, M) = \mho$. For groups, we define $f(x, y, z) = x \cdot y^{-1}
+\cdot z$. Rings and modules also have such an operation, so they are
+incompatible with gradual typing as well.
+%
+The latter theory has been applied to modeling relational databases \cite{TODO};
+our result therefore has consequences for the application of gradual typing to
+relational database programming\max{what are the consequences?}.
+
+% Our framework's semantic lifting condition rules out theories with a Malcev
+% operation: in any partial order where $\mho$ is the least element, no non-error
+% term can lie below $\mho$.
+Our framework's semantic lifting condition rules out theories with a Malcev
+operation. In any partial order where $\mho$ is the least element, anything
+below $\mho$ is equal to $\mho$. With a Malcev operation, everything is below
+$\mho$, including values. However, our lifting condition does not allow a value
+to be identified with $\mho$. Thus, Malcev theories do not meet the requirements
+of our framework.
+%
 We have additionally identified algebraic theories that do not meet the
-requirements of our framework, but which we believe are nonetheless compatible
-with graduality and require further study. A key example is the theory of
-join-semilattices, used to model nondeterministic choice. Both classes of
-algebraic theories are discussed in more detail in Section
-\ref{sec:non-examples}.
+requirements, but which we believe are nonetheless compatible with graduality
+since, unlike with Malcev operations, no value is forced to lie below $\mho$. A
+key example is the theory of join-semilattices, used to model nondeterministic
+choice. We leave to future work the question of how to adapt our framework to
+accommodate such theories.
+
+% Both classes of algebraic theories are discussed in more detail in Section
+% \ref{sec:non-examples}.
 %\max{in what sense do we know in a positive sense that they are compatible with graduality? Wouldn't that require us to prove graduality of a specific system?}
 
 % These proofs require only that the given algebraic effect can be lifted to
