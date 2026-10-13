@@ -119,7 +119,7 @@
     % gradually-typed cast calculus using guarded type theory, and they
     % conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
     % accommodate arbitrary algebraic effects specified by an algebraic theory.
-
+    
     In this work, we investigate to what extent their approach can be extended
     to model gradual typing with algebraic effects. We identify sufficient
     conditions on an algebraic theory that allow us to prove graduality for a
@@ -269,27 +269,26 @@ of the argument for graduality truly has changed.
 % effects is straightforward and left its investigation to future work.
 
 In this work, we investigate the extent to which we can prove graduality for
-effects systematically, generically in the effect. We build on the denotational
-approach of Giovannini et al., who defined a semantics for a simple
-gradually-typed language in guarded type theory and used it prove graduality
-\cite{gtt-sgdt}.
+effects systematically, generically in the effect.
 %
 % They conjectured that the extension of their model to accommodate arbitrary
 % algebraic effects is straightforward and left its investigation to future
 % work.
 %
-Our primary contribution is a semantic framework for gradual typing with effects,
-generalizing the semantics of Giovannini et al. Our framework abstracts over the
+Our primary contribution is a semantic framework for gradual typing with
+effects. We build on the denotational approach of Giovannini et al., who defined
+a semantics for a simple gradually-typed language in guarded type theory and
+used it prove graduality \cite{gtt-sgdt}. Our framework abstracts over the
 specific choice of effects, allowing for concrete sets of effects to be
-recovered as particular instantiations. We abstract over different concrete
-effects using \emph{algebraic theories}, an idea commonly known as
-\emph{algebraic effects} \cite{PLOTKIN2001332, plotkinpower2003}. We define a
-gradual lambda calculus whose effects are given by an algebraic theory that is a
-parameter to the system. By instantiating the system with a particular theory
-and implementation of the free algebras of the theory, our framework produces
-(1) an operational semantics (2) a denotational semantics (3) an adequacy
-theorem relating operational and denotational semantics (4) a graduality proof
-for the denotational semantics, which is then transported via adequacy to the
+recovered as particular instantiations. We describe the effects using
+\emph{algebraic theories}, an idea commonly known as \emph{algebraic effects}
+\cite{PLOTKIN2001332, plotkinpower2003}. We define a gradual lambda calculus
+whose effects are given by an algebraic theory that is a parameter to the
+system. By instantiating the system with a particular theory and implementation
+of the free algebras of the theory, our framework produces (1) an operational
+semantics (2) a denotational semantics (3) an adequacy theorem relating
+operational and denotational semantics (4) a graduality proof for the
+denotational semantics, which is then transported via adequacy to the
 operational semantics.
 
 The foundation for our work is \emph{guarded type theory}
@@ -2632,7 +2631,7 @@ equal.
 
 \end{example}
 
-\section{Theories That Do Not Fit Into Our Framework}\label{sec:non-examples}
+\section{Non-Examples: Malcev and Semilattice-Like Theories}\label{sec:non-examples}
 \max{horrible title of this section}
 
 So far, we have shown that our framework is capable of handling any algebraic
@@ -2645,17 +2644,19 @@ theory. Next, we consider algebraic theories that do not fit into our framework.
 We specifically focus on item \ref{itm:gs-lifting} in the defintion of a
 graduality schema. In particular, recall that the input algebraic theory must be
 such that its free models lift from the category of sets to the category of
-predomains (i.e., posets equipped with a bisimilarity relation)\max{do we have to repeat the definition here?}. Several common
-algebraic theories do not enjoy this property. In the following two sections, we
-identify two distinct classes of theories for which the property fails to hold.\max{``In the following two sections'' waste of words}
+predomains. Several common algebraic theories do not enjoy this property. We
+identify two distinct classes of theories for which the property fails to
+hold.
 
 \subsection{Malcev Theories}
 
 First, there are algebraic theories that are fundamentally at odds with gradual
-typing, in a manner we make precise below\max{``in a manner we make precise below'' is in like two sentences you don't need to say it}. The prototypical example of such a
-theory is that of groups. As discussed in the introduction, if we have a cast
-calculus whose terms supported a group-like effect, we can use the monotonicity
-of the inverse operation to force a contradiction to graduality.
+typing, The prototypical example of such a theory is that of groups. As
+discussed in the introduction, if we have a cast calculus whose terms support
+a group-like effect, we can use the monotonicity of the operations to
+show that all terms equal the error term $\mho$.
+% force a contradiction to graduality.
+%
 % We do not support these theories because they are simply not compatible with
 % gradual typing.
 We can abstract over the group example using the notion of a Malcev operation as
@@ -2700,15 +2701,15 @@ which vector spaces are a special case). The above result implies that
 gradually-typed languages cannot support such operations. \eric{TODO: mention
 gradual quantum programming?}\max{I would definitely mention gradual quantum somewhere}
 
-\subsection{Idempotent, Commutative Operations}
+\subsection{Semilattice-Like Operations}
 
-\max{isn't idempotence the important part, not commutative?}
+%\max{isn't idempotence the important part, not commutative?}
 The second class of non-examples consists of theories that in principle are
 compatible with graduality, but which do not quite fit into our framework
 because they do not satisfy the required lifting property. The primary example
 here is the theory of join semilattices, which models finite nondeterministic
-choice. The issue arises from the combination of commutativity and idempotency.
-In brief, the ordering on the free algebras of such a theory extended with error
+choice. The idempotence axiom allows for unrestricted duplication of terms. As a
+result, the ordering on the free algebras of such a theory extended with error
 and $\theta$ is not antisymmetric, an issue that occurs already for the
 original, unextended theory of join semilattices. There, the ordering on the
 free join semilattice (i.e., the finite powerset) is the Egli-Milner ordering
