@@ -102,44 +102,28 @@
 \orcid{0000-0001-8141-195X}
 
 \begin{abstract}
-    Gradually-typed languages allow for soundly mixing static and dynamically
-    typed programming styles and support migration from a dynamic to static
-    typing style. A key theorem for such languages is graduality, which ensures
-    that the transition from dynamic to static typing preserves semantics up to
-    introduction of stricter checking. Establishing this property is a
-    metatheoretic challenge, and even the correct formulation of this property
-    must be given anew for languages with different observable effects.
-    %
-    As a first step toward reusable, expressive semantic models of gradual
-    typing, Giovannini et al. defined a denotational model of a simple
-    gradually-typed cast calculus using guarded type theory.
-    %
-    % As a first step toward reusable, expressive semantic models of gradual
-    % typing, Giovannini et al. defined a denotational model of a simple
-    % gradually-typed cast calculus using guarded type theory, and they
-    % conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
-    % accommodate arbitrary algebraic effects specified by an algebraic theory.
+    Gradual typing allows for the mixing of static and dynamic code styles in
+    the same codebase. A key metatheoretic property of gradually-typed languages
+    is graduality, which ensures that the transition from dynamic to static
+    typing preserves semantics up to introduction of stricter checking.
+    Establishing graduality is a metatheoretic challenge, often requiriing
+    results to be reproven from stratch across different languages. The
+    axiomatic approach to gradual typing provides reusable, syntax-independent
+    abstractions, but so far it does not extend to common language features such
+    as effects. Even the correct formulation of the graduality property must be
+    given anew for languages with different observable effects.
     
-    In this work, we investigate to what extent their approach can be extended
-    to model gradual typing with algebraic effects. We identify sufficient
-    conditions on an algebraic theory that allow us to prove graduality for a
-    cast calculus supporting that theory's operations. We then construct a
-    framework for gradual typing parameterized by an algebraic theory satisfying
-    these conditions.
+    In this work, we investigate how the axiomatic approach to gradual typing
+    can be extended to accommodate gradually-typed languages with effects. We
+    build on the work of Giovannini et al., who defined a denotational model of
+    a simple gradually-typed cast calculus using guarded type theory. We
+    identify sufficient conditions on an algebraic theory that allow us to prove
+    graduality for a cast calculus supporting that theory's operations. We then
+    construct a framework for gradual typing parameterized by an algebraic
+    theory satisfying these conditions. Each instantiation of the framework
+    provides a concrete operational semantics, a denotational semantics, and a
+    proof of graduality.
     %
-    Each instantiation of the framework provides a concrete operational
-    semantics and a denotational semantics that generalizes the model of
-    Giovannini et al. We instantiate the framework to produce many concrete
-    examples of effects: a generic trace-based graduality theorem for
-    interaction trees, as well as monad transformer theorems that allow us to
-    combine standard semantics of state and exception-like effects in a
-    compositional manner to produce new instantiations.
-
-    % Given a gradually typed lambda calculus parameterized by an algebraic
-    % theory describing the effects available in the program, we identify
-    % sufficient conditions on an algebraic theory that allow us to prove
-    % graduality for the calculus.
-
     We additionally identify a class of algebraic effects which are
     fundamentally incompatible with gradual typing. In any gradually-typed
     language supporting such operations, the graduality theorem becomes trivial.
