@@ -116,19 +116,19 @@
     conjectured\max{did we conjecture this?} that their approach would extend straightforwardly to
     accommodate arbitrary algebraic effects specified by an algebraic theory.
 
-    \max{This second paragraph is too long-winded. Also if you say it's delicate you should probably lead with ``One the one hand''}
+    %\max{This second paragraph is too long-winded. Also if you say it's delicate you should probably lead with ``One the one hand''}
     In this work, we show that the relationship between gradual typing and
     algebraic effects is more delicate than those authors conjectured. Given a
     gradually typed lambda calculus parameterized by an algebraic theory
-    describing the effects available in the program, we identify sufficient
-    conditions on the theory that allow us to prove graduality for the calculus
-    using a generalization of the approach of Giovannini et al.
-    % Given an algebraic theory satisfying these conditions, we establish a
-    % generic graduality theorem for a gradually typed lambda calculus
-    % parameterized by the theory.
-    Each instantiation of this framework provides a concrete operational
-    semantics and a denotational semantics that generalizes their model. We show
-    how the generic framework can be instantiated to produce many concrete
+    describing the effects available in the program, 
+    %
+    On the one hand, we identify sufficient conditions on an algebraic theory
+    that allow us to prove graduality for a cast calculus supporting that
+    theory's operations.
+    %
+    Each instantiation of the framework provides a concrete operational
+    semantics and a denotational semantics that generalizes the model of
+    Giovannini et al. We instantiate the framework to produce many concrete
     examples of effects: a generic trace-based graduality theorem for
     interaction trees, as well as monad transformer theorems that allow us to
     combine standard semantics of state and exception-like effects in a
@@ -137,7 +137,7 @@
     On the other hand, we also identify a class of algebraic effects which are
     fundamentally incompatible with gradual typing. In any gradually-typed
     language supporting such operations, the graduality theorem becomes trivial.
-    This class includes theories with \max{inverse like operations rather than group-like could be better term here?}group-like operations, including the
+    This class includes theories with inverse-like operations, including the
     theories of groups, rings, and modules.
     %
     Lastly, we identify a class of ``intermediate'' algebraic effects that have
@@ -256,61 +256,36 @@ observable behavior. The result is a tedious recapitulation of prior
 arguments adapted to new effects, but where fundamentally very little
 of the argument for graduality truly has changed.
 
-In addition to the above challenge\max{It's not clear that you are moving from background to a contribution here}, there is a more serious problem: certain
-effects are fundamentally incompatible with graduality. For example, suppose we
-have a language with a binary group operation $g(M, N)$ and an inverse operation
-such that $g(M, M^{-1}) = e$. If the multiplication and the inverse operations
-are monotone with respect to the precision ordering on terms, then the
-graduality theorem fails to hold\max{I don't think this is an appropriate framing. You can say a particular language doesn't satisfy graduality, but if we talk about an abstract language it doesn't make as much sense. I would restate it that the presence of graduality forces the equational theory of the language to be trivial}! More specifically, if $M$ is a
-dynamically-typed term such that $M \equiv \mathsf{zero}$, then we can show
-using monotonicity of multiplciation and inverse that $M \ltdyn \mho$, with
-$\mho$ the error term. This contradicts graduality, as $M$ returns a value\max{what is this example? zero is the zero of the group or the value zero? Is there anything specific to zero or can you prove all $M \ltdyn \mho$?}.
+% As a first step toward reusable, expressive semantics for gradual typing,
+% Giovannini et al. defined a semantics for a simple gradually-typed language in
+% guarded type theory and used it prove graduality \cite{gtt-sgdt}. They
+% conjectured that the extension of their model to accommodate arbitrary algebraic
+% effects is straightforward and left its investigation to future work.
 
-\max{shouldn't you introduce what prior work conjectured before showing that it is wrong?}
-These challenges demonstrate that the combination of gradual typing with effects
-is more delicate than anticipated in prior work. For instance, Giovannini et al.
-conjectured that their approach would extend without issue to arbitrary
-collections of effects and equations. In this work, we seek to answer the
-question of when it is possible to prove graduality for effects in a systematic,
-effect-generic manner. To that end, we develop a semantic framework for gradual
-typing with effects, generalizing the approach of Giovannini et al.
-\cite{gtt-sgdt}. Our framework abstracts over the specific choice of effects,
-allowing for concrete sets of effects to be recovered as particular
-instantiations. The framework serves dual purposes. On the one hand, it allows
-us to prove graduality generically for a wide range of effects.
+In this work, we investigate the extent to which we can prove graduality for
+effects systematically, generically in the effect. We build on the denotational
+approach of Giovannini et al., who defined a semantics for a simple
+gradually-typed language in guarded type theory and used it prove graduality
+\cite{gtt-sgdt}.
 %
-We abstract over different concrete effects using \emph{algebraic theories}, an
-idea commonly known as \emph{algebraic effects} \cite{PLOTKIN2001332,
-plotkinpower2003}. We define a gradual lambda calculus whose effects are given
-by an algebraic theory that is a parameter to the system. By instantiating the
-system with a particular theory and implementation of the free algebras of the
-theory, our framework produces (1) an operational semantics (2) a denotational
-semantics (3) an adequacy theorem relating operational and denotational
-semantics (4) a graduality proof for the denotational semantics, which is then
-transported via adequacy to the operational semantics.
-
-\max{starting a paragraph with ``on the other hand'' doesn't make sense unless the previous paragraph started with ``on the one hand''.}
-On the other hand, in developing the framework, we identified important criteria
-that algebraic theories need to satisfy to make the generic graduality proof
-work. Many natural algebraic theories do not meet these requirements. These
-include theories such as groups, which as we saw above are incompatible with
-graduality in a fundamental way. The same argument applies to the theories of
-rings and of modules. The latter theory has been applied to modeling relational
-databases \cite{TODO}; our result therefore has consequences for the application
-of gradual typing to relational database programming\max{what are the consequences?}.
+% They conjectured that the extension of their model to accommodate arbitrary
+% algebraic effects is straightforward and left its investigation to future
+% work.
 %
-We have additionally identified algebraic theories that do not meet our
-requirements but are still compatible with graduality\max{in what sense do we know in a positive sense that they are compatible with graduality? Wouldn't that require us to prove graduality of a specific system?}. A key example of this
-class is the theory of join-semilattices, used to model nondeterministic choice.
-Both classes of algebraic theories are discussed in more detail in Section
-\ref{sec:non-examples}.
+Our primary contribution is a semantic framework for gradual typing with effects,
+generalizing the semantics of Giovannini et al. Our framework abstracts over the
+specific choice of effects, allowing for concrete sets of effects to be
+recovered as particular instantiations. We abstract over different concrete
+effects using \emph{algebraic theories}, an idea commonly known as
+\emph{algebraic effects} \cite{PLOTKIN2001332, plotkinpower2003}. We define a
+gradual lambda calculus whose effects are given by an algebraic theory that is a
+parameter to the system. By instantiating the system with a particular theory
+and implementation of the free algebras of the theory, our framework produces
+(1) an operational semantics (2) a denotational semantics (3) an adequacy
+theorem relating operational and denotational semantics (4) a graduality proof
+for the denotational semantics, which is then transported via adequacy to the
+operational semantics.
 
-
-% These proofs require only that the given algebraic effect can be lifted to
-% relations, the concrete details of the use of those relations are then used
-% modularly in the graduality and adequacy proofs.
-
-\max{this paragraph seems out of place here.}
 The foundation for our work is \emph{guarded type theory}
 \cite{birkedal-mogelberg-schwinghammer-stovring2011}, which allows us to define
 the semantics, adequacy and graduality proofs in a concise way. Guarded type
@@ -328,6 +303,44 @@ trace semantics over coinductively defined interaction trees \cite{itrees}.
 Second, we give a monad-transformer-like construction for state and
 exception-like effects. With the interaction trees as a base case, the monad
 transformers can be iterated to construct new models on demand.
+
+In developing the framework, we identified important criteria that algebraic
+theories need to satisfy to make our generic graduality proof work. We found
+that many natural algebraic theories do not meet these requirements. These
+include theories such as groups, which we observed to be incompatible with
+graduality in a fundamental way. 
+%
+For example, suppose we have a language with a nullary operation $e$, a binary
+group operation $M \cdot N$, and an inverse operation $M^{-1}$ such that $M
+\cdot M^{-1} = e$. If the multiplication and the inverse operations are monotone
+with respect to the precision ordering on terms, then the graduality theorem
+forces the equational theory of the language to be trivial!
+%
+For any term $M$, the term precision rules state that $\mho \ltdyn M$ with
+$\mho$ the error term. Then by monotonicity of inverse we have $\mho^{-1} \ltdyn
+M^{-1}$ and then by monotonicity of multiplciation we have $M = (\mho \cdot
+\mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$. This means $M
+\equiv \mho$.
+%
+\eric{I changed the argument based on your feedback. The original argument was closer to what you had written on Zulip.}
+%
+The same argument applies to the theories of rings and of modules. The latter
+theory has been applied to modeling relational databases \cite{TODO}; our result
+therefore has consequences for the application of gradual typing to relational
+database programming\max{what are the consequences?}.
+
+We have additionally identified algebraic theories that do not meet the
+requirements of our framework, but which we believe are nonetheless compatible
+with graduality and require further study. A key example is the theory of
+join-semilattices, used to model nondeterministic choice. Both classes of
+algebraic theories are discussed in more detail in Section
+\ref{sec:non-examples}.
+%\max{in what sense do we know in a positive sense that they are compatible with graduality? Wouldn't that require us to prove graduality of a specific system?}
+
+% These proofs require only that the given algebraic effect can be lifted to
+% relations, the concrete details of the use of those relations are then used
+% modularly in the graduality and adequacy proofs.
+
 
 \subsection{Overview of Approach}\label{sec:overview-of-approach}
 
