@@ -2891,18 +2891,24 @@ construction in our approach is defined using induction and guarded recursion.
 \subsection{Future Work}\label{sec:future-work}
 
 %\subsection{Semilattice-Like Operations}
+We have shown that Malcev theories are incompatible with gradual typing, and also provided sufficient conditions on a theory for it to be compatible with graduality. However there are intermediate theories who do not satisfy our conditions but do not appear to trivialize when combined with graduality like Malcev theories.
+%
+The primary example is the theory of join-semilattices, which models
+finite nondeterministic choice, for which the free algebras on set are
+not the carriers of the free monotone algebras. In the classical case
+without accounting for the $\theta$ operation, the induced graduality
+order on the free join-semilattice (i.e., the finite powerset) is the
+Egli-Milner ordering \cite{plotkin-1976}, and the free monotone
+algebras are not given by the full finite powerset but instead convex
+hulls of finite subsets. A similar result applies when incorporating $\theta$.
 
-There are algebraic theories that we conjecture are compatible with graduality,
-but which do not quite fit into our framework because they do not satisfy the
-required lifting property. The primary example is the theory of
-join-semilattices, which models finite nondeterministic choice. The combination
-of idempotence and associativity allows for unrestricted duplication of terms.
-As a result, the ordering on the free algebras of the theory extended with error
-and $\theta$ is not antisymmetric, an issue that occurs already for the
-original, unextended theory of join-semilattices. There, the ordering on the
-free join-semilattice (i.e., the finite powerset) is the Egli-Milner ordering
-\cite{plotkin-1976}, which is easily seen to not be antisymmetric in general. A
-similar result holds for the extended theory.
+%% The combination of idempotence and
+%% associativity allows for unrestricted duplication of terms. As a
+%% result, the ordering on the free algebras of the theory extended with
+%% error and $\theta$ is not antisymmetric, an issue that occurs already
+%% for the original, unextended theory of join-semilattices.  which is easily seen to
+%% not be antisymmetric in general. A similar result holds for the
+%% extended theory.
 %
 % This failure of antisymmetry means that the free algebras in the category of
 % predomains are in general a nontrivial quotient of the free algebras in the
@@ -2953,11 +2959,7 @@ $C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5 :: \dyn); print 'b'; f(t
 Then ${C[M_1 \vee M_3]} \equidyn {C[M_1 \vee M_2 \vee M_3]}$, and graduality
 then implies that in any semantics the two programs must have the same behavior.
 %
-However, the right-hand side can produce the traces $\{ a\mho, ab\mho, ab0 \}$,
-while the left-hand side can only produce the traces $\{ a\mho, ab0 \}$, as the
-trace $ab\mho$ only arises from $M_2$. Thus, no semantics satisfying graduality
-can tell whether printing $ab$ and then erroring is a possible behavior, because
-the right-hand side exhibits it while the left-hand side does not.
+However, left-hand term can only produce the traces $\{ a\mho, ab0 \}$ while the right-hand side can produce the traces $\{ a\mho, ab\mho, ab0 \}$. Thus, a semantics satisfying graduality would require the $ab\mho$ to be a possible observation of $M1 \vee M_3$, as the $ab\mho$ lies in the convex hull of its semantics.
 %
 % More generally, no semantics satisfying graduality can tell exactly which traces
 % a nondeterministic program may produce. Any such semantics can observe trace
