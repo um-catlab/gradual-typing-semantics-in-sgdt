@@ -253,8 +253,8 @@ plotkinpower2003}.
 Thus, a natural plan would be to use algebraic theories to obtain an
 effect-generic graduality theorem, and prior work expected this to be
 straightforward: Giovannini et al. suggest that their denotational construction
-``can be easily extended with additional cases to model effects besides error
-and stepping'' \cite{gtt-sgdt}.
+``can be easily extended to model effects besides error and stepping''
+\cite{gtt-sgdt}.
 %
 This is true for operations without equations, but equations can present a
 serious obstacle. For some algebraic theories, every gradually typed language
@@ -2892,17 +2892,17 @@ construction in our approach is defined using induction and guarded recursion.
 
 %\subsection{Semilattice-Like Operations}
 
-As mentioned in the introduction, \max{Just delete ``As mentioned in the introduction,''. Just make this a declarative sentence. ``There are algebraic theories that we''}we have identified algebraic theories that we
-believe\max{Say ``conjecture'' or ``expect'' depending on how strongly you think. ``believe'' is inappropriate verbiage in a scientific paper} are compatible with graduality, but which do not quite fit into our
-framework because they do not satisfy the required lifting property. The primary
-example is the theory of join-semilattices, which models finite nondeterministic
-choice. The combination of idempotence and associativity allows for unrestricted
-duplication of terms. As a result, the ordering on the free algebras of the
-theory extended with error and $\theta$ is not antisymmetric, an issue that
-occurs already for the original, unextended theory of join semilattices. There,
-the ordering on the free join semilattice (i.e., the finite powerset) is the
-Egli-Milner ordering \cite{plotkin-1976}, which is easily seen to not be
-antisymmetric in general. A similar result holds for the extended theory.
+There are algebraic theories that we conjecture are compatible with graduality,
+but which do not quite fit into our framework because they do not satisfy the
+required lifting property. The primary example is the theory of
+join-semilattices, which models finite nondeterministic choice. The combination
+of idempotence and associativity allows for unrestricted duplication of terms.
+As a result, the ordering on the free algebras of the theory extended with error
+and $\theta$ is not antisymmetric, an issue that occurs already for the
+original, unextended theory of join semilattices. There, the ordering on the
+free join semilattice (i.e., the finite powerset) is the Egli-Milner ordering
+\cite{plotkin-1976}, which is easily seen to not be antisymmetric in general. A
+similar result holds for the extended theory.
 %
 % This failure of antisymmetry means that the free algebras in the category of
 % predomains are in general a nontrivial quotient of the free algebras in the
@@ -2912,20 +2912,25 @@ antisymmetric in general. A similar result holds for the extended theory.
 % functional logic programming.}
 
 This observation has implications for a gradually-typed functional logic
-language: the semantics is forced to identify the behavior of two a priori
-different nondeterministic programs where one involves an intermediate error\max{what is an ``intermediate error''? Rephrase?}.
+language: the semantics is forced to identify the behavior of two
+nondeterministic programs where one has an extra branch that prints output and
+then raises an error.
 %
-More concretely, \max{More directly, get to the point and start the sentence with ``Suppose we have...''}suppose we have a language with a binary choice operation
-$\vee$ and a print operation $\mathsf{print}$ that does not commute with $\vee$,
-and consider a term $M : \dyn$. \max{The typing of this example doesn't make sense. $M :: \nat$ and $M :: \dyn$ don't have the same type so you can't join them. I think you need $M :: \nat :: \dyn$} By the rules for term precision, we have $\mho
-\ltdyn M :: \mathsf{Nat} \ltdyn M$. Then by idempotence and monotonicity for
-$\vee$, we have
+Suppose we have a language with a binary choice operation $\vee$ and a print
+operation $\mathsf{print}$ that does not commute with $\vee$, and consider a
+term $M : \dyn$. By the rules for term precision, we have $\mho \ltdyn (M ::
+\nat :: \dyn) \ltdyn M$. Then by idempotence and monotonicity for $\vee$, we
+have
 %
-$(\mho \vee M) = (\mho \vee \mho \vee M) \ltdyn (\mho \vee (M :: \mathsf{Nat}) \vee M)$ 
+$(\mho \vee M) = (\mho \vee \mho \vee M) \ltdyn (\mho \vee (M :: \nat :: \dyn) \vee M)$ 
 %
 and conversely,
 %
-$(\mho \vee (M :: \mathsf{Nat}) \vee M) \ltdyn (\mho \vee M \vee M) = (\mho \vee M)$.
+$(\mho \vee (M :: \nat :: \dyn) \vee M) \ltdyn (\mho \vee M \vee M) = (\mho \vee M)$.
+%
+% \max{The typing of this example doesn't make sense. $M :: \nat$
+% and $M :: \dyn$ don't have the same type so you can't join them. I think you
+% need $M :: \nat :: \dyn$}
 %
 % Thus, the two distinct terms above are order-equivalent in the graduality
 % ordering, which means they should behave equivalently. This does indeed hold
@@ -2940,7 +2945,7 @@ some value $V$.
 %
 However, for higher-order types, the result is more interesting. For instance,
 suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
-:: \textsf{Nat})$\max{same typing issue here as above, $M_3 : \dyn \to \dyn$ but $M_2 : \dyn \to \nat$}, and $M_3$ is the identity. The order-equivalence result says
+:: \nat :: \dyn)$, and $M_3$ is the identity. The order-equivalence result says
 $M_1 \vee M_3 \equidyn M_1 \vee M_2 \vee M_3$. Now define a context
 %
 $C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
@@ -2952,7 +2957,7 @@ However, the right-hand side can produce the traces $\{ a\mho, ab\mho, ab0 \}$,
 while the left-hand side can only produce the traces $\{ a\mho, ab0 \}$, as the
 trace $ab\mho$ only arises from $M_2$. Thus, no semantics satisfying graduality
 can tell whether printing $ab$ and then erroring is a possible behavior, because
-the right-hand side has it while the left-hand side does not.
+the right-hand side exhibits it while the left-hand side does not.
 %
 % More generally, no semantics satisfying graduality can tell exactly which traces
 % a nondeterministic program may produce. Any such semantics can observe trace
@@ -2976,7 +2981,8 @@ the right-hand side has it while the left-hand side does not.
 %
 This same phenomenon occurs in any theory that includes join semilattices,
 including idempotent semirings. We leave to future work the exploration of how
-we might adapt the framework to accommodate such theories\max{or to develop a full gradual functional-logic language}.
+we might adapt the framework to accommodate such theories or to develop a full
+gradually-typed functional-logic language.
 
 % The identification above relies on idempotence being part of term precision. For
 % the free theory of binary choice, our framework applies, and its graduality
@@ -2987,7 +2993,7 @@ Another algebraic theory of interest is the theory of convex spaces, used to
 model probabilistic choice. Prior work has constructed models combining this
 theory with a guarded stepping operation
 \cite{recursion-probabilistic-choice-guarded}; we would need to extend this to
-handle the relational aspects. We believe that this theory does satisfy the
+handle the relational aspects. We conjecture that this theory does satisfy the
 lifting property, at least if we take the guarded extension to be the tensor
 with $\{\mho, \theta\}$.
 % Note that the above cited work uses the sum rather than the tensor.
@@ -3001,7 +3007,7 @@ Beyond these additional algebraic theories, our longer-term goal is to extend
 the effectful semantics to account for more advanced effects such as
 higher-order store or dynamic type-tag generation. This was the original
 motivation of Giovannini et al., and with the experience gained in incorporating
-algebraic effects and operational semantics into their framework, we believe it
+algebraic effects and operational semantics into their framework, we expect it
 will be feasible to extend the semantics to account for such effects. There are
 two key challenges that must be overcome to handle higher-order store. First,
 dynamic allocation must be modelled. In the denotational setting this would take
