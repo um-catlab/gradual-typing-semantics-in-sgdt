@@ -39,7 +39,7 @@
 
 \ExplSyntaxOn
 \bool_new:N \g__is_extended
-\bool_set_true:N \g__is_extended
+\bool_set_false:N \g__is_extended
 
 \NewDocumentCommand{\showifextended}{m}{\bool_if:NT \g__is_extended {#1}}
 \NewDocumentCommand{\showconference}{m}{\bool_if:NF \g__is_extended {#1}}
