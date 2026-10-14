@@ -192,7 +192,7 @@ closed programs with a simple output type such as integers, then either $M$ and
 $N$ have the same behavior (both diverge, both terminate with the same result,
 both error) or $M$ raises a dynamic type error, in which case $N$ can have any
 behavior. In a language satisfying graduality, a program cannot catch a runtime
-type error and alter its behavior.
+type error in an unrestricted manner~\cite{new-ahmed2018}.
 %
 If programs could catch a type error and return a value instead, then making the
 typing more precise could change a program's behavior. For example,
@@ -258,45 +258,44 @@ straightforward: Giovannini et al. suggest that their denotational construction
 %
 This is true for operations without equations, but equations can present a
 serious obstacle. For some algebraic theories, every gradually typed language
-supporting them has a trivial equational theory where all terms are equivalent
-to the error.
-%
-% \max{if the equational theory is trivial, then everything already must behave
-% like the error term, graduality is unnecessary to bring in.}.
-%
-One such algebraic theory is the theory of groups. Suppose we have a language
-with a nullary operation $e$, a binary group operation $M \cdot N$, and an
-inverse operation $M^{-1}$ such that $M \cdot M^{-1} = e$. If the multiplication
-and the inverse operations are monotone with respect to the precision ordering
-on terms, then every term is equivalent to the error term and so all terms are
-equivalent.
-%
-More concretely, for any term $M$, the term precision rules state that $\mho
-\ltdyn M$ with $\mho$ the error term. Then by monotonicity of inverse and
-multiplication we have $M = (\mho \cdot \mho^{-1} \cdot M) \ltdyn (\mho \cdot
-M^{-1} \cdot M) = \mho$. Thus, $M \equidyn \mho$ for every $M$.
-% and graduality then implies that $M$ must error.
-The argument uses only monotonicity and the equations of the theory.
+supporting them has a trivial equational theory where all terms are equated.
 
-Intuitively, the inverse equation in the theory of groups acts as a way of
-detecting equality with error and returning something that lies above the error
-in the precision ordering. This can be seen as a mild form of catching a type
-error, which, as the example above shows, is prohibited in any language
-satisfying graduality, much as runtime type tests can break the gradual
-guarantee \cite{Boyland2014StructuralTypeTests}.
-% \max{citation: Boyland et al I think mention this}.
+One such problematic case is the theory of groups. Suppose we have a language
+with a nullary operation $e$, a binary group operation $M \cdot N$, and an
+inverse operation $M^{-1}$ such that $M \cdot M^{-1} = e$. Graduality requires that the multiplication
+and the inverse operations are monotone with respect to the precision ordering
+on terms, but when combined with the group equations, this forces all terms to be equated.
 %
-More generally, the above argument works with any operation $f$ such that $f(x,
-x, y) = y$ and $f(x, y, y) = x$; this is known as a \emph{Malcev operation}
-\cite{maltsev1963general}. Given such an $f$, for any $M$, we have $M = f(\mho,
-\mho, M) \ltdyn f(\mho, M, M) = \mho$. For groups, we define $f(x, y, z) = x
-\cdot y^{-1} \cdot z$. Rings and modules also have such an operation, so they
-are incompatible with gradual typing as well.
+Let $M, N$ be any terms of the same type. By monotonicity of inverse and
+multiplication we have $M = (\mho \cdot \mho^{-1} \cdot M) \ltdyn
+(\mho \cdot M^{-1} \cdot M) = \mho$. But the runtime type error $\mho$
+is the least element in the ordering so we have $\mho \ltdyn N$ and so
+$M \equidyn N$.
 %
-In particular, module operations used to model relational databases by Henglein
-et al.~\cite{Henglein-Kaarsgaard-Mathiesen} cannot serve as algebraic effects in
-a gradually-typed language, since an error in one summand could be cancelled by
-its negation.
+Intuitively, the inverse equation in the theory of groups acts as a
+way of detecting equality with error since it includes the equation
+$\mho \cdot \mho^{-1} = e$.
+
+More generally, the above argument works with any operation $f$ such
+that $f(x, x, y) = y$ and $f(x, y, y) = x$; this is known as a
+\emph{Malcev operation} \cite{maltsev1963general}. Given such an $f$,
+for any $M$, we have $M = f(\mho, \mho, M) \ltdyn f(\mho, M, M) =
+\mho$. This $f$ operation can be seen as a restricted method for
+catching a type error: since $f(\mho,\mho,M) = M$ we can ``detect''
+that the first argument is error and if it is, run an term $M$. For
+groups, we have a Malcev operation $f(x, y, z) = x \cdot y^{-1} \cdot z$.
+%
+Rings and modules extend the theory of groups and so are also
+incompatible with gradual typing.
+%
+While these theories are a bit unusual from a computational effect
+perspective, module operations have been used to model relational
+databases by Henglein et al.~\cite{Henglein-Kaarsgaard-Mathiesen} and
+so this suggests an incompatibility between this approach and gradual
+typing. Additionally quantum programming languages support similar
+kinds of cancellation using quantum interference~\cite{altenkirch-grattage2005,arrighi-dowek2017}, so this provides a
+major difficulty to making a gradual quantum programming language as
+well.
 % Instead, in any gradual language over such a data model, the operations must act
 % on values, so that errors abort before any cancellation.
 
