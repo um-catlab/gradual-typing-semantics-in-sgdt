@@ -106,62 +106,41 @@
     the same codebase. A key metatheoretic property of gradually-typed languages
     is graduality, which ensures that the transition from dynamic to static
     typing preserves semantics up to introduction of stricter checking.
-    Establishing graduality is a metatheoretic challenge, often requiriing
-    results to be reproven from stratch across different languages. The
+    Establishing graduality is a metatheoretic challenge, often requiring
+    results to be reproven from scratch across different languages. The
     axiomatic approach to gradual typing provides reusable, syntax-independent
-    abstractions, but so far it does not extend to common language features such
-    as effects. Even the correct formulation of the graduality property must be
-    given anew for languages with different observable effects.
+    abstractions, but existing proofs based on this approach do not support
+    common language features such as effects. Even the correct formulation of
+    the graduality property must be given anew for languages with different
+    observable effects.
+    % ... but so far it does not extend to common language features such as
+    % effects.
+    
+    % ... but it has not been extended to common language features such as
+    % effects
     
     In this work, we investigate how the axiomatic approach to gradual typing
     can be extended to accommodate gradually-typed languages with effects. We
     build on the work of Giovannini et al., who defined a denotational model of
     a simple gradually-typed cast calculus using guarded type theory. We
-    identify sufficient conditions on an algebraic theory that allow us to prove
+    identify sufficient conditions on an algebraic theory, and its extension with errors, that allow us to prove
     graduality for a cast calculus supporting that theory's operations. We then
     construct a framework for gradual typing parameterized by an algebraic
     theory satisfying these conditions. Each instantiation of the framework
     provides a concrete operational semantics, a denotational semantics, and a
-    proof of graduality.
+    proof of graduality for both semantics.
     %
-    We additionally identify a class of algebraic effects which are
+    We additionally identify a class of algebraic theories which are
     fundamentally incompatible with gradual typing. In any gradually-typed
-    language supporting such operations, the graduality theorem becomes trivial.
-    This class includes theories with inverse-like operations, including the
-    theories of groups, rings, and modules.
+    language supporting such operations, graduality forces every program to
+    error. This class consists of theories with inverse-like operations,
+    including groups, rings, and modules.
     %
     We observe that other algebraic effects avoid this obstruction but fall
     outside our framework. Among these is the theory of join semilattices, used
-    to model non-determinism. Further study is needed to determine if our
-    framework can accommodate these theories.
+    to model nondeterministic choice. Further study is needed to determine if
+    our framework can accommodate these theories.
 
-    % First, we identify a class of well-behaved effect theories for which we can
-    % prove end-to-end graduality theorem via a suitable generalization of the
-    % denotational approach of Giovannini et al.
-
-    % We then provide an adequacy theorem for this denotational semantics and
-    % prove a generic graduality theorem. The foundations of the framework are
-    % built in guarded type theory, extending prior work on denotational
-    % graduality.
-
-    % Lastly, we identify a class of ``intermediate'' algebraic effects which have
-    % a nontrivial interaction with graduality requiring further study. Among
-    % these are the theory of join semilattices, used to model non-determinism.
-
-
-    % In this work, we establish a generic graduality theorem for a gradually
-    % typed lambda calculus parameterized by an algebraic theory describing the
-    % effects available in the program. Each instantiation of this theory provides
-    % a concrete operational semantics and a denotational semantics that
-    % generalizes the model of gradual typing from the work of Giovannini et al.
-    % We then provide an adequacy theorem for this denotational semantics and
-    % prove a generic graduality theorem. The foundations of the framework are
-    % built in guarded type theory, extending prior work on denotational
-    % graduality. We show how the generic framework can be instantiated to produce
-    % many concrete examples of effects: a generic trace-based graduality theorem
-    % for interaction trees, as well as monad transformer theorems that allow us
-    % to combine standard semantics of state and exception-like effects in a
-    % compositional manner to produce new instantiations.
 
 \end{abstract}
 
@@ -179,9 +158,9 @@
 
 \emph{Gradually typed languages} \cite{siek-taha06, tobin-hochstadt06} allow for
 safe interoperability between static and dynamic typing disciplines in the same
-codebase, and support the smooth, \emph{gradual} migration from dynamic
-typing to static typing via the addition of explicit typing information.
-without needing to rewrite the entire project in a completely different language.
+codebase, and support the smooth, \emph{gradual} migration from dynamic typing
+to static typing via the addition of explicit typing information without needing
+to rewrite the entire project in a completely different language.
 %
 This allows gradually typed programs to support mixed states where
 only part of the code has received explicit static typing information,
@@ -199,16 +178,15 @@ typing should only allow for the introduction of static or dynamic
 type errors from the stricter checking, and not otherwise change the
 observable behavior of the program.
 
-More formally, consider a simple gradually typed language where
-programs can diverge or raise a dynamic type error but have no other
-visible effects. Then we define a syntactic precision ordering on
-terms $M \sqsubseteq N$ that says that $M$ is syntactically identical
-to $N$ other than containing more statically precise type
-information. Then the graduality theorem says that if $M, N$ are
-closed programs with a simple output type such as integers, then
-either $M$ and $N$ have the same behavior (both diverge, both
-terminate with the same result, both error) or $M$ raises a dynamic
-type error.
+More formally, consider a simple gradually typed language where programs can
+diverge or raise a dynamic type error but have no other visible effects. Then we
+define a syntactic precision ordering on terms $M \sqsubseteq N$ that says that
+$M$ is syntactically identical to $N$ other than containing more statically
+precise type information. Then the graduality theorem says that if $M, N$ are
+closed programs with a simple output type such as integers, then either $M$ and
+$N$ have the same behavior (both diverge, both terminate with the same result,
+both error) or $M$ raises a dynamic type error. In a language satisfying
+graduality, a program cannot catch a runtime type error and alter its behavior.
 
 Despite being a conceptually simple idea, graduality has been a challenge to
 prove. The main approaches in prior work are (1) tedious operational simulation
@@ -217,137 +195,187 @@ language into a particular framework such as Abstracting Gradual Typing or the
 Gradualizer \cite{garcia-clark-tanter2016, cimini-siek2016} (3) operational
 logical-relations based methods \cite{new-ahmed2018, new-jamner-ahmed19,
 new-licata-ahmed2019} or (4) denotational methods \cite{new-licata18,gtt-sgdt}.
-Among these, the advantage of the denotational approach is a decoupling of the
-mathematical arguments to particular syntactic details, so that the lemmas that
-are core to the graduality proof can be reused modularly across different
-developments. A downside of the denotational approach in prior work has been
-that it only proves a graduality statement about a denotational semantics, and
-so does not prove the same theorem exactly as prior graduality results, which
-are defined over operational semantics.
-
-One of the main challenges in developing a graduality proof for a new
-language is that even the statement of the theorem itself is sensitive
-to the particular effects that are present. For instance, if we were to
-extend the language above to have (1) system calls to print to stdout
-(2) exceptions distinct from the dynamic type error and (3) some
-global mutable variables, then we would need to accommodate these in
-our theorem. With work, the experienced semanticist can come up with a
-theorem such as: for any initial state of the global variables, $M$
-and $N$, when executed with those variables, make a sequence of
-matching system calls up until the point that either $M$ terminates
-with a dynamic type error (at which point $N$ can continue in any
-manner), they both terminate with the same exceptions, or they both
-return the same value with matching outputs in the final mutable
-state. This then has to be adjusted for the effects present in
-whatever language is being modeled, and the proofs need to be redone
-with the appropriate notion of reduction for that system and
-observable behavior. The result is a tedious recapitulation of prior
-arguments adapted to new effects, but where fundamentally very little
-of the argument for graduality truly has changed.
-
-% As a first step toward reusable, expressive semantics for gradual typing,
-% Giovannini et al. defined a semantics for a simple gradually-typed language in
-% guarded type theory and used it prove graduality \cite{gtt-sgdt}. They
-% conjectured that the extension of their model to accommodate arbitrary algebraic
-% effects is straightforward and left its investigation to future work.
-
-In this work, we investigate the extent to which we can prove graduality for
-effects systematically, generically in the effect. We build on the denotational
-approach of Giovannini et al., who defined a semantics for a simple
-gradually-typed language in guarded type theory and used it to prove graduality
-\cite{gtt-sgdt}. In doing so, we observed that there are delicate interactions
-between specific effects and the graduality property. Perhaps unexpectedly, not
-all effects are compatible with graduality, regardless of the proof method. We
-return to this point below.
-
-Our primary contribution is a semantic framework for gradual typing with effects
-building on the work of Giovannini et al. Our framework abstracts over the
-specific choice of effects, allowing for concrete sets of effects to be
-recovered as particular instantiations. We describe the effects using
-\emph{algebraic theories}, an idea commonly known as \emph{algebraic effects}
-\cite{PLOTKIN2001332, plotkinpower2003}. We define a gradual lambda calculus
-whose effects are given by an algebraic theory that is a parameter to the
-system. By instantiating the system with a particular theory and implementation
-of the free algebras of the theory, our framework produces (1) an operational
-semantics (2) a denotational semantics (3) an adequacy theorem relating
-operational and denotational semantics (4) a graduality proof for the
-denotational semantics, which is then transported via adequacy to the
-operational semantics.
-
-The foundation for our work is \emph{guarded type theory}
-\cite{birkedal-mogelberg-schwinghammer-stovring2011}, which allows us to define
-the semantics, adequacy and graduality proofs in a concise way. Guarded type
-theory extends dependent type theory with a later modality and axiomatizes that
-all guarded recursive definitions have a fixed point. This provides a concise
-alternative to the explicit use of step-indexing. Guarded type theory can be
-interpreted in the topos of trees, and so any results proven can be interpreted
-as ordinary step-indexed mathematical results. It requires work, however to
-bridge the gap from the guarded proof of graduality to the standard results, a
-process we call \emph{globalization}. To make our final results as standard as
-possible, we work through concrete descriptions of the resulting graduality
-results. Specifically, we provide two kinds of constructions. First, we give a
-construction for uninterpreted effects like operating system calls as a kind of
-trace semantics over coinductively defined interaction trees \cite{itrees}.
-Second, we give a monad-transformer-like construction for state and
-exception-like effects. With the interaction trees as a base case, the monad
-transformers can be iterated to construct new models on demand.
-
-Our framework requires the algebraic theory to satisfy a semantic lifting
-condition for its free algebras (Section \ref{sec:extending-to-predomains}).
 %
-In developing the framework, we observed that some amount of restriction on the
-theory is inevitable. For example, the theory of groups is incompatible with
-graduality in a fundamental way. The argument uses only monotonicity and the
-equations of the theory. 
-% In developing the framework, we identified sufficient conditions on algebraic
-% theories for which we can prove an end-to-end graduality result. We found that
-% several natural algebraic theories fall outside this class. These include
-% theories such as groups, which we observed to be incompatible with graduality in
-% a fundamental way. The argument uses only monotonicity and the equations of the
-% theory. 
+% Among these, the advantage of the denotational approach is a decoupling of the
+% mathematical arguments to particular syntactic details, so that the lemmas that
+% are core to the graduality proof can be reused modularly across different
+% developments.
 %
-Suppose we have a language with a nullary operation $e$, a binary group
-operation $M \cdot N$, and an inverse operation $M^{-1}$ such that $M \cdot
-M^{-1} = e$. If the multiplication and the inverse operations are monotone with
-respect to the precision ordering on terms, then every term is equivalent to the
-error term, so the graduality result only holds trivially.
+Among these, the denotational approach enables reuse of common mathematical
+arguments across languages. This higher-level perspective has allowed prior work
+to axiomatize the behavior of gradual typing in the form of an inequational
+theory \cite{new-licata18, new-licata-ahmed2019}.
+
+Despite the generality of the axiomatic approach, its applicability remains
+limited because real-world language features such as effects must still be
+modeled in an ad-hoc manner. It is therefore desirable to apply a similar
+axiomatic treatment to abstract over effects in gradual typing. Monads offer an
+approach to modelling effects in a programming language \cite{39155,
+MOGGI199155}, and a refinement of the monadic approach known as \emph{algebraic
+effects} uses the notion of \emph{algebraic theories} to describe effects as a
+collection of operations and equations they satisfy \cite{PLOTKIN2001332,
+plotkinpower2003}.
+%
+Thus, a natural plan would be to use algebraic theories to obtain an
+effect-generic graduality theorem. Prior work was optimistic that this objective
+would be straightforward to achieve. For example, Giovannini et al. viewed
+support for algebraic effects as a relatively simple extension to their
+semantics \cite{gtt-sgdt}.
+
+Unfortunately, the situation is not as straightforward as one may expect. We
+observe that there are serious obstacles to proving graduality in a completely
+effect-generic manner. In particular, there are algebraic theories that are
+incompatible with graduality in the sense that for any gradually-typed language
+supporting such a theory, the equational theory is forced to be trivial.
+Graduality then forces all terms in the language to behave like the error term.
+% Graduality then forces semantic equivalence of all terms in the language.
+%
+One such algebraic theory is the theory of groups. Suppose we have a language
+with a nullary operation $e$, a binary group operation $M \cdot N$, and an
+inverse operation $M^{-1}$ such that $M \cdot M^{-1} = e$. If the multiplication
+and the inverse operations are monotone with respect to the precision ordering
+on terms, then every term is equivalent to the error term.
 %
 More concretely, for any term $M$, the term precision rules state that $\mho
 \ltdyn M$ with $\mho$ the error term. Then by monotonicity of inverse we have
 $\mho^{-1} \ltdyn M^{-1}$ and then by monotonicity of multiplication we have $M
 = (\mho \cdot \mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$.
-Graduality then implies that $M$ must error.
-%
-\eric{I changed the argument based on your feedback. The original argument was closer to what you had written on Zulip.}
-%
+Thus, we have $M \equidyn \mho$, and graduality then implies that $M$ must
+error. The argument uses only monotonicity and the equations of the theory.
 
+Intuitively, the inverse equation in the theory of groups acts as a way of
+detecting equality with error and returning something that lies above the error
+in the precision ordering. This can be seen as a form of catching a type error,
+which, as we know, is prohibited in any language satisfying graduality.
+%
 More generally, the above argument works with any operation $f$ such that $f(x,
 x, y) = y$ and $f(x, y, y) = x$; this is known as a \emph{Malcev operation}
-\cite{TODO}. Given such an $f$, for any $M$, we have $M = f(\mho, \mho, M)
-\ltdyn f(\mho, M, M) = \mho$. For groups, we define $f(x, y, z) = x \cdot y^{-1}
-\cdot z$. Rings and modules also have such an operation, so they are
-incompatible with gradual typing as well.
+\cite{maltsev1963general}. Given such an $f$, for any $M$, we have $M = f(\mho,
+\mho, M) \ltdyn f(\mho, M, M) = \mho$. For groups, we define $f(x, y, z) = x
+\cdot y^{-1} \cdot z$. Rings and modules also have such an operation, so they
+are incompatible with gradual typing as well.
 %
-The latter theory has been applied to modeling relational databases \cite{TODO};
-our result therefore has consequences for the application of gradual typing to
-relational database programming\max{what are the consequences?}.
+The theory of modules has been applied to model relational databases
+\cite{Henglein-Kaarsgaard-Mathiesen}. Our result implies that their module
+operations cannot be used as algebraic effects in a gradually-typed language, as
+an error in one summand could be cancelled by its negation.
+% Instead, in any gradual language over such a data model, the operations must act
+% on values, so that errors abort before any cancellation.
 
-% Our framework's semantic lifting condition rules out theories with a Malcev
-% operation: in any partial order where $\mho$ is the least element, no non-error
-% term can lie below $\mho$.
-Our framework's semantic lifting condition rules out theories with a Malcev
-operation. In any partial order where $\mho$ is the least element, anything
-below $\mho$ is equal to $\mho$. With a Malcev operation, everything is below
-$\mho$, including values. However, our lifting condition does not allow a value
-to be identified with $\mho$. Thus, Malcev theories do not meet the requirements
-of our framework.
+
+% our result implies that a gradual version of their semantics is not possible.
+
+The above discussion shows that some amount of restriction is required when
+abstracting over effects in gradual typing. We identify sufficient conditions
+that hold for common algebraic effects such as exceptions and global state. A
+key property here is the \emph{lifting of free algebras}, which says roughly
+that the free algebras in Set of the theory extended by an additional error
+operation are the same as the free algebras in Poset where the error is least in
+the ordering; in particular, no elements of the Set-algebra are identified by
+order-equivalence. (The actual definition also involves a guarded operation
+$\theta$; see Section \ref{sec:extending-to-predomains} for details.)
 %
-We have additionally identified algebraic theories that do not meet the
-requirements, but which we believe are nonetheless compatible with graduality
-since, unlike with Malcev operations, no value is forced to lie below $\mho$. A
-key example is the theory of join-semilattices, used to model nondeterministic
-choice. We leave to future work the question of how to adapt our framework to
-accommodate such theories.
+% TODO why this rules out groups: the free partially-ordered groups with a
+% bottom element is trivial.
+%
+% Old explanation:
+%
+% Our framework's semantic lifting condition rules out theories with a Malcev
+% operation. In any partial order where $\mho$ is the least element, anything
+% below $\mho$ is equal to $\mho$. With a Malcev operation, everything is below
+% $\mho$, including values. However, our lifting condition does not allow a
+% value to be identified with $\mho$. Thus, Malcev theories do not meet the
+% requirements of our framework.
+In particular, lifting fails for groups and more generally any Malcev theory: in
+a partial order where $\mho$ is the least element, the above argument shows that
+every element is below $\mho$. By antisymmetry, this implies that the free
+ordered group with a least element is trivial, unlike the free group with an
+added error element in Set.
+
+% By antisymmetry, this implies that the free ordered group with a least element
+% is trivial, while in Set, the free group with an added error element is not.
+
+Our primary contribution is a semantic framework for gradual typing with effects
+building on the model of Giovannini et al. \cite{gtt-sgdt}.
+% We use algebraic theories to abstract over the specific choice of effects. 
+We define a gradual lambda calculus parameterized by a well-behaved algebraic
+theory describing the effects available in the language. By instantiating the
+system with a particular theory and implementation of the free algebras of the
+theory, our framework produces (1) an operational semantics (2) a denotational
+semantics (3) an adequacy theorem relating operational and denotational
+semantics (4) a graduality proof for the denotational semantics, which is then
+transported via adequacy to the operational semantics.
+%
+Prior denotational models of gradual typing \cite{new-licata18, gtt-sgdt}
+establish graduality only for a denotational semantics. Using adequacy, our
+framework provides a theorem about the operational semantics, which is the
+setting where graduality is typically stated.
+
+% \eric{Review this}
+The foundation for our work is \emph{guarded type theory}
+\cite{birkedal-mogelberg-schwinghammer-stovring2011,
+kristensen-mogelberg-vezzosi2022}, which allows us to define the semantics,
+adequacy and graduality proofs in a concise way. Guarded type theory extends
+dependent type theory with a later modality and axiomatizes that all guarded
+recursive definitions have a fixed point. This provides a concise alternative to
+the explicit use of step-indexing. Guarded type theory can be interpreted in the
+topos of trees, so guarded proofs can be interpreted as ordinary step-indexed
+results. It requires work, however, to bridge the gap from the guarded proof of
+graduality to the standard results, a process we call \emph{globalization}.
+%
+To make our final results as standard as possible, we work through concrete
+descriptions of the resulting graduality theorems. Specifically, we provide two
+kinds of constructions. First, we give a construction for uninterpreted effects
+like operating system calls as a kind of trace semantics over coinductively
+defined interaction trees \cite{itrees}. Second, we give a
+monad-transformer-like construction for state and exception-like effects. With
+the interaction trees as a base case, the monad transformers can be iterated to
+construct new models on demand.
+
+We have also identified a gap between our framework's conditions and the Malcev
+obstruction discussed above. While the lifting condition is sufficient for our
+purposes, it does not appear to be necessary. That is, there are theories that
+do not satisfy lifting, but which we believe are nonetheless compatible with
+graduality since, unlike with Malcev operations, no value is forced to lie below
+$\mho$. A key example is the theory of join-semilattices, used to model
+nondeterministic choice. These are discussed in the future work section (Sec.
+\ref{sec:future-work}).
+
+% We leave to future work the question of how to adapt our framework to
+% accommodate such theories.
+% TODO pointer to future work section
+
+% TODO: fit in the fact that we close a gap in prior work on denotational
+% gradual typing, namely that they don't relate their semantics to typical
+% operational semantics. Not sure where the best place for this is.
+%
+% A downside of the denotational approach in prior work has been that it only
+% proves a graduality statement about a denotational semantics, and so does not
+% prove the same theorem exactly as prior graduality results, which are defined
+% over operational semantics.
+
+
+% One of the main challenges in developing a graduality proof for a new
+% language is that even the statement of the theorem itself is sensitive
+% to the particular effects that are present. For instance, if we were to
+% extend the language above to have (1) system calls to print to stdout
+% (2) exceptions distinct from the dynamic type error and (3) some
+% global mutable variables, then we would need to accommodate these in
+% our theorem. With work, the experienced semanticist can come up with a
+% theorem such as: for any initial state of the global variables, $M$
+% and $N$, when executed with those variables, make a sequence of
+% matching system calls up until the point that either $M$ terminates
+% with a dynamic type error (at which point $N$ can continue in any
+% manner), they both terminate with the same exceptions, or they both
+% return the same value with matching outputs in the final mutable
+% state. This then has to be adjusted for the effects present in
+% whatever language is being modeled, and the proofs need to be redone
+% with the appropriate notion of reduction for that system and
+% observable behavior. The result is a tedious recapitulation of prior
+% arguments adapted to new effects, but where fundamentally very little
+% of the argument for graduality truly has changed.
+
+
 
 % Both classes of algebraic theories are discussed in more detail in Section
 % \ref{sec:non-examples}.
@@ -470,7 +498,7 @@ schema'' consisting of an algebraic theory, a lifting of the free algebras to
 act on relations, and the final global ordering relations. In order to show the
 applicability of our framework, we give two methods for constructing graduality
 schemata.
-
+%
 First, for a \emph{free} theory, meaning a theory with operations but
 no equations, the semantics can be understood as an
 \emph{interaction tree}, and the graduality theorem can be formalized
@@ -486,7 +514,6 @@ interaction tree base case, we can build up a complex effect theory
 with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
-\max{10 sections in 26 pages is crazy. Do we really need so many different sections?}
 \begin{enumerate}
     \item In Section \ref{sec:background}, we provide background
       on guarded type theory and algebraic theories that will be used
@@ -511,9 +538,6 @@ The organization of the remainder of the paper is as follows:
     explain how our framework operates given a graduality schema as input,
     describe two constructions on graduality schema, and give concrete
     instantiations for familiar algebraic theories.
-    \item In Section \ref{sec:non-examples}, we discuss algebraic theories that
-    do not fit into our framework, as well as the consequences these have for
-    gradual typing.
     \item Lastly, in Section \ref{sec:discussion}, we summarize our results,
     compare to prior work, and conclude with directions for future work.
 \end{enumerate}
@@ -943,6 +967,7 @@ support, and their corresponding monad transformers:
   \label{tab:theory-and-monad-transformers}
 \end{table}
 
+\eric{This section isn't that important and can probably be removed to save space.}
 \subsection{Relational Aspects}
 
 Since we are modeling gradual typing, we need our mathematical structures to be
@@ -2184,7 +2209,10 @@ result.
 We discuss these constructions in greater detail in Sections
 \ref{sec:trace-semantics} and \ref{sec:monad-transformers}.
 
-\eric{Not sure this needs to be here now, since we have a separate section dedicated to theories we don't support.}
+\eric{Not sure this needs to be here now, since we talk about non-determinism
+      elsewhere. But this seems to be saying that for graduality, the equations
+      don't matter. Instead, we could just prove graduality for the corresponding
+      free theory and the result would translate to the one with equations.}
 While we do not support the usual theories of non-determinism or probabilistic
 computation since they involve equations and do not arise from one of our theory
 transformers, we \emph{do} support their free variants. This is a reasonable
@@ -2642,140 +2670,6 @@ equal.
 
 \end{example}
 
-\section{Non-Examples: Malcev and Semilattice-Like Theories}\label{sec:non-examples}
-\max{horrible title of this section}
-
-So far, we have shown that our framework is capable of handling any algebraic
-theory constructed as a repreated application of the four supported theory
-transformers (exceptions, reader, writer, and global state) to a finitary free
-theory. Next, we consider algebraic theories that do not fit into our framework.
-% e.g., the theories of finite nondeterministic or probabilistic choice, theories
-% modeling reversible effects, etc.
-%
-We specifically focus on item \ref{itm:gs-lifting} in the defintion of a
-graduality schema. In particular, recall that the input algebraic theory must be
-such that its free models lift from the category of sets to the category of
-predomains. Several common algebraic theories do not enjoy this property. We
-identify two distinct classes of theories for which the property fails to
-hold.
-
-\subsection{Malcev Theories}
-
-First, there are algebraic theories that are fundamentally at odds with gradual
-typing, The prototypical example of such a theory is that of groups. As
-discussed in the introduction, if we have a cast calculus whose terms support
-a group-like effect, we can use the monotonicity of the operations to
-show that all terms equal the error term $\mho$.
-% force a contradiction to graduality.
-%
-% We do not support these theories because they are simply not compatible with
-% gradual typing.
-We can abstract over the group example using the notion of a Malcev operation as
-defined below:
-%
-\begin{definition} A \textbf{Malcev operation} in an algebraic theory is an
-operation $f(x,y,z)$ such that $f(x,x,y) = y$ and $f(x,y,y) = x$.\max{citations??}
-%
-A \textbf{Malcev theory} is an algebraic theory containing a Malcev operation.
-\end{definition}
-%
-% TODO: theorem for algebraic theories with a Malcev operation
-\begin{lemma}[No-Go Result for Malcev Theories]
-  Let $\calA$ be a Malcev theory. Then there is no language that both satisfies
-  graduality and whose terms carry an algebra structure for $\calA + \{\mho\}$.
-\end{lemma}
-\begin{proof}
-Let $M \colon \dyn$ be a program such that $M \equiv \mathsf{true}$.
-%
-Then $M :: \mathsf{Nat} \sqsubseteq M$, and $M :: \mathsf{Nat} \equiv \mho$.
-%
-Define a context $C[-]$ = $f(\mho, -, M)$. By monotonicity, we have 
-$C[M :: \mathsf{Nat}] \ltdyn C[M]$. Now note that 
-%
-$C[M :: \mathsf{Nat}] = f(\mho, (M :: \mathsf{Nat}), M) = f(\mho, \mho, M) = M$,
-%
-and $C[M] = f(\mho, M, M) = \mho$.
-\max{This derivation should be in the \emph{introduction}. You can't bury it at the end of the paper}
-
-Thus, we have shown $M \ltdyn \mho$, which means $M$ must be $\mho$, but $M$
-returns a value. This contradicts graduality.
-\end{proof}
-\begin{corollary}
-  There is no language satisfying graduality whose terms carry a group structure.
-\end{corollary}
-\begin{proof}
-  In the theory of groups, the operation $f(x,y,z) = xy^{-1}z$ is a Malcev operation.
-\end{proof}
-
-Other Malcev theories include abelian groups, rings, and modules over a ring (of
-which vector spaces are a special case). The above result implies that
-gradually-typed languages cannot support such operations. \eric{TODO: mention
-gradual quantum programming?}\max{I would definitely mention gradual quantum somewhere}
-
-\subsection{Semilattice-Like Operations}
-
-%\max{isn't idempotence the important part, not commutative?}
-The second class of non-examples consists of theories that in principle are
-compatible with graduality, but which do not quite fit into our framework
-because they do not satisfy the required lifting property. The primary example
-here is the theory of join semilattices, which models finite nondeterministic
-choice. The idempotence axiom allows for unrestricted duplication of terms. As a
-result, the ordering on the free algebras of such a theory extended with error
-and $\theta$ is not antisymmetric, an issue that occurs already for the
-original, unextended theory of join semilattices. There, the ordering on the
-free join semilattice (i.e., the finite powerset) is the Egli-Milner ordering
-\cite{TODO}, which is easily seen to not be antisymmetric in general. A similar
-result holds for the extended theory.
-%
-This failure of antisymmetry means that the free algebras in the category of
-\emph{predomains} are in general a nontrivial quotient of the free algebras in
-the category of sets.
-% That is, the free algebras do not satisfy the lifting property. 
-
-\eric{Below is my attempt at describing what this would imply for gradual functional logic programming.}
-This observation has implications for a gradually-typed functional logic
-language. Suppose we have a language with a binary choice operation $\vee$ and a
-print operation $\mathsf{print}$, and consider a term $M : \dyn$. By the rules
-for term precision, we have $\mho \ltdyn M :: \mathsf{Nat} \ltdyn M$. Then by
-idempotence and monotonicity for $\vee$, we have
-%
-$(\mho \vee M) = (\mho \vee \mho \vee M) \ltdyn (\mho \vee (M :: \mathsf{Nat}) \vee M)$ 
-%
-and conversely,
-%
-$(\mho \vee (M :: \mathsf{Nat}) \vee M) \ltdyn (\mho \vee M \vee M) = (\mho \vee M)$.
-%
-% Thus, the two distinct terms above are order-equivalent in the graduality
-% ordering, which means they should behave equivalently. This does indeed hold
-% if $M$ is of base type, and that is sufficient for the graduality result.
-% However, for higher-order types the result is counterintuitive: 
-This argument applies to any chain of terms $M_1 \ltdyn M_2 \ltdyn M_3$, showing
-that $M_1 \vee M_3$ is order-equivalent to $M_1 \vee M_2 \vee M_3$ in the
-graduality ordering. This means that they should have equivalent operational
-behavior. This is indeed the case if the terms are of base type and do not print
-anything, because every chain of output values is of the form $\mho \ltdyn V$
-for some value $V$.
-% This is sufficient for establishing graduality, as the property is only
-% concerned with terms of base type.
-However, for higher-order types, the result is more complicated. For instance,
-suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
-:: \textsf{Nat})$, and $M_3$ is the identity. Then the order-equivalence result
-means that the denotations of $M_1 \vee M_3$ and $M_1 \vee M_2 \vee M_3$ are
-equal. In other words, the denotational semantics cannot tell the difference
-between a computation that nondeterministically chooses between $M_1$ and $M_3$,
-and one that chooses between all three of them. Now define a context
-%
-$C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
-%
-Then $\sem{C[M_1 \vee M_3]} = \sem{C[M_1 \vee M_2 \vee M_3]}$. On the other
-hand, the possible outputs, viewed as sets of traces, are $\{ a\mho, ab0 \}$ and
-$\{ a\mho, ab\mho, ab0 \}$ respectively. Thus, the denotational semantics is not
-adequate for exact operational behavior.
-\max{This paragraph is not very clear. Let's hash it out on the board tomorrow.}
-
-This same phenomenon occurs in any theory that includes join semilattices,
-including idempotent semirings. We leave to future work the exploration of how
-we might adapt the framework to accommodate such theories.
 
 \section{Discussion}\label{sec:discussion}
 
@@ -2926,26 +2820,130 @@ construction in our approach is defined using induction and guarded recursion.
 % allowed to take an effectful step.
 
 
-\subsection{Future Work}
+\subsection{Future Work}\label{sec:future-work}
+
+%\subsection{Semilattice-Like Operations}
+
+As mentioned in the introduction, we have identified algebraic theories that we
+believe are compatible with graduality, but which do not quite fit into our
+framework because they do not satisfy the required lifting property. The primary
+example is the theory of join-semilattices, which models finite nondeterministic
+choice. The combination of idempotence and associativity allows for unrestricted
+duplication of terms. As a result, the ordering on the free algebras of the
+theory extended with error and $\theta$ is not antisymmetric, an issue that
+occurs already for the original, unextended theory of join semilattices. There,
+the ordering on the free join semilattice (i.e., the finite powerset) is the
+Egli-Milner ordering \cite{plotkin-1976}, which is easily seen to not be
+antisymmetric in general. A similar result holds for the extended theory.
+%
+% This failure of antisymmetry means that the free algebras in the category of
+% predomains are in general a nontrivial quotient of the free algebras in the
+% category of sets.
+
+% \eric{Below is my attempt at describing what this would imply for gradual
+% functional logic programming.}
+
+This observation has implications for a gradually-typed functional logic
+language: the semantics is forced to identify the behavior of two a priori
+different nondeterministic programs where one involves an intermediate error.
+%
+More concretely, suppose we have a language with a binary choice operation
+$\vee$ and a print operation $\mathsf{print}$ that does not commute with $\vee$,
+and consider a term $M : \dyn$. By the rules for term precision, we have $\mho
+\ltdyn M :: \mathsf{Nat} \ltdyn M$. Then by idempotence and monotonicity for
+$\vee$, we have
+%
+$(\mho \vee M) = (\mho \vee \mho \vee M) \ltdyn (\mho \vee (M :: \mathsf{Nat}) \vee M)$ 
+%
+and conversely,
+%
+$(\mho \vee (M :: \mathsf{Nat}) \vee M) \ltdyn (\mho \vee M \vee M) = (\mho \vee M)$.
+%
+% Thus, the two distinct terms above are order-equivalent in the graduality
+% ordering, which means they should behave equivalently. This does indeed hold
+% if $M$ is of base type, and that is sufficient for the graduality result.
+% However, for higher-order types the result is counterintuitive: 
+This argument applies to any chain of terms $M_1 \ltdyn M_2 \ltdyn M_3$, showing
+that $M_1 \vee M_3$ is order-equivalent to $M_1 \vee M_2 \vee M_3$ in the
+graduality ordering. Graduality implies that they have equivalent semantic
+behavior. If the terms are of base type and do not print anything, this is
+unsurprising, as every chain of output values is of the form $\mho \ltdyn V$ for
+some value $V$.
+%
+However, for higher-order types, the result is more interesting. For instance,
+suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
+:: \textsf{Nat})$, and $M_3$ is the identity. The order-equivalence result says
+$M_1 \vee M_3 \equidyn M_1 \vee M_2 \vee M_3$. Now define a context
+%
+$C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
+%
+Then ${C[M_1 \vee M_3]} \equidyn {C[M_1 \vee M_2 \vee M_3]}$, and graduality
+then implies that in any semantics the two programs must have the same behavior.
+%
+However, the right-hand side can produce the traces $\{ a\mho, ab\mho, ab0 \}$,
+while the left-hand side can only produce the traces $\{ a\mho, ab0 \}$, as the
+trace $ab\mho$ only arises from $M_2$. Thus, no semantics satisfying graduality
+can tell whether printing $ab$ and then erroring is a possible behavior, because
+the right-hand side has it while the left-hand side does not.
+%
+% More generally, no semantics satisfying graduality can tell exactly which traces
+% a nondeterministic program may produce. Any such semantics can observe trace
+% sets only up to Egli-Milner equivalence.
+%
+% More generally, whenever $M_1 \ltdyn M_2 \ltdyn M_3$, no semantics satisfying
+% graduality can tell whether the behaviors of $M_2$ are possible in addition to
+% those of $M_1$ and $M_3$.
+%
+% More generally, for any context $C$, the behaviors of $C[M_2]$ lie between those
+% of $C[M_1]$ and $C[M_3]$, and no semantics satisfying graduality can tell
+% whether they are possible in addition to those. Observing trace sets up to
+% Egli-Milner equivalence is consistent with this, while observing exact trace
+% sets is not.
+%
+%
+% The possible outputs of the right-hand side, viewed as a set of traces, are
+% $\{ a\mho, ab\mho, ab0 \}$. In particular, if a program prints $ab$ and then
+% errors, no semantics satisfying graduality can tell whether it arose from the
+% first or the second. 
+%
+This same phenomenon occurs in any theory that includes join semilattices,
+including idempotent semirings. We leave to future work the exploration of how
+we might adapt the framework to accommodate such theories.
+
+% The identification above relies on idempotence being part of term precision. For
+% the free theory of binary choice, our framework applies, and its graduality
+% result transfers along the quotient map to sets of traces. What is lost is
+% precision reasoning that uses the equations.
+
+Another algebraic theory of interest is the theory of convex spaces, used to
+model probabilistic choice. Prior work has constructed models combining this
+theory with a guarded stepping operation
+\cite{recursion-probabilistic-choice-guarded}; we would need to extend this to
+handle the relational aspects. We believe that this theory does satisfy the
+lifting property, at least if we take the guarded extension to be the tensor
+with $\{\mho, \theta\}$.
+% Note that the above cited work uses the sum rather than the tensor.
+
+% sums of balanced theories such as semigroups satisfy the antisymmetry part of
+% lifting
 
 % other operations in the guarded algebraic theory besides just \theta
 
-\eric{TODO: mention probabilistic choice}
-
-Our next goal is to extend the effectful semantics to account for more advanced
-effects such as higher-order store or dynamic type-tag generation. This was the
-original motivation of Giovannini et al., and with the experience gained in
-incorporating algebraic effects and operational semantics into their framework,
-we believe it will be feasible to extend the semantics to account for such
-effects. There are two key challenges that must be overcome to handle
-higher-order store. First, dynamic allocation must be modelled. In the
-denotational setting this would take the form of a presheaf over a category of
-worlds, where the world specifies the currently-allocated names. Second, the
-ability to store functions makes the model viciously self-referential. Prior
-work has investigated the use of guarded type theory to solve the resulting
-domain equation \cite{DBLP:journals/corr/abs-2210-02169}. The challenge is to incorporate these approaches
-into our denotational model, in particular, the relational aspects (e.g.,
-squares) and the perturbations.
+Beyond these additional algebraic theories, our longer-term goal is to extend
+the effectful semantics to account for more advanced effects such as
+higher-order store or dynamic type-tag generation. This was the original
+motivation of Giovannini et al., and with the experience gained in incorporating
+algebraic effects and operational semantics into their framework, we believe it
+will be feasible to extend the semantics to account for such effects. There are
+two key challenges that must be overcome to handle higher-order store. First,
+dynamic allocation must be modelled. In the denotational setting this would take
+the form of a presheaf over a category of worlds, where the world specifies the
+currently-allocated names. Second, the ability to store functions makes the
+model viciously self-referential. Prior work has investigated the use of guarded
+type theory to solve the resulting domain equation
+\cite{DBLP:journals/corr/abs-2210-02169}. The challenge is to incorporate these
+approaches into our denotational model, in particular, the relational aspects
+(e.g., squares) and the perturbations.
 
 % Another possible direction would be to adapt the model to allow for gradual
 % \emph{effect systems}, such as that of the language GrEff
@@ -2953,6 +2951,15 @@ squares) and the perturbations.
 % denotational semantics, including adding effect tracking. We would also need to
 % solve a domain equation for the dynamic effect type analogous to the equation
 % for the dynamic value type.
+
+
+
+% Other Malcev theories include abelian groups, rings, and modules over a ring (of
+% which vector spaces are a special case). The above result implies that
+% gradually-typed languages cannot support such operations. \eric{TODO: mention
+% gradual quantum programming?}\max{I would definitely mention gradual quantum somewhere}
+
+
 
 \section*{Data-Availability Statement}
 There is no associated artifact for this paper, but the supplementary material
