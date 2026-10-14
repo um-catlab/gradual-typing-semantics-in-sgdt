@@ -102,6 +102,7 @@
 \orcid{0000-0001-8141-195X}
 
 \begin{abstract}
+    \max{how is axiomatic syntax-independent? Denotational is syntax independent}
     Gradual typing allows for the mixing of static and dynamic code styles in
     the same codebase. A key metatheoretic property of gradually-typed languages
     is graduality, which ensures that the transition from dynamic to static
@@ -122,7 +123,7 @@
     In this work, we investigate how the axiomatic approach to gradual typing
     can be extended to accommodate gradually-typed languages with effects. We
     build on the work of Giovannini et al., who defined a denotational model of
-    a simple gradually-typed cast calculus using guarded type theory. We
+    a simple gradually-typed cast calculus using guarded type theory. \max{Lead with the incompatibility and then sufficient conditions, it makes it clearer why we need to establish any conditions at all!}We
     identify sufficient conditions on an algebraic theory, and its extension with errors, that allow us to prove
     graduality for a cast calculus supporting that theory's operations. We then
     construct a framework for gradual typing parameterized by an algebraic
@@ -185,8 +186,8 @@ $M$ is syntactically identical to $N$ other than containing more statically
 precise type information. Then the graduality theorem says that if $M, N$ are
 closed programs with a simple output type such as integers, then either $M$ and
 $N$ have the same behavior (both diverge, both terminate with the same result,
-both error) or $M$ raises a dynamic type error. In a language satisfying
-graduality, a program cannot catch a runtime type error and alter its behavior.
+both error) or $M$ raises a dynamic type error\max{in which case $N$ can have any behavior}. In a language satisfying
+graduality, a program cannot catch a runtime type error and alter its behavior\max{elaborate on this point!}.
 
 Despite being a conceptually simple idea, graduality has been a challenge to
 prove. The main approaches in prior work are (1) tedious operational simulation
@@ -204,7 +205,7 @@ new-licata-ahmed2019} or (4) denotational methods \cite{new-licata18,gtt-sgdt}.
 Among these, the denotational approach enables reuse of common mathematical
 arguments across languages. This higher-level perspective has allowed prior work
 to axiomatize the behavior of gradual typing in the form of an inequational
-theory \cite{new-licata18, new-licata-ahmed2019}.
+theory \cite{new-licata18, new-licata-ahmed2019}\max{If I am a reader that doesn't know much about this stuff I am wondering: what does the denotational approach have to do with the axiomatic approach? I think you need to expand to basically introduce the idea of GTT: axiomatize type precision as a notion of program refinement and reason about the required behavior of casts using the induced notion of equivalence, and then provide logical relations or denotational models that show the theory is coherent}.
 
 Despite the generality of the axiomatic approach, its applicability remains
 limited because real-world language features such as effects must still be
@@ -220,33 +221,33 @@ Thus, a natural plan would be to use algebraic theories to obtain an
 effect-generic graduality theorem. Prior work was optimistic that this objective
 would be straightforward to achieve. For example, Giovannini et al. viewed
 support for algebraic effects as a relatively simple extension to their
-semantics \cite{gtt-sgdt}.
+semantics \cite{gtt-sgdt}\max{where in that paper did we say anything about algebraic effects?}.
 
 Unfortunately, the situation is not as straightforward as one may expect. We
-observe that there are serious obstacles to proving graduality in a completely
+observe\max{``We observe that'': just say it! Also combine this sentence with the previous one and make it shorter} that there are serious obstacles to proving graduality in a completely
 effect-generic manner. In particular, there are algebraic theories that are
 incompatible with graduality in the sense that for any gradually-typed language
-supporting such a theory, the equational theory is forced to be trivial.
-Graduality then forces all terms in the language to behave like the error term.
+supporting such a theory, the equational theory is forced to be trivial\max{i.e., all terms are equal to each other}.
+Graduality then forces all terms in the language to behave like the error term\max{if the equational theory is trivial, then everything already must behave like the error term, graduality is unnecessary to bring in.}.
 % Graduality then forces semantic equivalence of all terms in the language.
 %
 One such algebraic theory is the theory of groups. Suppose we have a language
 with a nullary operation $e$, a binary group operation $M \cdot N$, and an
 inverse operation $M^{-1}$ such that $M \cdot M^{-1} = e$. If the multiplication
 and the inverse operations are monotone with respect to the precision ordering
-on terms, then every term is equivalent to the error term.
+on terms, then every term is equivalent to the error term\max{and so all terms are equivalent}.
 %
 More concretely, for any term $M$, the term precision rules state that $\mho
 \ltdyn M$ with $\mho$ the error term. Then by monotonicity of inverse we have
 $\mho^{-1} \ltdyn M^{-1}$ and then by monotonicity of multiplication we have $M
-= (\mho \cdot \mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$.
+= (\mho \cdot \mho^{-1} \cdot M) \ltdyn (\mho \cdot M^{-1} \cdot M) = \mho$\max{why does this need to be multiple steps just skip straight to by monotonicity of inverse and multiplication...}.
 Thus, we have $M \equidyn \mho$, and graduality then implies that $M$ must
 error. The argument uses only monotonicity and the equations of the theory.
 
 Intuitively, the inverse equation in the theory of groups acts as a way of
 detecting equality with error and returning something that lies above the error
-in the precision ordering. This can be seen as a form of catching a type error,
-which, as we know, is prohibited in any language satisfying graduality.
+in the precision ordering. This can be seen as a mild form of catching a type error,
+which, as we know, is prohibited in any language satisfying graduality\max{citation: Boyland et al I think mention this}.
 %
 More generally, the above argument works with any operation $f$ such that $f(x,
 x, y) = y$ and $f(x, y, y) = x$; this is known as a \emph{Malcev operation}
@@ -258,7 +259,7 @@ are incompatible with gradual typing as well.
 The theory of modules has been applied to model relational databases
 \cite{Henglein-Kaarsgaard-Mathiesen}. Our result implies that their module
 operations cannot be used as algebraic effects in a gradually-typed language, as
-an error in one summand could be cancelled by its negation.
+an error in one summand could be cancelled by its negation\max{why two sentences when one do trick?}.
 % Instead, in any gradual language over such a data model, the operations must act
 % on values, so that errors abort before any cancellation.
 
@@ -267,7 +268,7 @@ an error in one summand could be cancelled by its negation.
 
 The above discussion shows that some amount of restriction is required when
 abstracting over effects in gradual typing. We identify sufficient conditions
-that hold for common algebraic effects such as exceptions and global state. A
+that hold for common algebraic effects such as exceptions and global state\max{just list all of the type of examples we cover here}. A
 key property here is the \emph{lifting of free algebras}, which says roughly
 that the free algebras in Set of the theory extended by an additional error
 operation are the same as the free algebras in Poset where the error is least in
@@ -309,9 +310,10 @@ transported via adequacy to the operational semantics.
 Prior denotational models of gradual typing \cite{new-licata18, gtt-sgdt}
 establish graduality only for a denotational semantics. Using adequacy, our
 framework provides a theorem about the operational semantics, which is the
-setting where graduality is typically stated.
+setting where graduality is typically stated\max{This point about the operaitonal semantics and adequacy deserves its own paragraph, not buried at the end of this one.}.
 
 % \eric{Review this}
+\max{I still don't like this paragraph. The most important information in this paragraph is the last three sentences and you would have no idea that that is what the paragraph is about based on the first few sentences. Can't you delay talking about guarded type theory until the next subsection?}
 The foundation for our work is \emph{guarded type theory}
 \cite{birkedal-mogelberg-schwinghammer-stovring2011,
 kristensen-mogelberg-vezzosi2022}, which allows us to define the semantics,
@@ -339,7 +341,7 @@ do not satisfy lifting, but which we believe are nonetheless compatible with
 graduality since, unlike with Malcev operations, no value is forced to lie below
 $\mho$. A key example is the theory of join-semilattices, used to model
 nondeterministic choice. These are discussed in the future work section (Sec.
-\ref{sec:future-work}).
+\ref{sec:future-work}).\max{This paragraph should go earlier right after you introduce the idea of a lifting condition.}
 
 % We leave to future work the question of how to adapt our framework to
 % accommodate such theories.
