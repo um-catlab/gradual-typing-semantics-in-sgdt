@@ -302,17 +302,21 @@ well.
 
 % our result implies that a gradual version of their semantics is not possible.
 
-The above discussion shows that some amount of restriction is required when
-abstracting over effects in gradual typing. We identify sufficient conditions
-that hold for free theories, i.e., those without equations, and that are
-preserved by the exception, reader, writer, and global-state monad transformers,
-so that they also hold for combinations of these effects. A key property
-here is the \emph{lifting of free algebras}, which says roughly that the free
-algebras in Set of the theory extended by an additional error operation are the
-same as the free algebras in Poset where the error is least in the ordering; in
-particular, no elements of the Set-algebra are identified by order-equivalence.
-(The actual definition also involves a guarded operation $\theta$; see Section
-\ref{sec:extending-to-predomains} for details.)
+The above discussion shows that some amount of restriction is required
+when abstracting over effects in gradual typing. In
+Section~\ref{sec:extending-to-predomains} identify sufficient
+conditions on a theory for it to be compatible with graduality. These
+conditions hold for free theories (those with no equations) and the
+conditions are preserved by the monad transformers for exception,
+reader, writer, and global-state, so they hold for a variety of the
+most common computational effects. A key property that these theories
+satisfy is the \emph{lifting of free algebras}, that the free algebras
+in Set of the theory extended by an additional error operation are the
+same as the free algebras in Poset where the error is least in the
+ordering; in particular, no elements of the Set-algebra are identified
+by order-equivalence. The actual definition is more complicated as it
+involves a guarded operation $\theta$ used for tracking computational
+steps.
 %
 % TODO why this rules out groups: the free partially-ordered groups with a
 % bottom element is trivial.
@@ -325,11 +329,11 @@ particular, no elements of the Set-algebra are identified by order-equivalence.
 % $\mho$, including values. However, our lifting condition does not allow a
 % value to be identified with $\mho$. Thus, Malcev theories do not meet the
 % requirements of our framework.
-In particular, lifting fails for groups and more generally any Malcev theory: in
-a partial order where $\mho$ is the least element, the above argument shows that
-every element is below $\mho$. By antisymmetry, this implies that the free
-ordered group with a least element is trivial, unlike the free group with an
-added error element in Set.
+This lifting condition fails for groups and more generally any Malcev
+theory: in a partial order where $\mho$ is the least element, the
+above argument shows that every element is equal so the free ordered
+group with a least element is the trivial group, rather than the free
+group with an error element adjoined.
 %
 % By antisymmetry, this implies that the free ordered group with a least element
 % is trivial, while in Set, the free group with an added error element is not.
@@ -337,12 +341,9 @@ added error element in Set.
 % We have also identified a gap between our framework's conditions and the
 % Malcev obstruction discussed above.
 %
-While the lifting condition is sufficient for our purposes, it does not appear
-to be necessary. There are theories that fail lifting, but which we expect to be
-compatible with graduality since, unlike with Malcev operations, no value is
-forced to lie below $\mho$. A key example is the theory of join-semilattices,
-used to model nondeterministic choice. These are discussed in the future work
-section (Sec. \ref{sec:future-work}).
+While the lifting condition is sufficient for our proof of graduality,
+it does not appear to be a necessary condition. For instance, the theory of join-semilattices, which can be used to model finite nondeterminism does not satisfy lifting, but is also non-trivial. Theories like these sit in an intermediate space where graduality forces unexpected equations on effectful terms but does not trivialize the language. We leave a more thorough study of these effects for
+future work (Sec. \ref{sec:future-work}).
 % \max{This paragraph should go earlier right after you introduce the idea of a
 % lifting condition.}
 
