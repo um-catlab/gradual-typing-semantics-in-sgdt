@@ -2826,8 +2826,8 @@ construction in our approach is defined using induction and guarded recursion.
 
 %\subsection{Semilattice-Like Operations}
 
-As mentioned in the introduction, we have identified algebraic theories that we
-believe are compatible with graduality, but which do not quite fit into our
+As mentioned in the introduction, \max{Just delete ``As mentioned in the introduction,''. Just make this a declarative sentence. ``There are algebraic theories that we''}we have identified algebraic theories that we
+believe\max{Say ``conjecture'' or ``expect'' depending on how strongly you think. ``believe'' is inappropriate verbiage in a scientific paper} are compatible with graduality, but which do not quite fit into our
 framework because they do not satisfy the required lifting property. The primary
 example is the theory of join-semilattices, which models finite nondeterministic
 choice. The combination of idempotence and associativity allows for unrestricted
@@ -2847,11 +2847,11 @@ antisymmetric in general. A similar result holds for the extended theory.
 
 This observation has implications for a gradually-typed functional logic
 language: the semantics is forced to identify the behavior of two a priori
-different nondeterministic programs where one involves an intermediate error.
+different nondeterministic programs where one involves an intermediate error\max{what is an ``intermediate error''? Rephrase?}.
 %
-More concretely, suppose we have a language with a binary choice operation
+More concretely, \max{More directly, get to the point and start the sentence with ``Suppose we have...''}suppose we have a language with a binary choice operation
 $\vee$ and a print operation $\mathsf{print}$ that does not commute with $\vee$,
-and consider a term $M : \dyn$. By the rules for term precision, we have $\mho
+and consider a term $M : \dyn$. \max{The typing of this example doesn't make sense. $M :: \nat$ and $M :: \dyn$ don't have the same type so you can't join them. I think you need $M :: \nat :: \dyn$} By the rules for term precision, we have $\mho
 \ltdyn M :: \mathsf{Nat} \ltdyn M$. Then by idempotence and monotonicity for
 $\vee$, we have
 %
@@ -2874,7 +2874,7 @@ some value $V$.
 %
 However, for higher-order types, the result is more interesting. For instance,
 suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
-:: \textsf{Nat})$, and $M_3$ is the identity. The order-equivalence result says
+:: \textsf{Nat})$\max{same typing issue here as above, $M_3 : \dyn \to \dyn$ but $M_2 : \dyn \to \nat$}, and $M_3$ is the identity. The order-equivalence result says
 $M_1 \vee M_3 \equidyn M_1 \vee M_2 \vee M_3$. Now define a context
 %
 $C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
@@ -2910,7 +2910,7 @@ the right-hand side has it while the left-hand side does not.
 %
 This same phenomenon occurs in any theory that includes join semilattices,
 including idempotent semirings. We leave to future work the exploration of how
-we might adapt the framework to accommodate such theories.
+we might adapt the framework to accommodate such theories\max{or to develop a full gradual functional-logic language}.
 
 % The identification above relies on idempotence being part of term precision. For
 % the free theory of binary choice, our framework applies, and its graduality
