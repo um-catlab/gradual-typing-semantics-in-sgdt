@@ -2277,18 +2277,17 @@ result.
 We discuss these constructions in greater detail in Sections
 \ref{sec:trace-semantics} and \ref{sec:monad-transformers}.
 
-\eric{Not sure this needs to be here now, since we talk about non-determinism
-      elsewhere. But this seems to be saying that for graduality, the equations
-      don't matter. Instead, we could just prove graduality for the corresponding
-      free theory and the result would translate to the one with equations.}
-While we do not support the usual theories of non-determinism or probabilistic
-computation since they involve equations and do not arise from one of our theory
-transformers, we \emph{do} support their free variants. This is a reasonable
-alternative: for a theory $\calA$ with free-model monad $T$, the free-model
-monad for the corresponding theory without equations maps uniquely into $T$, and
-our graduality result will translate to any ordering on $T$ provided it is a
-congruence with respect to the operations of the theory.
-%\eric{Is more detail needed here?}
+% \eric{Not sure this needs to be here now, since we talk about non-determinism
+%       elsewhere. But this seems to be saying that for graduality, the equations
+%       don't matter. Instead, we could just prove graduality for the corresponding
+%       free theory and the result would translate to the one with equations.}
+% While we do not support the usual theories of non-determinism or probabilistic
+% computation since they involve equations and do not arise from one of our theory
+% transformers, we \emph{do} support their free variants. This is a reasonable
+% alternative: for a theory $\calA$ with free-model monad $T$, the free-model
+% monad for the corresponding theory without equations maps uniquely into $T$, and
+% our graduality result will translate to any ordering on $T$ provided it is a
+% congruence with respect to the operations of the theory.
 
 
 \section{Summary and Instantiations of the Framework}\label{sec:framework}
