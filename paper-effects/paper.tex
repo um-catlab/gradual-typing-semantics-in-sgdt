@@ -102,47 +102,44 @@
 \orcid{0000-0001-8141-195X}
 
 \begin{abstract}
-    \max{how is axiomatic syntax-independent? Denotational is syntax independent}
+    %\max{how is axiomatic syntax-independent? Denotational is syntax independent}
     Gradual typing allows for the mixing of static and dynamic code styles in
     the same codebase. A key metatheoretic property of gradually-typed languages
     is graduality, which ensures that the transition from dynamic to static
     typing preserves semantics up to introduction of stricter checking.
     Establishing graduality is a metatheoretic challenge, often requiring
-    results to be reproven from scratch across different languages. The
-    axiomatic approach to gradual typing provides reusable, syntax-independent
-    abstractions, but existing proofs based on this approach do not support
-    common language features such as effects. Even the correct formulation of
-    the graduality property must be given anew for languages with different
+    results to be reproven from scratch across different languages. Denotational
+    models provide reusable, syntax-independent abstractions, and the axiomatic
+    approach of gradual type theory characterizes the behavior of casts by an
+    inequational theory that is validated by the model.
+    %
+    However, existing proofs based on this approach do not support common
+    language features such as effects, and even the correct formulation of the
+    graduality property must be given anew for languages with different
     observable effects.
     % ... but so far it does not extend to common language features such as
     % effects.
     
     % ... but it has not been extended to common language features such as
     % effects
-    
-    In this work, we investigate how the axiomatic approach to gradual typing
-    can be extended to accommodate gradually-typed languages with effects. We
-    build on the work of Giovannini et al., who defined a denotational model of
-    a simple gradually-typed cast calculus using guarded type theory. \max{Lead with the incompatibility and then sufficient conditions, it makes it clearer why we need to establish any conditions at all!}We
-    identify sufficient conditions on an algebraic theory, and its extension with errors, that allow us to prove
-    graduality for a cast calculus supporting that theory's operations. We then
-    construct a framework for gradual typing parameterized by an algebraic
-    theory satisfying these conditions. Each instantiation of the framework
-    provides a concrete operational semantics, a denotational semantics, and a
-    proof of graduality for both semantics.
-    %
-    We additionally identify a class of algebraic theories which are
-    fundamentally incompatible with gradual typing. In any gradually-typed
-    language supporting such operations, graduality forces every program to
-    error. This class consists of theories with inverse-like operations,
-    including groups, rings, and modules.
-    %
-    We observe that other algebraic effects avoid this obstruction but fall
-    outside our framework. Among these is the theory of join semilattices, used
-    to model nondeterministic choice. Further study is needed to determine if
-    our framework can accommodate these theories.
 
-
+    In this work, we extend the axiomatic approach to gradual typing to
+    languages with algebraic effects, building on the guarded denotational model
+    of Giovannini et al. 
+    %
+    We first identify a class of algebraic theories that are incompatible with
+    gradual typing, in the sense that any gradually-typed language supporting
+    such operations equates every program with the error. We then identify
+    sufficient conditions on an algebraic theory and its extension with errors,
+    and we construct a framework for gradual typing parameterized by an
+    algebraic theory satisfying these conditions. Each instantiation of the
+    framework provides a concrete operational semantics, a denotational
+    semantics, and a proof of graduality for both semantics.
+    %
+    Other algebraic theories avoid this obstruction but fall outside our
+    framework. Among these is the theory of join semilattices, used to model
+    nondeterministic choice. Further study is needed to determine if our
+    framework can accommodate these theories.
 \end{abstract}
 
 \maketitle
