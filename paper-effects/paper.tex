@@ -127,14 +127,14 @@
     languages with algebraic effects, building on the guarded denotational model
     of Giovannini et al. 
     %
-    First we show that not all algebraic effects are compatible with
+    First, we show that not all algebraic effects are compatible with
     gradual typing: for theories with invertible operations like
     groups, the equational theory of a gradually-typed language
-    supporting that effect is trivial.
+    supporting such an effect is trivial.
     %
     We then identify sufficient conditions on an algebraic theory and
     its extension with errors to be compatible with graduality, which
-    includes most common effects used in programming language
+    hold for most common effects used in programming language
     semantics such as state-like effects, exceptions and I/O. To
     demonstrate this, we provide a syntax for gradual typing
     parameterized by an algebraic theory for its effects and provide
@@ -195,7 +195,7 @@ behavior. In a language satisfying graduality, a program cannot catch a runtime
 type error and alter its behavior.
 %
 If programs could catch a type error and return a value instead, then making the
-typing more precise typing could change a program's behavior. For example,
+typing more precise could change a program's behavior. For example,
 %
 $\textsf{catch}\; ((\lambda x{:}\nat.\, 0)\, (\textsf{true} :: \dyn))\; \textsf{with}\; 1$ 
 %
@@ -226,8 +226,8 @@ new-licata-ahmed2019}, and (4) denotational methods
 % \cite{new-licata18, new-licata-ahmed2019}
 %
 Among these, denotational methods enable reuse of common mathematical arguments
-across languages. This pairs naturally with an axiomatic approach to gradual
-typing known as gradual type theory (GTT) \cite{new-licata18,
+across languages. Denotational methods pair naturally with an axiomatic approach
+to gradual typing known as gradual type theory (GTT) \cite{new-licata18,
 new-licata-ahmed2019}. In GTT, term precision is axiomatized as an inequational
 theory, and the behavior of casts is derived from the inequational axioms via
 the induced equivalence $\equidyn$. One then defines a logical relation or
@@ -260,9 +260,9 @@ This is true for operations without equations, but equations can present a
 serious obstacle. For some algebraic theories, every gradually typed language
 supporting them has a trivial equational theory where all terms are equivalent
 to the error.
-
-\max{if the equational theory is trivial, then everything already must behave
-like the error term, graduality is unnecessary to bring in.}.
+%
+% \max{if the equational theory is trivial, then everything already must behave
+% like the error term, graduality is unnecessary to bring in.}.
 %
 One such algebraic theory is the theory of groups. Suppose we have a language
 with a nullary operation $e$, a binary group operation $M \cdot N$, and an
@@ -281,9 +281,9 @@ The argument uses only monotonicity and the equations of the theory.
 Intuitively, the inverse equation in the theory of groups acts as a way of
 detecting equality with error and returning something that lies above the error
 in the precision ordering. This can be seen as a mild form of catching a type
-error, which, as we know, is prohibited in any language satisfying graduality,
-much as runtime type comparisons can break the gradual guarantee
-\cite{Boyland2014StructuralTypeTests}
+error, which, as the example above shows, is prohibited in any language
+satisfying graduality, much as runtime type tests can break the gradual
+guarantee \cite{Boyland2014StructuralTypeTests}.
 % \max{citation: Boyland et al I think mention this}.
 %
 More generally, the above argument works with any operation $f$ such that $f(x,
@@ -293,10 +293,10 @@ x, y) = y$ and $f(x, y, y) = x$; this is known as a \emph{Malcev operation}
 \cdot y^{-1} \cdot z$. Rings and modules also have such an operation, so they
 are incompatible with gradual typing as well.
 %
-In particular, module operations used to model relational databases by by
-Henglein et al.~\cite{Henglein-Kaarsgaard-Mathiesen} cannot serve as
-algebraic effects in a gradually-typed language, since an error in one
-summand could be cancelled by its negation.
+In particular, module operations used to model relational databases by Henglein
+et al.~\cite{Henglein-Kaarsgaard-Mathiesen} cannot serve as algebraic effects in
+a gradually-typed language, since an error in one summand could be cancelled by
+its negation.
 % Instead, in any gradual language over such a data model, the operations must act
 % on values, so that errors abort before any cancellation.
 
@@ -371,16 +371,16 @@ transported via adequacy to the operational semantics.
 % paragraph, not buried at the end of this one.}.
 
 Our framework also closes a gap in prior denotational models of gradual typing
-\cite{new-licata18, gtt-sgdt}. These proofs establish graduality only for a
+\cite{new-licata18, gtt-sgdt}. These models establish graduality only for a
 denotational semantics, while graduality is normally stated for an operational
 semantics. Using an adequacy theorem, our final graduality result is transported
 to a statement about the operational semantics.
 %
 The theorem is stated in ordinary type theory, without reference to the
 constructions of guarded type theory used in its proof.
-%
-After specifying the framework, we then give concrete descriptions of the
-resulting graduality theorem, by providing two kinds of constructions. First, we
+
+After specifying the framework, we give concrete descriptions of the resulting
+graduality theorem, by providing two kinds of constructions. First, we
 instantiate the framework for the case of a free theory, giving a construction
 for uninterpreted effects like operating system calls as a kind of trace
 semantics over coinductively defined interaction trees \cite{itrees}. Second, we
@@ -2899,8 +2899,8 @@ join-semilattices, which models finite nondeterministic choice. The combination
 of idempotence and associativity allows for unrestricted duplication of terms.
 As a result, the ordering on the free algebras of the theory extended with error
 and $\theta$ is not antisymmetric, an issue that occurs already for the
-original, unextended theory of join semilattices. There, the ordering on the
-free join semilattice (i.e., the finite powerset) is the Egli-Milner ordering
+original, unextended theory of join-semilattices. There, the ordering on the
+free join-semilattice (i.e., the finite powerset) is the Egli-Milner ordering
 \cite{plotkin-1976}, which is easily seen to not be antisymmetric in general. A
 similar result holds for the extended theory.
 %
@@ -2911,7 +2911,7 @@ similar result holds for the extended theory.
 % \eric{Below is my attempt at describing what this would imply for gradual
 % functional logic programming.}
 
-This observation has implications for a gradually-typed functional logic
+This observation has implications for a gradually-typed functional-logic
 language: the semantics is forced to identify the behavior of two
 nondeterministic programs where one has an extra branch that prints output and
 then raises an error.
@@ -2948,7 +2948,7 @@ suppose the $M_i$ are functions where $M_1$ always errors, $M_2 = \lambda x.(x
 :: \nat :: \dyn)$, and $M_3$ is the identity. The order-equivalence result says
 $M_1 \vee M_3 \equidyn M_1 \vee M_2 \vee M_3$. Now define a context
 %
-$C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5); print 'b'; f(true); 0})$.
+$C[-] = (\textsf{let f = } - \textsf{ in print 'a'; f(5 :: \dyn); print 'b'; f(true :: \dyn); 0})$.
 %
 Then ${C[M_1 \vee M_3]} \equidyn {C[M_1 \vee M_2 \vee M_3]}$, and graduality
 then implies that in any semantics the two programs must have the same behavior.
@@ -2979,7 +2979,7 @@ the right-hand side exhibits it while the left-hand side does not.
 % errors, no semantics satisfying graduality can tell whether it arose from the
 % first or the second. 
 %
-This same phenomenon occurs in any theory that includes join semilattices,
+This same phenomenon occurs in any theory that includes join-semilattices,
 including idempotent semirings. We leave to future work the exploration of how
 we might adapt the framework to accommodate such theories or to develop a full
 gradually-typed functional-logic language.
