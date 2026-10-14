@@ -127,19 +127,26 @@
     languages with algebraic effects, building on the guarded denotational model
     of Giovannini et al. 
     %
-    We first identify a class of algebraic theories that are incompatible with
-    gradual typing, in the sense that any gradually-typed language supporting
-    such operations equates every program with the error. We then identify
-    sufficient conditions on an algebraic theory and its extension with errors,
-    and we construct a framework for gradual typing parameterized by an
-    algebraic theory satisfying these conditions. Each instantiation of the
-    framework provides a concrete operational semantics, a denotational
-    semantics, and a proof of graduality for both semantics.
+    First we show that not all algebraic effects are compatible with
+    gradual typing: for theories with invertible operations like
+    groups, the equational theory of a gradually-typed language
+    supporting that effect is trivial.
     %
-    Other algebraic theories avoid this obstruction but fall outside our
-    framework. Among these is the theory of join semilattices, used to model
-    nondeterministic choice. Further study is needed to determine if our
-    framework can accommodate these theories.
+    We then identify sufficient conditions on an algebraic theory and
+    its extension with errors to be compatible with graduality, which
+    includes most common effects used in programming language
+    semantics such as state-like effects, exceptions and I/O. To
+    demonstrate this, we provide a syntax for gradual typing
+    parameterized by an algebraic theory for its effects and provide
+    operational and denotational semantics along with an adequacy
+    proof. We then show that under our conditions on the theory the
+    denotational and operational semantics satisfy a graduality
+    theorem.
+    %% %
+    %% Other algebraic theories avoid this obstruction but fall outside our
+    %% framework. Among these is the theory of join semilattices, used to model
+    %% nondeterministic choice. Further study is needed to determine if our
+    %% framework can accommodate these theories.
 \end{abstract}
 
 \maketitle
