@@ -152,7 +152,7 @@
 \maketitle
 
 \newif\ifdraft
-\drafttrue
+\draftfalse
 \renewcommand{\max}[1]{\ifdraft{\color{blue}[{\bf Max}: #1]}\fi}
 \newcommand{\eric}[1]{\ifdraft{\color{orange}[{\bf Eric}: #1]}\fi}
 
@@ -473,7 +473,7 @@ exception monads \cite{monads-and-effects}. We define a small-step
 operational semantics and this induces a multi-step execution
 semantics:
 %
-\[ \run : (\term{A} \to T_{\calAsb}\val{A}), \]
+$\run : \term{A} \to T_{\calAsb}\val{A},$
 %
 where $\calAsb$ is the input theory extended with operations
 corresponding to runtime errors and explicit operational reduction steps, marked as
@@ -582,33 +582,25 @@ interaction tree base case, we can build up a complex effect theory
 with a concrete operational graduality result.
 
 The organization of the remainder of the paper is as follows:
-\begin{enumerate}
-    \item In Section \ref{sec:background}, we provide background
-      on guarded type theory and algebraic theories that will be used
-      in the remainder of the paper.
-    \item In Section \ref{sec:syntax}, we specify the syntax for the cast
-    calculus and definitions of type and term precision used to define the
-    graduality property.
-    \item In Section \ref{sec:operational-semantics}, we define the operational
-    semantics for the cast calculus defined in the previous section.
-    \item In Section \ref{sec:denotational-semantics}, we show how to
-      construct a denotational semantics that is ``gradual by
-      construction'' for the effectful cast calculus by adapting the
-      construction of Giovannini et al. \cite{gtt-sgdt} to account for
-      arbitrary algebraic effects.
-    \item In Section \ref{sec:relating-the-semantics}, we prove an adequacy
-    theorem relating the operational and denotational models in the expected
-    manner.
-    \item In Section \ref{sec:globalization}, we discuss how to globalize the
-    results of the previous two sections.
-    \item In Section \ref{sec:framework}, we summarize the steps of the
-    construction from the prior sections via the notion of graduality schema. We
-    explain how our framework operates given a graduality schema as input,
-    describe two constructions on graduality schema, and give concrete
-    instantiations for familiar algebraic theories.
-    \item Lastly, in Section \ref{sec:discussion}, we summarize our results,
-    compare to prior work, and conclude with directions for future work.
-\end{enumerate}
+In Section \ref{sec:background}, we provide background on guarded type theory
+and algebraic theories that will be used in the remainder of the paper. In
+Section \ref{sec:syntax}, we specify the syntax for the cast calculus and
+definitions of type and term precision used to define the graduality property.
+In Section \ref{sec:operational-semantics}, we define the operational
+semantics for the cast calculus defined in the previous section. In Section
+\ref{sec:denotational-semantics}, we show how to construct a denotational
+semantics that is ``gradual by construction'' for the effectful cast calculus
+by adapting the construction of Giovannini et al. \cite{gtt-sgdt} to account
+for arbitrary algebraic effects. In Section \ref{sec:relating-the-semantics},
+we prove an adequacy theorem relating the operational and denotational models
+in the expected manner. In Section \ref{sec:globalization}, we discuss how to
+globalize the results of the previous two sections. In Section
+\ref{sec:framework}, we summarize the steps of the construction from the prior
+sections via the notion of graduality schema. We explain how our framework
+operates given a graduality schema as input, describe two constructions on
+graduality schema, and give concrete instantiations for familiar algebraic
+theories. Lastly, in Section \ref{sec:discussion}, we summarize our results,
+compare to prior work, and conclude with directions for future work.
 
 \section{Background: Guarded Type Theory and Algebraic Effects}\label{sec:background}
 
@@ -625,37 +617,23 @@ manipulations present in explicit step-indexing.
 There are many variants of guarded type theory, but they each allow a form of
 recursion to be encoded at the level of types through a modality $\later \colon
 \type \to \type$ (pronounced ``later''). The use of a modality to express
-guarded recursion originates in the work of Nakano \cite{Nakano2000}. More
-specifically, a typical guarded type theory has at least the following features:
-
-\begin{itemize}
-  \item Given a type $A$, the type $\later A$ represents an element of type $A$
-  that is available one ``abstract time step'' later. 
-
-  \item There is an operator $\nxt : A \to\, \later A$ that ``delays'' an element
-  available now to make it available later.
-
-  \item There is a principle of \emph{guarded recursion}, implemented by a
-  guarded fixpoint operator of the form
-  %
-  $\fix : \forall A, (\later A \to A) \to A.$
-  %
-  That is, to construct a term of type $A$, it suffices to assume that we have
-  access to such a term ``later'' and use that to help us build a term ``now''.
-  This operator satisfies the axiom that $\fix f = f (\nxt (\fix f))$.
-
-  \item There is a method for solving guarded-recursive type equations $T \cong
-  F(\later T)$. In guarded type theory with a universe of types $\type$, we can
-  solve such equations by applying the guarded fixpoint operator with $A =
-  \type$ \cite{birkedal-møgelberg-2013}.
-  %
-  In particular, $\fix$ applies when type $T$ is instantiated to a proposition
-  $P : \texttt{Prop}$; in that case, it corresponds to $\lob$-induction.
-  
-\end{itemize}
- 
+guarded recursion originates in the work of Nakano \cite{Nakano2000}.
+We fix notation as follows.
+Given a type $A$, the type $\later A$ represents an element of type $A$ that
+is available one ``abstract time step'' later. There is an operator $\nxt : A
+\to\, \later A$ that ``delays'' an element available now to make it available
+later. There is a principle of \emph{guarded recursion}, implemented by a
+guarded fixpoint operator of the form $\fix : \forall A, (\later A \to A)
+\to A.$ That is, to construct a term of type $A$, it suffices to assume that
+we have access to such a term ``later'' and use that to help us build a term
+``now''. This operator satisfies the axiom that $\fix f = f (\nxt (\fix f))$.
+There is a method for solving guarded-recursive type equations $T \cong
+F(\later T)$. In guarded type theory with a universe of types $\type$, we can
+solve such equations by applying the guarded fixpoint operator with $A =
+\type$ \cite{birkedal-møgelberg-2013}. In particular, $\fix$ applies when
+type $T$ is instantiated to a proposition $P : \texttt{Prop}$; in that case,
+it corresponds to $\lob$-induction.
 We will use a tilde to denote a term of type $\later A$, e.g., $\tilde{M}$.
-
 
 % Clocked Cubical Type Theory
 \subsubsection{Ticked Cubical Type Theory}
@@ -996,7 +974,7 @@ $\calA_2$.
   operation with the theory of stepping.
 \end{remark}
 
-\subsection{Theory Transformers and Monad Transformers}
+\subsection{Theory Transformers and Monad Transformers}\label{sec:monad-transformers-background}
 
 Taking the sum or tensor with a fixed guarded algebraic theory gives a notion of
 \textbf{theory transformer}.
@@ -1012,15 +990,13 @@ Let $\calA$ be a guarded algebraic theory. If $T_\calA$ is the free-model monad
 for $\calA$, then the free-model monad for the theory $\calA \otimes \state{S}$
 is given by
 %
-\[ T_{\calA \otimes \state{S}}(A) := S \to T_\calA(S \times A). \]
+$T_{\calA \otimes \state{S}}(A) := S \to T_\calA(S \times A).$
 %
 \end{theorem}
 %
-Table \ref{tab:theory-and-monad-transformers} lists the theory transformers we
+The following table lists the theory transformers we
 support, and their corresponding monad transformers:
-%
-\begin{table}[h!]
-  \centering
+\begin{center}
   \begin{tabular}{|c|c|c|}
     \hline
     Theory       & Theory Transformer         & Monad Transformer \\
@@ -1031,9 +1007,7 @@ support, and their corresponding monad transformers:
     Global State & $- \otimes \state{S}$  & $T'(A) = S \to T(S \times A)$ \\
     \hline
   \end{tabular}
-  \caption{Theory Transformers and Their Corresponding Monad Transformers}
-  \label{tab:theory-and-monad-transformers}
-\end{table}
+\end{center}
 
 \eric{This section isn't that important and can probably be removed to save space.}
 \subsection{Relational Aspects}
@@ -1368,7 +1342,7 @@ of closed values of type $A$ in the cast calculus.
 %
 Our goal is to define a guarded multi-step operational semantics, i.e., a function
 %
-\[ \run : \term{A} \to \Tsb (\val{A}). \]
+$\run : \term{A} \to \Tsb (\val{A}).$
 %
 Observe that the output of running a term is a monadic value. The monad accounts
 for all possible effects that may occur as the term is being run: operations in
@@ -1736,7 +1710,7 @@ We now define the action of $\Sigma$ on morphisms of predomains, as follows.
 Given a function $f : X \to Y$, we define $\Sigma(f) : \Sigma(X) \to \Sigma(Y)$
 by
 %
-\[ \Sigma(f)(\oper, (u, g)) = (\oper, (u', g')), \]
+$\Sigma(f)(\oper, (u, g)) = (\oper, (u', g')),$
 %
 where $u' : \tau_\oper \to Y$ is defined by $u' = f \circ u$ and $g' :
 \gamma_\oper \to \later Y$ is defined using the functorial action of $\later$ by
@@ -2570,7 +2544,7 @@ concretely, recall the notion of theory transformer from Section
 \ref{sec:guarded-algebraic-theories}. As discussed in that section, certain
 theory transformers induce corresponding monad transformers taking the
 free-model monad for a guarded algebraic theory $\calA$ to the free-model monad
-for the transformed theory (see Table \ref{tab:theory-and-monad-transformers}
+for the transformed theory (see Section \ref{sec:monad-transformers-background}
 for specific results).
 
 This theory-transformer correspondence extends to act on all the data of a
